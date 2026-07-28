@@ -73,6 +73,23 @@ in `examples/LightNYCSubway/lighttool.toml`. Set it back to `com.lightos` before
 build. The SDK [system-app guide](docs/system_app/README.md) covers the one-time emulator
 setup.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/starred.png" width="260" alt="Starred stations with live uptown and downtown arrivals"><br>
+      <sub>Starred stations, live arrivals</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/stations.png" width="260" alt="Station browser filtered by borough"><br>
+      <sub>Browse by borough</sub>
+    </td>
+  </tr>
+</table>
+
+Taken on a Light Phone III against the live MTA feeds.
+
 ## Origin and credits
 
 - **[lightphone/light-sdk](https://github.com/lightphone/light-sdk)** is the base of
@@ -94,7 +111,7 @@ Actions workflow build the APK. [LightRSS](https://github.com/gi-os/LightRSS) an
 
 ## The gi-os Light App collection
 
-Eight tools for the Light Phone III, all open source, all built in one run.
+Nine tools for the Light Phone III, all open source, all built in one run.
 
 | Tool | What it does | Built on |
 | --- | --- | --- |
@@ -106,6 +123,7 @@ Eight tools for the Light Phone III, all open source, all built in one run.
 | [LightFog](https://github.com/gi-os/LightFog) | Fog of World companion, GPS recorder and fog map | Fork of [garado/light-topographic](https://github.com/garado/light-topographic) |
 | [LightNonogram](https://github.com/gi-os/LightNonogram) | Picross, plus a generator that only ships solvable puzzles | Kotlin generator, light-sdk tool |
 | [LightSolitaire](https://github.com/gi-os/LightSolitaire) | Klondike, draw one, unlimited redeals | light-sdk |
+| [LightFastread](https://github.com/gi-os/LightFastread) | RSVP speed reader for EPUB and MOBI | Fork of [fluffyspace/FastRead](https://github.com/fluffyspace/FastRead) |
 
 The Light Phone does not sponsor or endorse any of these.
 
