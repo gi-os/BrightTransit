@@ -197,11 +197,13 @@ class StationScreen(
                                     label = "Uptown",
                                     arrivals = state.north,
                                     nowSeconds = state.nowSeconds,
+                                    favoriteRoutes = state.favoriteRoutes,
                                 )
                                 DirectionSection(
                                     label = "Downtown",
                                     arrivals = state.south,
                                     nowSeconds = state.nowSeconds,
+                                    favoriteRoutes = state.favoriteRoutes,
                                 )
                             }
                         }
@@ -226,7 +228,12 @@ class StationScreen(
 }
 
 @Composable
-private fun DirectionSection(label: String, arrivals: List<Arrival>, nowSeconds: Long) {
+private fun DirectionSection(
+    label: String,
+    arrivals: List<Arrival>,
+    nowSeconds: Long,
+    favoriteRoutes: Set<String>,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -241,19 +248,14 @@ private fun DirectionSection(label: String, arrivals: List<Arrival>, nowSeconds:
             LightText(text = "No trains", variant = LightTextVariant.Detail, lighten = true)
         } else {
             arrivals.forEach { arrival ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                ArrivalRowLine(
+                    route = arrival.route,
+                    minutesText = minutesLabel(arrival.minutesFrom(nowSeconds)),
+                    favorite = arrival.route in favoriteRoutes,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 0.25f.gridUnitsAsDp()),
-                ) {
-                    RouteBadge(arrival.route)
-                    Spacer(Modifier.weight(1f))
-                    LightText(
-                        text = minutesLabel(arrival.minutesFrom(nowSeconds)),
-                        variant = LightTextVariant.Copy,
-                    )
-                }
+                )
             }
         }
     }

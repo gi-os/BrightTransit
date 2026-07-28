@@ -58,10 +58,14 @@ data class HomeUiState(
     val nowSeconds: Long = System.currentTimeMillis() / 1000,
 )
 
+data class LocalItem(val station: Station, val meters: Double?)
+
 data class LocalUiState(
-    val boro: String = "M",
     val loading: Boolean = true,
-    val stations: List<Station> = emptyList(),
+    val located: Boolean = false,   // true when showing IP-nearest results
+    val city: String = "",
+    val boro: String? = null,       // set when browsing a borough manually
+    val items: List<LocalItem> = emptyList(),
     val favoriteRoutes: Set<String> = emptySet(),
 )
 
@@ -116,14 +120,34 @@ class HomeViewModel(
         }
     }
 
-    /** Browse stations by borough (no location access is available on the SDK). */
-    fun loadLocal(boro: String = _local.value.boro) {
+    /** Show stations nearest to the device's IP-approximated location. */
+    fun loadNearby() {
         viewModelScope.launch(Dispatchers.Default) {
-            _local.value = _local.value.copy(boro = boro, loading = true)
+            _local.value = _local.value.copy(loading = true)
             val store = store()
             val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
-            val list = store.all.filter { it.boro == boro }.sortedBy { it.name }
-            _local.value = LocalUiState(boro = boro, loading = false, stations = list, favoriteRoutes = favs)
+            val geo = runCatching { repo.ipLocation() }.getOrNull()
+            val la = geo?.latitude
+            val lo = geo?.longitude
+            if (la != null && lo != null) {
+                val items = store.nearest(la, lo).map { LocalItem(it, it.distanceMetersTo(la, lo)) }
+                _local.value = LocalUiState(false, true, geo.city, null, items, favs)
+            } else {
+                // Couldn't locate — fall back to browsing Manhattan.
+                val list = store.all.filter { it.boro == "M" }.sortedBy { it.name }.map { LocalItem(it, null) }
+                _local.value = LocalUiState(false, false, "", "M", list, favs)
+            }
+        }
+    }
+
+    /** Manually browse a borough. */
+    fun loadBorough(code: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _local.value = _local.value.copy(loading = true)
+            val store = store()
+            val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
+            val list = store.all.filter { it.boro == code }.sortedBy { it.name }.map { LocalItem(it, null) }
+            _local.value = LocalUiState(false, false, "", code, list, favs)
         }
     }
 
@@ -154,7 +178,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         var tab by remember { mutableStateOf(HomeTab.STARRED) }
 
         LaunchedEffect(tab) {
-            if (tab == HomeTab.LOCAL && local.stations.isEmpty()) viewModel.loadLocal()
+            if (tab == HomeTab.LOCAL && local.items.isEmpty()) viewModel.loadNearby()
         }
 
         LightTheme(colors = themeColors) {
@@ -192,7 +216,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                         }
                         HomeTab.LOCAL -> LocalContent(
                             local = local,
-                            onBoro = { viewModel.loadLocal(it) },
+                            onNear = { viewModel.loadNearby() },
+                            onBoro = { viewModel.loadBorough(it) },
                             onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
                         )
                     }
@@ -208,8 +233,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                             )
                         } else {
                             LightBarButton.Text(
-                                text = if (local.loading) "Loading…" else "Refresh",
-                                onClick = { if (!local.loading) viewModel.loadLocal() },
+                                text = if (local.loading) "Locating…" else "Refresh",
+                                onClick = { if (!local.loading) viewModel.loadNearby() },
                             )
                         },
                     ),
@@ -284,36 +309,60 @@ private fun StarredContent(state: HomeUiState, onOpen: (String) -> Unit) {
 @Composable
 private fun LocalContent(
     local: LocalUiState,
+    onNear: () -> Unit,
     onBoro: (String) -> Unit,
     onOpen: (String) -> Unit,
 ) {
-    // borough selector
-    Row(modifier = Modifier.padding(bottom = 0.75f.gridUnitsAsDp())) {
+    // "Near me" + borough selector
+    Row(modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp())) {
+        val nearSelected = local.located
+        LightText(
+            text = "Near me",
+            variant = if (nearSelected) LightTextVariant.Copy else LightTextVariant.Detail,
+            lighten = !nearSelected,
+            modifier = Modifier.padding(end = 12.dp).lightClickable(onClick = onNear),
+        )
         BOROUGHS.forEach { (code, label) ->
+            val sel = code == local.boro
             LightText(
                 text = label,
-                variant = if (code == local.boro) LightTextVariant.Copy else LightTextVariant.Detail,
-                lighten = code != local.boro,
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .lightClickable(onClick = { onBoro(code) }),
+                variant = if (sel) LightTextVariant.Copy else LightTextVariant.Detail,
+                lighten = !sel,
+                modifier = Modifier.padding(end = 12.dp).lightClickable(onClick = { onBoro(code) }),
             )
         }
     }
+    if (local.located && local.city.isNotBlank()) {
+        LightText(
+            text = "Near ${local.city} · approximate",
+            variant = LightTextVariant.Detail,
+            lighten = true,
+            modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
+        )
+    }
     when {
-        local.loading -> LightText(text = "Loading…", variant = LightTextVariant.Copy, lighten = true)
-        local.stations.isEmpty() ->
+        local.loading -> LightText(text = "Finding stations near you…", variant = LightTextVariant.Copy, lighten = true)
+        local.items.isEmpty() ->
             LightText(text = "No stations found.", variant = LightTextVariant.Copy, lighten = true)
-        else -> local.stations.forEach { station ->
+        else -> local.items.forEach { item ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .lightClickable(onClick = { onOpen(station.id) })
+                    .lightClickable(onClick = { onOpen(item.station.id) })
                     .padding(bottom = 0.75f.gridUnitsAsDp()),
             ) {
-                LightText(text = station.name, variant = LightTextVariant.Copy)
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    LightText(
+                        text = item.station.name,
+                        variant = LightTextVariant.Copy,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (item.meters != null) {
+                        LightText(text = distanceLabel(item.meters), variant = LightTextVariant.Detail, lighten = true)
+                    }
+                }
                 RouteBadgeRow(
-                    routes = station.routes,
+                    routes = item.station.routes,
                     favorites = local.favoriteRoutes,
                     modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
                 )
@@ -345,9 +394,9 @@ private fun StationBoardView(
             LightText(text = "Times unavailable", variant = LightTextVariant.Detail, lighten = true)
         } else {
             Row(modifier = Modifier.fillMaxWidth()) {
-                DirectionColumn("Uptown", board.north, nowSeconds, Modifier.weight(1f))
+                DirectionColumn("Uptown", board.north, nowSeconds, favoriteRoutes, Modifier.weight(1f))
                 Spacer(Modifier.width(16.dp))
-                DirectionColumn("Downtown", board.south, nowSeconds, Modifier.weight(1f))
+                DirectionColumn("Downtown", board.south, nowSeconds, favoriteRoutes, Modifier.weight(1f))
             }
         }
     }
@@ -358,6 +407,7 @@ private fun DirectionColumn(
     label: String,
     arrivals: List<Arrival>,
     nowSeconds: Long,
+    favoriteRoutes: Set<String>,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -370,17 +420,13 @@ private fun DirectionColumn(
             LightText(text = "—", variant = LightTextVariant.Detail, lighten = true)
         } else {
             arrivals.forEach { a ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                ArrivalRowLine(
+                    route = a.route,
+                    minutesText = minutesLabel(a.minutesFrom(nowSeconds)),
+                    favorite = a.route in favoriteRoutes,
+                    diameter = 20.dp,
                     modifier = Modifier.padding(vertical = 0.15f.gridUnitsAsDp()),
-                ) {
-                    RouteBadge(a.route, diameter = 20.dp)
-                    Spacer(Modifier.width(8.dp))
-                    LightText(
-                        text = minutesLabel(a.minutesFrom(nowSeconds)),
-                        variant = LightTextVariant.Copy,
-                    )
-                }
+                )
             }
         }
     }

@@ -104,8 +104,10 @@ fun RouteBadgeRow(
     favorites: Set<String> = emptySet(),
     onRouteClick: ((String) -> Unit)? = null,
 ) {
+    // Group favorited lines first so the starred bullets sit together and read easily.
+    val ordered = routes.sortedByDescending { it in favorites }
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        routes.forEach { route ->
+        ordered.forEach { route ->
             Row(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
@@ -139,25 +141,27 @@ fun distanceLabel(meters: Double): String {
 }
 
 /**
- * A single upcoming train: [direction arrow] [bullet] .......... [Xm].
+ * One arrival row: [bullet] [★ if favorite] ......... [Xm]. Favorited lines get a
+ * faint star next to their time so you can spot your trains at a glance.
  */
 @Composable
-fun ArrivalRow(arrival: Arrival, nowSeconds: Long) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 0.25f.gridUnitsAsDp()),
-    ) {
-        LightIcon(
-            icon = if (arrival.direction == Direction.NORTH) LightIcons.UP else LightIcons.DOWN,
-        )
-        Spacer(Modifier.width(12.dp))
-        RouteBadge(arrival.route)
+fun ArrivalRowLine(
+    route: String,
+    minutesText: String,
+    favorite: Boolean,
+    modifier: Modifier = Modifier,
+    diameter: Dp = 26.dp,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+        RouteBadge(route, diameter = diameter)
         Spacer(Modifier.weight(1f))
-        LightText(
-            text = minutesLabel(arrival.minutesFrom(nowSeconds)),
-            variant = LightTextVariant.Copy,
-        )
+        if (favorite) {
+            StarMark(
+                color = LightThemeTokens.colors.content.copy(alpha = 0.55f),
+                size = 12.dp,
+                modifier = Modifier.padding(end = 6.dp),
+            )
+        }
+        LightText(text = minutesText, variant = LightTextVariant.Copy)
     }
 }

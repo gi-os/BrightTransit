@@ -8,6 +8,16 @@ import io.ktor.client.request.header
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+/** Approximate location from IP geolocation (GPS APIs are blocked by the SDK). */
+@Serializable
+data class IpGeo(
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val city: String = "",
+)
 
 /**
  * Fetches and decodes MTA realtime feeds for a single station. The [HttpClient]
@@ -45,6 +55,18 @@ class ArrivalsRepository {
             .distinctBy { Triple(it.route, it.direction, it.epochSeconds) }
             .sortedBy { it.epochSeconds }
     }
+
+    /**
+     * Approximate device location via IP geolocation (ipapi.co). Returns null on
+     * failure. Not GPS-accurate — neighborhood level — but the SDK forbids the
+     * Android location APIs, so this is the only automatic option.
+     */
+    suspend fun ipLocation(): IpGeo? = runCatching {
+        val body: String = client().get("https://ipapi.co/json/") {
+            header("Accept", "application/json")
+        }.body()
+        Json { ignoreUnknownKeys = true }.decodeFromString<IpGeo>(body)
+    }.getOrNull()?.takeIf { it.latitude != null && it.longitude != null }
 
     private suspend fun fetch(slug: String): List<GtfsRealtime.Raw> {
         // Pass the already-encoded URL string so the %2F survives to the server.
