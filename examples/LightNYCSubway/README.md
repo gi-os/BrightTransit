@@ -1,4 +1,6 @@
-# Subway — a Light Phone III tool
+# LightNYCSubway — a Light Phone III tool
+
+> Shows up in LightOS as **Subway Times**. The repo/app/module is named **LightNYCSubway** to match the other Light apps.
 
 Real-time NYC subway arrivals for the Light Phone III, built on the
 [light-sdk](https://github.com/lightphone/light-sdk). Search the ~470 stations,
@@ -43,19 +45,19 @@ slash must be percent-encoded or every request 403s:
 
 ## Build & run
 
-1. Drop this folder into the SDK repo at `examples/nyc-subway`.
+1. Drop this folder into the SDK repo at `examples/LightNYCSubway`.
 2. Register it in the root `settings.gradle.kts`:
 
    ```kotlin
-   include(":examples:nyc-subway")
-   project(":examples:nyc-subway").projectDir = file("examples/nyc-subway")
+   include(":examples:LightNYCSubway")
+   project(":examples:LightNYCSubway").projectDir = file("examples/LightNYCSubway")
    ```
 
 3. Add your GitHub Packages token (`gpr.user` / `gpr.key` in `local.properties`)
    as the SDK README describes, then:
 
    ```
-   ./gradlew :examples:nyc-subway:assembleDebug
+   ./gradlew :examples:LightNYCSubway:assembleDebug
    ```
 
 4. Test in the **LightOS emulator** (1080×1240, API 34, no Google Play). To point

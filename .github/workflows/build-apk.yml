@@ -1,12 +1,12 @@
-name: Build & Release NYC Subway APK
+name: Build & Release LightNYCSubway APK
 
-# Auto-builds the nyc-subway tool and attaches a signed debug APK to a GitHub
+# Auto-builds the LightNYCSubway tool and attaches a signed debug APK to a GitHub
 # Release on every push to main (and on manual dispatch).
 on:
   push:
     branches: [main]
     paths:
-      - 'examples/nyc-subway/**'
+      - 'examples/LightNYCSubway/**'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
@@ -48,14 +48,14 @@ jobs:
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GH_PACKAGES_USER }}
           GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        run: ./gradlew :examples:nyc-subway:assembleDebug --stacktrace --no-daemon
+        run: ./gradlew :examples:LightNYCSubway:assembleDebug --stacktrace --no-daemon
 
       - name: Collect APK + version
         id: apk
         run: |
-          apk=$(find examples/nyc-subway/build/outputs/apk -name '*.apk' | head -n1)
-          ver=$(grep -E '^versionName' examples/nyc-subway/lighttool.toml | sed -E 's/.*"([^"]+)".*/\1/')
-          out="nyc-subway-v${ver}-build${{ github.run_number }}.apk"
+          apk=$(find examples/LightNYCSubway/build/outputs/apk -name '*.apk' | head -n1)
+          ver=$(grep -E '^versionName' examples/LightNYCSubway/lighttool.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          out="LightNYCSubway-v${ver}-build${{ github.run_number }}.apk"
           cp "$apk" "$out"
           echo "file=$out" >> "$GITHUB_OUTPUT"
           echo "version=$ver" >> "$GITHUB_OUTPUT"
@@ -65,7 +65,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.apk.outputs.version }}-build.${{ github.run_number }}
-          name: NYC Subway v${{ steps.apk.outputs.version }} (build ${{ github.run_number }})
+          name: LightNYCSubway v${{ steps.apk.outputs.version }} (build ${{ github.run_number }})
           body: |
             Automated build of the **nyc-subway** Light Phone III tool.
             Commit ${{ github.sha }}.

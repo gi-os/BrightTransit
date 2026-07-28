@@ -1,6 +1,6 @@
 [tool]
-id = "com.thelightphone.subway"
-label = "Subway"
+id = "com.thelightphone.lightnycsubway"
+label = "Subway Times"
 versionCode = 1
 versionName = "1.0.0"
 permissions = ["android.permission.INTERNET"]
