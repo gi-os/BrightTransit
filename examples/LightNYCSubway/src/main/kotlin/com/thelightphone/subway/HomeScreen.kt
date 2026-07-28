@@ -1,9 +1,5 @@
 package com.thelightphone.subway
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.LocationManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -31,7 +26,6 @@ import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
-import com.thelightphone.sdk.rememberPermissionRequestLauncher
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
@@ -50,8 +44,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-private const val LOCATION_PERMISSION = "android.permission.ACCESS_COARSE_LOCATION"
-
 data class StationBoard(
     val station: Station,
     val north: List<Arrival> = emptyList(),
@@ -66,13 +58,10 @@ data class HomeUiState(
     val nowSeconds: Long = System.currentTimeMillis() / 1000,
 )
 
-enum class NearbyStatus { IDLE, LOADING, NO_PERMISSION, UNAVAILABLE, LOADED }
-
-data class NearbyItem(val station: Station, val meters: Double)
-
-data class NearbyUiState(
-    val status: NearbyStatus = NearbyStatus.IDLE,
-    val items: List<NearbyItem> = emptyList(),
+data class LocalUiState(
+    val boro: String = "M",
+    val loading: Boolean = true,
+    val stations: List<Station> = emptyList(),
     val favoriteRoutes: Set<String> = emptySet(),
 )
 
@@ -92,8 +81,8 @@ class HomeViewModel(
     private val _state = MutableStateFlow(HomeUiState())
     val state: StateFlow<HomeUiState> = _state
 
-    private val _nearby = MutableStateFlow(NearbyUiState())
-    val nearby: StateFlow<NearbyUiState> = _nearby
+    private val _local = MutableStateFlow(LocalUiState())
+    val local: StateFlow<LocalUiState> = _local
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
@@ -127,17 +116,14 @@ class HomeViewModel(
         }
     }
 
-    fun setNearbyStatus(status: NearbyStatus) {
-        _nearby.value = _nearby.value.copy(status = status)
-    }
-
-    fun loadNearby(lat: Double, lon: Double) {
+    /** Browse stations by borough (no location access is available on the SDK). */
+    fun loadLocal(boro: String = _local.value.boro) {
         viewModelScope.launch(Dispatchers.Default) {
-            _nearby.value = _nearby.value.copy(status = NearbyStatus.LOADING)
+            _local.value = _local.value.copy(boro = boro, loading = true)
             val store = store()
             val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
-            val items = store.nearest(lat, lon).map { NearbyItem(it, it.distanceMetersTo(lat, lon)) }
-            _nearby.value = NearbyUiState(NearbyStatus.LOADED, items, favs)
+            val list = store.all.filter { it.boro == boro }.sortedBy { it.name }
+            _local.value = LocalUiState(boro = boro, loading = false, stations = list, favoriteRoutes = favs)
         }
     }
 
@@ -161,29 +147,14 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
     @Composable
     override fun Content() {
         val state by viewModel.state.collectAsState()
-        val nearby by viewModel.nearby.collectAsState()
+        val local by viewModel.local.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
         val lastCrash = remember { CrashReporter.lastCrash() }
         var showCrash by remember { mutableStateOf(lastCrash != null) }
         var tab by remember { mutableStateOf(HomeTab.STARRED) }
 
-        val context = LocalContext.current
-        val locationLauncher = rememberPermissionRequestLauncher(LOCATION_PERMISSION)
-
-        val tryNearby: () -> Unit = tryNearby@{
-            if (context.checkSelfPermission(LOCATION_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
-                viewModel.setNearbyStatus(NearbyStatus.LOADING)
-                fetchLocation(context) { lat, lon ->
-                    if (lat != null && lon != null) viewModel.loadNearby(lat, lon)
-                    else viewModel.setNearbyStatus(NearbyStatus.UNAVAILABLE)
-                }
-            } else {
-                viewModel.setNearbyStatus(NearbyStatus.NO_PERMISSION)
-            }
-        }
-
         LaunchedEffect(tab) {
-            if (tab == HomeTab.LOCAL && nearby.status == NearbyStatus.IDLE) tryNearby()
+            if (tab == HomeTab.LOCAL && local.stations.isEmpty()) viewModel.loadLocal()
         }
 
         LightTheme(colors = themeColors) {
@@ -219,21 +190,17 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                         HomeTab.STARRED -> StarredContent(state) { id ->
                             navigateTo({ sealed -> StationScreen(sealed, id) })
                         }
-                        HomeTab.LOCAL -> NearbyContent(
-                            nearby = nearby,
+                        HomeTab.LOCAL -> LocalContent(
+                            local = local,
+                            onBoro = { viewModel.loadLocal(it) },
                             onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
-                            onEnableLocation = { locationLauncher?.launch(); tryNearby() },
-                            onRetry = tryNearby,
                         )
                     }
                 }
 
                 LightBottomBar(
                     items = listOf(
-                        LightBarButton.Text(
-                            text = "Search",
-                            onClick = { navigateTo(::SearchScreen) },
-                        ),
+                        LightBarButton.Text(text = "Search", onClick = { navigateTo(::SearchScreen) }),
                         if (tab == HomeTab.STARRED) {
                             LightBarButton.Text(
                                 text = if (state.loading) "Refreshing…" else "Refresh",
@@ -241,8 +208,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                             )
                         } else {
                             LightBarButton.Text(
-                                text = if (nearby.status == NearbyStatus.LOADING) "Locating…" else "Refresh",
-                                onClick = { if (nearby.status != NearbyStatus.LOADING) tryNearby() },
+                                text = if (local.loading) "Loading…" else "Refresh",
+                                onClick = { if (!local.loading) viewModel.loadLocal() },
                             )
                         },
                     ),
@@ -253,6 +220,14 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
 }
 
 private enum class HomeTab { STARRED, LOCAL }
+
+private val BOROUGHS = listOf(
+    "M" to "Manhattan",
+    "Bk" to "Brooklyn",
+    "Q" to "Queens",
+    "Bx" to "Bronx",
+    "SI" to "Staten Is",
+)
 
 @Composable
 private fun TabRow(selected: HomeTab, onSelect: (HomeTab) -> Unit) {
@@ -307,62 +282,39 @@ private fun StarredContent(state: HomeUiState, onOpen: (String) -> Unit) {
 }
 
 @Composable
-private fun NearbyContent(
-    nearby: NearbyUiState,
+private fun LocalContent(
+    local: LocalUiState,
+    onBoro: (String) -> Unit,
     onOpen: (String) -> Unit,
-    onEnableLocation: () -> Unit,
-    onRetry: () -> Unit,
 ) {
-    when (nearby.status) {
-        NearbyStatus.LOADING, NearbyStatus.IDLE ->
-            LightText(text = "Finding stations near you…", variant = LightTextVariant.Copy, lighten = true)
-
-        NearbyStatus.NO_PERMISSION -> Column {
+    // borough selector
+    Row(modifier = Modifier.padding(bottom = 0.75f.gridUnitsAsDp())) {
+        BOROUGHS.forEach { (code, label) ->
             LightText(
-                text = "Location is off. Turn it on to see the stops closest to you.",
-                variant = LightTextVariant.Copy,
-                lighten = true,
-                modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
-            )
-            LightText(
-                text = "Enable location",
-                variant = LightTextVariant.Heading,
-                modifier = Modifier.lightClickable(onClick = onEnableLocation),
+                text = label,
+                variant = if (code == local.boro) LightTextVariant.Copy else LightTextVariant.Detail,
+                lighten = code != local.boro,
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .lightClickable(onClick = { onBoro(code) }),
             )
         }
-
-        NearbyStatus.UNAVAILABLE -> Column {
-            LightText(
-                text = "Couldn't get your location. Try again in a moment.",
-                variant = LightTextVariant.Copy,
-                lighten = true,
-                modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
-            )
-            LightText(
-                text = "Try again",
-                variant = LightTextVariant.Heading,
-                modifier = Modifier.lightClickable(onClick = onRetry),
-            )
-        }
-
-        NearbyStatus.LOADED -> nearby.items.forEach { item ->
+    }
+    when {
+        local.loading -> LightText(text = "Loading…", variant = LightTextVariant.Copy, lighten = true)
+        local.stations.isEmpty() ->
+            LightText(text = "No stations found.", variant = LightTextVariant.Copy, lighten = true)
+        else -> local.stations.forEach { station ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .lightClickable(onClick = { onOpen(item.station.id) })
-                    .padding(bottom = 1f.gridUnitsAsDp()),
+                    .lightClickable(onClick = { onOpen(station.id) })
+                    .padding(bottom = 0.75f.gridUnitsAsDp()),
             ) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    LightText(
-                        text = item.station.name,
-                        variant = LightTextVariant.Heading,
-                        modifier = Modifier.weight(1f),
-                    )
-                    LightText(text = distanceLabel(item.meters), variant = LightTextVariant.Detail, lighten = true)
-                }
+                LightText(text = station.name, variant = LightTextVariant.Copy)
                 RouteBadgeRow(
-                    routes = item.station.routes,
-                    favorites = nearby.favoriteRoutes,
+                    routes = station.routes,
+                    favorites = local.favoriteRoutes,
                     modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
                 )
             }
@@ -457,29 +409,5 @@ private fun CrashReportView(trace: String, onDismiss: () -> Unit) {
         LightBottomBar(
             items = listOf(LightBarButton.Text(text = "Dismiss", onClick = onDismiss)),
         )
-    }
-}
-
-/** Best-effort current location via LocationManager; calls back with null on failure. */
-@SuppressLint("MissingPermission")
-private fun fetchLocation(context: Context, onResult: (Double?, Double?) -> Unit) {
-    val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-        ?: return onResult(null, null)
-    val provider = when {
-        lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
-        lm.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
-        else -> LocationManager.FUSED_PROVIDER
-    }
-    try {
-        val last = lm.getLastKnownLocation(provider)
-        if (last != null) {
-            onResult(last.latitude, last.longitude)
-            return
-        }
-        lm.getCurrentLocation(provider, null, context.mainExecutor) { loc ->
-            onResult(loc?.latitude, loc?.longitude)
-        }
-    } catch (e: Exception) {
-        onResult(null, null)
     }
 }
