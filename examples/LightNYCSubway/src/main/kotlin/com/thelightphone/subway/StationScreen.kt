@@ -41,6 +41,7 @@ data class StationUiState(
     val loading: Boolean = true,
     val failed: Boolean = false,
     val starred: Boolean = false,
+    val favoriteRoutes: Set<String> = emptySet(),
     val north: List<Arrival> = emptyList(),
     val south: List<Arrival> = emptyList(),
     val nowSeconds: Long = System.currentTimeMillis() / 1000,
@@ -75,8 +76,11 @@ class StationViewModel(
                 _state.value = StationUiState(station = null, loading = false, failed = true)
                 return@launch
             }
-            _state.value = _state.value.copy(station = station, loading = true)
             val starred = runCatching { s.isStarred(stationId) }.getOrDefault(false)
+            val favs = runCatching { s.favoriteRoutes() }.getOrDefault(emptySet())
+            _state.value = _state.value.copy(
+                station = station, loading = true, starred = starred, favoriteRoutes = favs,
+            )
             val now = System.currentTimeMillis() / 1000
             runCatching { repo.arrivalsFor(station, now) }.fold(
                 onSuccess = { arrivals ->
@@ -84,6 +88,7 @@ class StationViewModel(
                         station = station,
                         loading = false,
                         starred = starred,
+                        favoriteRoutes = favs,
                         north = arrivals.filter { it.direction == Direction.NORTH }.take(6),
                         south = arrivals.filter { it.direction == Direction.SOUTH }.take(6),
                         nowSeconds = now,
@@ -91,7 +96,8 @@ class StationViewModel(
                 },
                 onFailure = {
                     _state.value = StationUiState(
-                        station = station, loading = false, failed = true, starred = starred,
+                        station = station, loading = false, failed = true,
+                        starred = starred, favoriteRoutes = favs,
                     )
                 },
             )
@@ -103,6 +109,15 @@ class StationViewModel(
             runCatching {
                 store().toggleStar(stationId)
                 _state.value = _state.value.copy(starred = store().isStarred(stationId))
+            }
+        }
+    }
+
+    fun toggleFavoriteRoute(route: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            runCatching {
+                store().toggleFavoriteRoute(route)
+                _state.value = _state.value.copy(favoriteRoutes = store().favoriteRoutes())
             }
         }
     }
@@ -159,13 +174,15 @@ class StationScreen(
                     } else {
                         RouteBadgeRow(
                             routes = station.routes,
+                            favorites = state.favoriteRoutes,
+                            onRouteClick = { viewModel.toggleFavoriteRoute(it) },
                             modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
                         )
                         LightText(
-                            text = station.boroLabel,
+                            text = station.boroLabel + "  ·  tap a line to favorite",
                             variant = LightTextVariant.Detail,
                             lighten = true,
-                            modifier = Modifier.padding(bottom = 0.75f.gridUnitsAsDp()),
+                            modifier = Modifier.padding(top = 0.15f.gridUnitsAsDp(), bottom = 0.75f.gridUnitsAsDp()),
                         )
                         when {
                             state.loading ->

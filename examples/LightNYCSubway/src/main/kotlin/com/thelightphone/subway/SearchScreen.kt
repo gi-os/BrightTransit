@@ -45,13 +45,16 @@ class SearchViewModel(
     val query: StateFlow<String> = _query
     private val _results = MutableStateFlow<List<Station>>(emptyList())
     val results: StateFlow<List<Station>> = _results
+    private val _favorites = MutableStateFlow<Set<String>>(emptySet())
+    val favorites: StateFlow<Set<String>> = _favorites
 
     init {
         // Warm the catalog off the main thread so the first keystroke is instant.
         viewModelScope.launch(Dispatchers.Default) {
-            store = StationStore(dataStore, StationCatalog.load(readAsset))
+            val s = StationStore(dataStore, StationCatalog.load(readAsset)).also { store = it }
+            _favorites.value = runCatching { s.favoriteRoutes() }.getOrDefault(emptySet())
             if (_query.value.isNotBlank()) {
-                _results.value = store?.search(_query.value).orEmpty()
+                _results.value = s.search(_query.value)
             }
         }
     }
@@ -89,6 +92,7 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
     override fun Content() {
         val query by viewModel.query.collectAsState()
         val results by viewModel.results.collectAsState()
+        val favorites by viewModel.favorites.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
 
         LightTheme(colors = themeColors) {
@@ -145,6 +149,7 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
                                 LightText(text = station.name, variant = LightTextVariant.Copy)
                                 RouteBadgeRow(
                                     routes = station.routes,
+                                    favorites = favorites,
                                     modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
                                 )
                                 LightText(

@@ -52,7 +52,32 @@ class StationStore(
         }
     }
 
+    // ---- favorite lines (routes) ----
+
+    suspend fun favoriteRoutes(): Set<String> {
+        val raw = dataStore.data.first()[FAVORITE_ROUTES] ?: return emptySet()
+        return raw.split("|").filter { it.isNotBlank() }.toSet()
+    }
+
+    suspend fun toggleFavoriteRoute(route: String) {
+        dataStore.edit { prefs ->
+            val current = prefs[FAVORITE_ROUTES]?.split("|")?.filter { it.isNotBlank() }?.toMutableSet()
+                ?: mutableSetOf()
+            if (!current.remove(route)) current.add(route)
+            prefs[FAVORITE_ROUTES] = current.joinToString("|")
+        }
+    }
+
+    /** Stations nearest to a point, closest first. */
+    fun nearest(lat: Double, lon: Double, limit: Int = 15): List<Station> =
+        all.asSequence()
+            .filter { it.lat != 0.0 || it.lon != 0.0 }
+            .sortedBy { it.distanceMetersTo(lat, lon) }
+            .take(limit)
+            .toList()
+
     private companion object {
         val STARRED = stringPreferencesKey("starred_station_ids")
+        val FAVORITE_ROUTES = stringPreferencesKey("favorite_routes")
     }
 }

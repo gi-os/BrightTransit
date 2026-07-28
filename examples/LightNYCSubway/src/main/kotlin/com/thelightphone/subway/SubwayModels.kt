@@ -18,9 +18,21 @@ data class Station(
     val boro: String = "",
     val routes: List<String> = emptyList(),
     val stops: List<String> = emptyList(),
+    val lat: Double = 0.0,
+    val lon: Double = 0.0,
     val nl: String = "",   // north direction label ("Uptown & The Bronx")
     val sl: String = "",   // south direction label ("Downtown & Brooklyn")
 ) {
+    /** Great-circle distance to a point, in meters (haversine). */
+    fun distanceMetersTo(lat2: Double, lon2: Double): Double {
+        val r = 6_371_000.0
+        val dLat = Math.toRadians(lat2 - lat)
+        val dLon = Math.toRadians(lon2 - lon)
+        val a = Math.sin(dLat / 2).let { it * it } +
+            Math.cos(Math.toRadians(lat)) * Math.cos(Math.toRadians(lat2)) *
+            Math.sin(dLon / 2).let { it * it }
+        return 2 * r * Math.asin(Math.min(1.0, Math.sqrt(a)))
+    }
     val boroLabel: String
         get() = when (boro) {
             "M" -> "Manhattan"

@@ -1,5 +1,6 @@
 package com.thelightphone.subway
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +30,7 @@ import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.gridUnitsAsDp
+import com.thelightphone.sdk.ui.lightClickable
 
 /** Diamond used for express routes (e.g. 6X, 7X), mirroring the MTA bullets. */
 private val DiamondShape = GenericShape { size, _ ->
@@ -37,11 +41,31 @@ private val DiamondShape = GenericShape { size, _ ->
     close()
 }
 
+/** A small filled 5-point star, drawn (not a glyph) so it renders on any font. */
+@Composable
+fun StarMark(color: Color, size: Dp, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.size(size)) {
+        val cx = this.size.width / 2f
+        val cy = this.size.height / 2f
+        val outer = this.size.minDimension / 2f
+        val inner = outer * 0.45f
+        val path = Path()
+        for (i in 0 until 10) {
+            val r = if (i % 2 == 0) outer else inner
+            val angle = (-Math.PI / 2 + i * Math.PI / 5)
+            val x = cx + (r * Math.cos(angle)).toFloat()
+            val y = cy + (r * Math.sin(angle)).toFloat()
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+        path.close()
+        drawPath(path, color)
+    }
+}
+
 /**
  * An authentic subway "bullet": a filled circle (local) or diamond (express) with
- * the route glyph reversed out of it. Monochrome — the fill is the theme's content
- * color and the glyph is the background color, so it reads correctly on e-ink in
- * both light and dark themes.
+ * the route glyph reversed out of it. Monochrome — fill is the theme content color,
+ * glyph is the background color, so it reads on e-ink in light or dark themes.
  */
 @Composable
 fun RouteBadge(route: String, modifier: Modifier = Modifier, diameter: Dp = 30.dp) {
@@ -67,12 +91,36 @@ fun RouteBadge(route: String, modifier: Modifier = Modifier, diameter: Dp = 30.d
     }
 }
 
-/** A row of small bullets for listing the routes that serve a station. */
+/**
+ * A row of station-line bullets. Favorited routes get a faint star beside them.
+ * If [onRouteClick] is set, each bullet is tappable (used to toggle favorites on
+ * the station page).
+ */
 @Composable
-fun RouteBadgeRow(routes: List<String>, modifier: Modifier = Modifier, diameter: Dp = 22.dp) {
+fun RouteBadgeRow(
+    routes: List<String>,
+    modifier: Modifier = Modifier,
+    diameter: Dp = 22.dp,
+    favorites: Set<String> = emptySet(),
+    onRouteClick: ((String) -> Unit)? = null,
+) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         routes.forEach { route ->
-            RouteBadge(route, diameter = diameter, modifier = Modifier.padding(end = 6.dp))
+            Row(
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier
+                    .padding(end = 6.dp)
+                    .let { if (onRouteClick != null) it.lightClickable { onRouteClick(route) } else it },
+            ) {
+                RouteBadge(route, diameter = diameter)
+                if (route in favorites) {
+                    StarMark(
+                        color = LightThemeTokens.colors.content.copy(alpha = 0.55f),
+                        size = (diameter.value * 0.5f).dp,
+                        modifier = Modifier.padding(start = 1.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -81,6 +129,13 @@ fun minutesLabel(minutes: Int): String = when {
     minutes <= 0 -> "Now"
     minutes == 1 -> "1 min"
     else -> "$minutes min"
+}
+
+/** Human distance label, e.g. "0.3 mi" or "400 ft". */
+fun distanceLabel(meters: Double): String {
+    val feet = meters * 3.28084
+    return if (feet < 1000) "${(feet / 10).toInt() * 10} ft"
+    else "%.1f mi".format(meters / 1609.34)
 }
 
 /**
