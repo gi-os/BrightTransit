@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
@@ -46,7 +51,8 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val store: StationStore,
+    private val dataStore: DataStore<Preferences>,
+    private val readAsset: (String) -> ByteArray,
 ) : LightViewModel<Unit>() {
 
     private val repo = ArrivalsRepository()
@@ -59,8 +65,12 @@ class HomeViewModel(
     }
 
     fun refresh() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val starred = store.starredStations()
+        // All heavy work (catalog parse, network) happens off the main thread so
+        // the first frame renders immediately.
+        viewModelScope.launch(Dispatchers.Default) {
+            val stations = StationCatalog.load(readAsset)
+            val store = StationStore(dataStore, stations)
+            val starred = runCatching { store.starredStations() }.getOrDefault(emptyList())
             if (starred.isEmpty()) {
                 _state.value = HomeUiState(loading = false, boards = emptyList())
                 return@launch
@@ -68,11 +78,10 @@ class HomeViewModel(
             _state.value = _state.value.copy(loading = true)
             val now = System.currentTimeMillis() / 1000
             val boards = starred.map { station ->
-                runCatching { repo.arrivalsFor(station, now) }
-                    .fold(
-                        onSuccess = { StationBoard(station, it.take(5)) },
-                        onFailure = { StationBoard(station, failed = true) },
-                    )
+                runCatching { repo.arrivalsFor(station, now) }.fold(
+                    onSuccess = { StationBoard(station, it.take(5)) },
+                    onFailure = { StationBoard(station, failed = true) },
+                )
             }
             _state.value = HomeUiState(loading = false, boards = boards, nowSeconds = now)
         }
@@ -91,23 +100,33 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
     override val viewModelClass: Class<HomeViewModel> get() = HomeViewModel::class.java
 
     override fun createViewModel(): HomeViewModel {
-        val catalog = String(lightContext.readAsset("stations.json"), Charsets.UTF_8)
-        return HomeViewModel(StationStore(lightContext.dataStore, catalog))
+        CrashReporter.install(lightContext.filesDir)
+        return HomeViewModel(lightContext.dataStore, lightContext::readAsset)
     }
 
     @Composable
     override fun Content() {
         val state by viewModel.state.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
+        val lastCrash = remember { CrashReporter.lastCrash() }
+        var showCrash by remember { mutableStateOf(lastCrash != null) }
 
         LightTheme(colors = themeColors) {
+            if (showCrash && lastCrash != null) {
+                CrashReportView(lastCrash) {
+                    CrashReporter.clear()
+                    showCrash = false
+                }
+                return@LightTheme
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
             ) {
                 LightTopBar(
-                    center = LightTopBarCenter.Text("Subway"),
+                    center = LightTopBarCenter.Text("Subway Times"),
                     rightButton = LightBarButton.LightIcon(
                         icon = LightIcons.SEARCH,
                         onClick = { navigateTo(::SearchScreen) },
@@ -172,11 +191,9 @@ private fun StationBoardView(
             .padding(bottom = 1f.gridUnitsAsDp()),
     ) {
         LightText(text = board.station.name, variant = LightTextVariant.Heading)
-        LightText(
-            text = board.station.routes.joinToString(" "),
-            variant = LightTextVariant.Detail,
-            lighten = true,
-            modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+        RouteBadgeRow(
+            routes = board.station.routes,
+            modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp(), bottom = 0.5f.gridUnitsAsDp()),
         )
         when {
             board.failed ->
@@ -185,5 +202,33 @@ private fun StationBoardView(
                 LightText(text = "No trains scheduled", variant = LightTextVariant.Detail, lighten = true)
             else -> board.arrivals.forEach { ArrivalRow(it, nowSeconds) }
         }
+    }
+}
+
+/** Shows the last captured crash so it can be read/screenshotted off-device. */
+@Composable
+private fun CrashReportView(trace: String, onDismiss: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LightThemeTokens.colors.background),
+    ) {
+        LightTopBar(
+            center = LightTopBarCenter.Text("Last error"),
+            modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+        )
+        LightScrollView(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 1f.gridUnitsAsDp()),
+        ) {
+            LightText(text = trace, variant = LightTextVariant.Detail)
+        }
+        LightBottomBar(
+            items = listOf(
+                LightBarButton.Text(text = "Dismiss", onClick = onDismiss),
+            ),
+        )
     }
 }

@@ -5,21 +5,17 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.json.Json
 
 /**
- * Loads the bundled station catalog and persists the user's starred station ids.
+ * Station lookup/search + starred-id persistence.
  *
- * @param catalogJson raw contents of assets/stations.json (read once by the screen
- *                    via lightContext.readAsset and handed in).
+ * The catalog is parsed once by [StationCatalog] and handed in as [all]; this
+ * class does no JSON work, so it's cheap to construct on any thread.
  */
 class StationStore(
     private val dataStore: DataStore<Preferences>,
-    catalogJson: String,
+    val all: List<Station>,
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
-
-    val all: List<Station> = json.decodeFromString<StationsFile>(catalogJson).stations
     private val byId: Map<String, Station> = all.associateBy { it.id }
 
     fun station(id: String): Station? = byId[id]
@@ -30,8 +26,10 @@ class StationStore(
         if (q.isEmpty()) return emptyList()
         return all.asSequence()
             .filter { it.name.lowercase().contains(q) }
-            .sortedWith(compareByDescending<Station> { it.name.lowercase().startsWith(q) }
-                .thenBy { it.name })
+            .sortedWith(
+                compareByDescending<Station> { it.name.lowercase().startsWith(q) }
+                    .thenBy { it.name }
+            )
             .take(limit)
             .toList()
     }
@@ -41,8 +39,7 @@ class StationStore(
         return raw.split("|").filter { it.isNotBlank() }
     }
 
-    suspend fun starredStations(): List<Station> =
-        starredIds().mapNotNull { byId[it] }
+    suspend fun starredStations(): List<Station> = starredIds().mapNotNull { byId[it] }
 
     suspend fun isStarred(id: String): Boolean = starredIds().contains(id)
 

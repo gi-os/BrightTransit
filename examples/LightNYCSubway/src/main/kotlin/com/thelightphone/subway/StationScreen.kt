@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
@@ -47,13 +47,20 @@ data class StationUiState(
 )
 
 class StationViewModel(
-    private val store: StationStore,
+    private val dataStore: DataStore<Preferences>,
+    private val readAsset: (String) -> ByteArray,
     private val stationId: String,
 ) : LightViewModel<Unit>() {
 
     private val repo = ArrivalsRepository()
-    private val _state = MutableStateFlow(StationUiState(station = store.station(stationId)))
+    private val _state = MutableStateFlow(StationUiState())
     val state: StateFlow<StationUiState> = _state
+
+    @Volatile
+    private var store: StationStore? = null
+
+    private fun store(): StationStore =
+        store ?: StationStore(dataStore, StationCatalog.load(readAsset)).also { store = it }
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
@@ -61,10 +68,15 @@ class StationViewModel(
     }
 
     fun load() {
-        val station = store.station(stationId) ?: return
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.value = _state.value.copy(loading = true)
-            val starred = store.isStarred(stationId)
+        viewModelScope.launch(Dispatchers.Default) {
+            val s = store()
+            val station = s.station(stationId)
+            if (station == null) {
+                _state.value = StationUiState(station = null, loading = false, failed = true)
+                return@launch
+            }
+            _state.value = _state.value.copy(station = station, loading = true)
+            val starred = runCatching { s.isStarred(stationId) }.getOrDefault(false)
             val now = System.currentTimeMillis() / 1000
             runCatching { repo.arrivalsFor(station, now) }.fold(
                 onSuccess = { arrivals ->
@@ -87,9 +99,11 @@ class StationViewModel(
     }
 
     fun toggleStar() {
-        viewModelScope.launch(Dispatchers.IO) {
-            store.toggleStar(stationId)
-            _state.value = _state.value.copy(starred = store.isStarred(stationId))
+        viewModelScope.launch(Dispatchers.Default) {
+            runCatching {
+                store().toggleStar(stationId)
+                _state.value = _state.value.copy(starred = store().isStarred(stationId))
+            }
         }
     }
 
@@ -106,10 +120,8 @@ class StationScreen(
 
     override val viewModelClass: Class<StationViewModel> get() = StationViewModel::class.java
 
-    override fun createViewModel(): StationViewModel {
-        val catalog = String(lightContext.readAsset("stations.json"), Charsets.UTF_8)
-        return StationViewModel(StationStore(lightContext.dataStore, catalog), stationId)
-    }
+    override fun createViewModel(): StationViewModel =
+        StationViewModel(lightContext.dataStore, lightContext::readAsset, stationId)
 
     @Composable
     override fun Content() {
@@ -140,10 +152,17 @@ class StationScreen(
                         .padding(horizontal = 1f.gridUnitsAsDp()),
                 ) {
                     if (station == null) {
-                        LightText(text = "Unknown station.", variant = LightTextVariant.Copy)
-                    } else {
                         LightText(
-                            text = station.routes.joinToString(" ") + "   ·   " + station.boroLabel,
+                            text = if (state.loading) "Loading…" else "Unknown station.",
+                            variant = LightTextVariant.Copy,
+                        )
+                    } else {
+                        RouteBadgeRow(
+                            routes = station.routes,
+                            modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+                        )
+                        LightText(
+                            text = station.boroLabel,
                             variant = LightTextVariant.Detail,
                             lighten = true,
                             modifier = Modifier.padding(bottom = 0.75f.gridUnitsAsDp()),
@@ -191,9 +210,11 @@ class StationScreen(
 
 @Composable
 private fun DirectionSection(label: String, arrivals: List<Arrival>, nowSeconds: Long) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(bottom = 1f.gridUnitsAsDp())) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 1f.gridUnitsAsDp()),
+    ) {
         LightText(
             text = label,
             variant = LightTextVariant.Heading,

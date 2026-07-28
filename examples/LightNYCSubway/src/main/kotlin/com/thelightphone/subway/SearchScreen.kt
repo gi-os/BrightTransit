@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
@@ -25,18 +28,45 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class SearchViewModel(val store: StationStore) : LightViewModel<Unit>() {
+class SearchViewModel(
+    private val dataStore: DataStore<Preferences>,
+    private val readAsset: (String) -> ByteArray,
+) : LightViewModel<Unit>() {
+
+    @Volatile
+    private var store: StationStore? = null
+
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
     private val _results = MutableStateFlow<List<Station>>(emptyList())
     val results: StateFlow<List<Station>> = _results
 
+    init {
+        // Warm the catalog off the main thread so the first keystroke is instant.
+        viewModelScope.launch(Dispatchers.Default) {
+            store = StationStore(dataStore, StationCatalog.load(readAsset))
+            if (_query.value.isNotBlank()) {
+                _results.value = store?.search(_query.value).orEmpty()
+            }
+        }
+    }
+
     fun setQuery(q: String) {
         _query.value = q
-        _results.value = store.search(q)
+        val ready = store
+        if (ready != null) {
+            _results.value = ready.search(q)
+        } else {
+            viewModelScope.launch(Dispatchers.Default) {
+                val s = StationStore(dataStore, StationCatalog.load(readAsset)).also { store = it }
+                _results.value = s.search(q)
+            }
+        }
     }
 }
 
@@ -45,10 +75,8 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
 
     override val viewModelClass: Class<SearchViewModel> get() = SearchViewModel::class.java
 
-    override fun createViewModel(): SearchViewModel {
-        val catalog = String(lightContext.readAsset("stations.json"), Charsets.UTF_8)
-        return SearchViewModel(StationStore(lightContext.dataStore, catalog))
-    }
+    override fun createViewModel(): SearchViewModel =
+        SearchViewModel(lightContext.dataStore, lightContext::readAsset)
 
     private fun openKeyboard() {
         navigateTo<String?>(
@@ -115,9 +143,12 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
                                     .padding(bottom = 0.75f.gridUnitsAsDp()),
                             ) {
                                 LightText(text = station.name, variant = LightTextVariant.Copy)
+                                RouteBadgeRow(
+                                    routes = station.routes,
+                                    modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+                                )
                                 LightText(
-                                    text = station.routes.joinToString(" ") +
-                                        "   ·   " + station.boroLabel,
+                                    text = station.boroLabel,
                                     variant = LightTextVariant.Detail,
                                     lighten = true,
                                 )

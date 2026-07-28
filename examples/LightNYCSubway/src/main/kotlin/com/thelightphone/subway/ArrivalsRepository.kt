@@ -10,12 +10,14 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 /**
- * Fetches and decodes MTA realtime feeds, returning the upcoming arrivals for a
- * single station. Holds one [HttpClient]; remember to [close].
+ * Fetches and decodes MTA realtime feeds for a single station. The [HttpClient]
+ * is created lazily on first use (off the main thread) so it never slows startup.
  */
 class ArrivalsRepository {
 
-    private val client = HttpClient(OkHttp)
+    private var client: HttpClient? = null
+
+    private fun client(): HttpClient = client ?: HttpClient(OkHttp).also { client = it }
 
     /**
      * Query every feed that serves [station], decode it, and keep only the trains
@@ -42,11 +44,14 @@ class ArrivalsRepository {
 
     private suspend fun fetch(slug: String): List<GtfsRealtime.Raw> {
         // Pass the already-encoded URL string so the %2F survives to the server.
-        val bytes: ByteArray = client.get(MtaFeeds.url(slug)) {
+        val bytes: ByteArray = client().get(MtaFeeds.url(slug)) {
             header("Accept", "application/x-protobuf")
         }.body()
         return GtfsRealtime.parse(bytes)
     }
 
-    fun close() = client.close()
+    fun close() {
+        client?.close()
+        client = null
+    }
 }
