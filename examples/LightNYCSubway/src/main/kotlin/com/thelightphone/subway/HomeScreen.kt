@@ -410,15 +410,6 @@ private fun LocalContent(
                     modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
                 )
             }
-            if (local.source == "approximate") {
-                LightText(
-                    text = "Use precise location →",
-                    variant = LightTextVariant.Detail,
-                    modifier = Modifier
-                        .padding(bottom = 0.5f.gridUnitsAsDp())
-                        .lightClickable(onClick = onEnableLocation),
-                )
-            }
             if (local.items.isEmpty()) {
                 LightText(text = "No stations found.", variant = LightTextVariant.Copy, lighten = true)
             } else {
