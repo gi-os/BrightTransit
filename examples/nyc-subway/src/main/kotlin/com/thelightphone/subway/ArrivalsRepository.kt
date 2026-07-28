@@ -5,7 +5,6 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.http.URLProtocol
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -42,13 +41,8 @@ class ArrivalsRepository {
     }
 
     private suspend fun fetch(slug: String): List<GtfsRealtime.Raw> {
-        val bytes: ByteArray = client.get {
-            url {
-                protocol = URLProtocol.HTTPS
-                host = MtaFeeds.HOST
-                // Pre-encoded path; the %2F between "nyct" and the slug is required.
-                encodedPath = MtaFeeds.encodedPath(slug)
-            }
+        // Pass the already-encoded URL string so the %2F survives to the server.
+        val bytes: ByteArray = client.get(MtaFeeds.url(slug)) {
             header("Accept", "application/x-protobuf")
         }.body()
         return GtfsRealtime.parse(bytes)

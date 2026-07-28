@@ -54,10 +54,14 @@ data class Arrival(
  * See [ArrivalsRepository] for how the request is built.
  */
 object MtaFeeds {
-    const val HOST = "api-endpoint.mta.info"
-
-    /** Already-encoded request path for a feed slug (note the %2F). */
-    fun encodedPath(slug: String) = "/Dataservice/mtagtfsfeeds/nyct%2F$slug"
+    /**
+     * Full feed URL. The internal slash between "nyct" and the slug MUST stay
+     * percent-encoded (`%2F`) — the gateway treats it as one path parameter and
+     * 403s on a literal slash. Ktor preserves the `%2F` when given the encoded
+     * string directly.
+     */
+    fun url(slug: String) =
+        "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2F$slug"
 
     /** Which feed(s) carry a given daytime route. */
     fun feedsForRoute(route: String): List<String> = when (route.uppercase()) {
