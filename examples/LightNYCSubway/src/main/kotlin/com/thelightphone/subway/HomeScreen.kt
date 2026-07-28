@@ -217,12 +217,9 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
             }
         }
 
-        var askedLocation by remember { mutableStateOf(false) }
         LaunchedEffect(tab) {
-            if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) {
-                if (!askedLocation) { askedLocation = true; locationLauncher?.launch() }
-                locate()
-            }
+            // No permission popup on open — use GPS only if already granted, else IP.
+            if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) locate()
         }
 
         LightTheme(colors = themeColors) {
@@ -261,7 +258,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                         HomeTab.LOCAL -> LocalContent(
                             local = local,
                             onNear = locate,
-                            onEnableLocation = { locationLauncher?.launch() },
+                            onEnableLocation = { runCatching { locationLauncher?.launch() } },
                             onBoro = { viewModel.loadBorough(it) },
                             onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
                         )
