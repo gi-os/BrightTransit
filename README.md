@@ -13,10 +13,11 @@ Part of the [gi-os Light App collection](#the-gi-os-light-app-collection).
 - Draws the real route bullets, so a `6` reads as a `6` and not as a letter in a box.
 - Merges platforms by MTA Complex ID, so a transfer station appears once instead of four
   times.
-- Searches the whole system from a bundled catalog of about 500 stations, held in
+- Searches the whole system from a bundled catalog of 445 stations, held in
   `assets/stations.json`.
-- Stores the chosen station on the device. The tool asks for `INTERNET` and nothing
-  else.
+- Sorts the station list by distance under **Near me**, and filters it by borough.
+- Stores the chosen station on the device. The tool asks for `INTERNET`, and for coarse and
+  fine location so that **Near me** works. It asks for nothing else.
 
 ## How it stays fast
 
