@@ -1,5 +1,9 @@
 package com.thelightphone.subway
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.LocationManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,9 +18,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -26,6 +32,10 @@ import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
+import com.thelightphone.sdk.checkPermission
+import com.thelightphone.sdk.rememberPermissionRequestLauncher
+import com.thelightphone.sdk.shared.LightServiceMethod
+import com.thelightphone.sdk.shared.asKotlinResult
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
@@ -44,6 +54,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+private const val LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
+
 data class StationBoard(
     val station: Station,
     val north: List<Arrival> = emptyList(),
@@ -58,13 +70,16 @@ data class HomeUiState(
     val nowSeconds: Long = System.currentTimeMillis() / 1000,
 )
 
+enum class LocalStatus { IDLE, LOADING, NEED_PERMISSION, DONE }
+
 data class LocalItem(val station: Station, val meters: Double?)
 
 data class LocalUiState(
-    val loading: Boolean = true,
-    val located: Boolean = false,   // true when showing IP-nearest results
+    val status: LocalStatus = LocalStatus.IDLE,
+    val located: Boolean = false,
+    val source: String = "",     // "GPS" or "approximate"
     val city: String = "",
-    val boro: String? = null,       // set when browsing a borough manually
+    val boro: String? = null,    // set when browsing a borough manually
     val items: List<LocalItem> = emptyList(),
     val favoriteRoutes: Set<String> = emptySet(),
 )
@@ -120,10 +135,25 @@ class HomeViewModel(
         }
     }
 
-    /** Show stations nearest to the device's IP-approximated location. */
-    fun loadNearby() {
+    fun setLocalStatus(status: LocalStatus) {
+        _local.value = _local.value.copy(status = status)
+    }
+
+    /** Nearest stations from precise coordinates (GPS). */
+    fun onCoords(lat: Double, lon: Double, source: String) {
         viewModelScope.launch(Dispatchers.Default) {
-            _local.value = _local.value.copy(loading = true)
+            _local.value = _local.value.copy(status = LocalStatus.LOADING)
+            val store = store()
+            val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
+            val items = store.nearest(lat, lon).map { LocalItem(it, it.distanceMetersTo(lat, lon)) }
+            _local.value = LocalUiState(LocalStatus.DONE, true, source, "", null, items, favs)
+        }
+    }
+
+    /** Fallback: approximate location from IP, else browse Manhattan. */
+    fun loadViaIp() {
+        viewModelScope.launch(Dispatchers.Default) {
+            _local.value = _local.value.copy(status = LocalStatus.LOADING)
             val store = store()
             val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
             val geo = runCatching { repo.ipLocation() }.getOrNull()
@@ -131,23 +161,21 @@ class HomeViewModel(
             val lo = geo?.longitude
             if (la != null && lo != null) {
                 val items = store.nearest(la, lo).map { LocalItem(it, it.distanceMetersTo(la, lo)) }
-                _local.value = LocalUiState(false, true, geo.city, null, items, favs)
+                _local.value = LocalUiState(LocalStatus.DONE, true, "approximate", geo.city, null, items, favs)
             } else {
-                // Couldn't locate — fall back to browsing Manhattan.
                 val list = store.all.filter { it.boro == "M" }.sortedBy { it.name }.map { LocalItem(it, null) }
-                _local.value = LocalUiState(false, false, "", "M", list, favs)
+                _local.value = LocalUiState(LocalStatus.DONE, false, "", "", "M", list, favs)
             }
         }
     }
 
-    /** Manually browse a borough. */
     fun loadBorough(code: String) {
         viewModelScope.launch(Dispatchers.Default) {
-            _local.value = _local.value.copy(loading = true)
+            _local.value = _local.value.copy(status = LocalStatus.LOADING)
             val store = store()
             val favs = runCatching { store.favoriteRoutes() }.getOrDefault(emptySet())
             val list = store.all.filter { it.boro == code }.sortedBy { it.name }.map { LocalItem(it, null) }
-            _local.value = LocalUiState(false, false, "", code, list, favs)
+            _local.value = LocalUiState(LocalStatus.DONE, false, "", "", code, list, favs)
         }
     }
 
@@ -177,8 +205,28 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         var showCrash by remember { mutableStateOf(lastCrash != null) }
         var tab by remember { mutableStateOf(HomeTab.STARRED) }
 
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val locationLauncher = rememberPermissionRequestLauncher(LOCATION_PERMISSION)
+
+        val locate: () -> Unit = {
+            scope.launch {
+                viewModel.setLocalStatus(LocalStatus.LOADING)
+                val granted = checkPermission(LOCATION_PERMISSION).asKotlinResult
+                    .map { it.permissionResult == LightServiceMethod.GetPermission.Result.Granted }
+                    .getOrDefault(false)
+                if (!granted) {
+                    viewModel.setLocalStatus(LocalStatus.NEED_PERMISSION)
+                } else {
+                    val gps = lastKnownLocation(context)
+                    if (gps != null) viewModel.onCoords(gps.first, gps.second, "GPS")
+                    else viewModel.loadViaIp()
+                }
+            }
+        }
+
         LaunchedEffect(tab) {
-            if (tab == HomeTab.LOCAL && local.items.isEmpty()) viewModel.loadNearby()
+            if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) locate()
         }
 
         LightTheme(colors = themeColors) {
@@ -216,7 +264,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                         }
                         HomeTab.LOCAL -> LocalContent(
                             local = local,
-                            onNear = { viewModel.loadNearby() },
+                            onNear = locate,
+                            onEnableLocation = { locationLauncher?.launch() },
                             onBoro = { viewModel.loadBorough(it) },
                             onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
                         )
@@ -233,8 +282,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                             )
                         } else {
                             LightBarButton.Text(
-                                text = if (local.loading) "Locating…" else "Refresh",
-                                onClick = { if (!local.loading) viewModel.loadNearby() },
+                                text = if (local.status == LocalStatus.LOADING) "Locating…" else "Refresh",
+                                onClick = { if (local.status != LocalStatus.LOADING) locate() },
                             )
                         },
                     ),
@@ -247,11 +296,11 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
 private enum class HomeTab { STARRED, LOCAL }
 
 private val BOROUGHS = listOf(
-    "M" to "Manhattan",
-    "Bk" to "Brooklyn",
-    "Q" to "Queens",
-    "Bx" to "Bronx",
-    "SI" to "Staten Is",
+    "M" to "MAN",
+    "Bk" to "BRK",
+    "Q" to "QNS",
+    "Bx" to "BRX",
+    "SI" to "S-I",
 )
 
 @Composable
@@ -310,17 +359,18 @@ private fun StarredContent(state: HomeUiState, onOpen: (String) -> Unit) {
 private fun LocalContent(
     local: LocalUiState,
     onNear: () -> Unit,
+    onEnableLocation: () -> Unit,
     onBoro: (String) -> Unit,
     onOpen: (String) -> Unit,
 ) {
-    // "Near me" + borough selector
+    // "Near me" + borough acronym chips
     Row(modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp())) {
-        val nearSelected = local.located
+        val nearSel = local.located
         LightText(
             text = "Near me",
-            variant = if (nearSelected) LightTextVariant.Copy else LightTextVariant.Detail,
-            lighten = !nearSelected,
-            modifier = Modifier.padding(end = 12.dp).lightClickable(onClick = onNear),
+            variant = if (nearSel) LightTextVariant.Copy else LightTextVariant.Detail,
+            lighten = !nearSel,
+            modifier = Modifier.padding(end = 14.dp).lightClickable(onClick = onNear),
         )
         BOROUGHS.forEach { (code, label) ->
             val sel = code == local.boro
@@ -332,40 +382,68 @@ private fun LocalContent(
             )
         }
     }
-    if (local.located && local.city.isNotBlank()) {
-        LightText(
-            text = "Near ${local.city} · approximate",
-            variant = LightTextVariant.Detail,
-            lighten = true,
-            modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
-        )
-    }
-    when {
-        local.loading -> LightText(text = "Finding stations near you…", variant = LightTextVariant.Copy, lighten = true)
-        local.items.isEmpty() ->
-            LightText(text = "No stations found.", variant = LightTextVariant.Copy, lighten = true)
-        else -> local.items.forEach { item ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .lightClickable(onClick = { onOpen(item.station.id) })
-                    .padding(bottom = 0.75f.gridUnitsAsDp()),
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    LightText(
-                        text = item.station.name,
-                        variant = LightTextVariant.Copy,
-                        modifier = Modifier.weight(1f),
-                    )
-                    if (item.meters != null) {
-                        LightText(text = distanceLabel(item.meters), variant = LightTextVariant.Detail, lighten = true)
+
+    when (local.status) {
+        LocalStatus.IDLE, LocalStatus.LOADING ->
+            LightText(text = "Finding stations near you…", variant = LightTextVariant.Copy, lighten = true)
+
+        LocalStatus.NEED_PERMISSION -> Column {
+            LightText(
+                text = "Allow location to see the stops closest to you.",
+                variant = LightTextVariant.Copy,
+                lighten = true,
+                modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
+            )
+            LightText(
+                text = "Allow location",
+                variant = LightTextVariant.Heading,
+                modifier = Modifier.lightClickable(onClick = onEnableLocation),
+            )
+            LightText(
+                text = "Then tap Refresh.",
+                variant = LightTextVariant.Detail,
+                lighten = true,
+                modifier = Modifier.padding(top = 0.5f.gridUnitsAsDp()),
+            )
+        }
+
+        LocalStatus.DONE -> {
+            if (local.located && (local.city.isNotBlank() || local.source.isNotBlank())) {
+                val where = if (local.city.isNotBlank()) "Near ${local.city}" else "Near you"
+                LightText(
+                    text = "$where · ${local.source}",
+                    variant = LightTextVariant.Detail,
+                    lighten = true,
+                    modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
+                )
+            }
+            if (local.items.isEmpty()) {
+                LightText(text = "No stations found.", variant = LightTextVariant.Copy, lighten = true)
+            } else {
+                local.items.forEach { item ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .lightClickable(onClick = { onOpen(item.station.id) })
+                            .padding(bottom = 0.75f.gridUnitsAsDp()),
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            LightText(
+                                text = item.station.name,
+                                variant = LightTextVariant.Copy,
+                                modifier = Modifier.weight(1f),
+                            )
+                            if (item.meters != null) {
+                                LightText(text = distanceLabel(item.meters), variant = LightTextVariant.Detail, lighten = true)
+                            }
+                        }
+                        RouteBadgeRow(
+                            routes = item.station.routes,
+                            favorites = local.favoriteRoutes,
+                            modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+                        )
                     }
                 }
-                RouteBadgeRow(
-                    routes = item.station.routes,
-                    favorites = local.favoriteRoutes,
-                    modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
-                )
             }
         }
     }
@@ -456,4 +534,22 @@ private fun CrashReportView(trace: String, onDismiss: () -> Unit) {
             items = listOf(LightBarButton.Text(text = "Dismiss", onClick = onDismiss)),
         )
     }
+}
+
+/** Best-effort last-known location from the system providers (permission required). */
+@SuppressLint("MissingPermission")
+private fun lastKnownLocation(context: Context): Pair<Double, Double>? {
+    val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
+    val providers = listOf(
+        LocationManager.GPS_PROVIDER,
+        LocationManager.NETWORK_PROVIDER,
+        LocationManager.FUSED_PROVIDER,
+    )
+    for (p in providers) {
+        try {
+            lm.getLastKnownLocation(p)?.let { return it.latitude to it.longitude }
+        } catch (_: Exception) {
+        }
+    }
+    return null
 }

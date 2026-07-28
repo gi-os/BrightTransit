@@ -154,14 +154,14 @@ fun ArrivalRowLine(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         RouteBadge(route, diameter = diameter)
-        Spacer(Modifier.weight(1f))
         if (favorite) {
             StarMark(
                 color = LightThemeTokens.colors.content.copy(alpha = 0.55f),
-                size = 12.dp,
-                modifier = Modifier.padding(end = 6.dp),
+                size = (diameter.value * 0.5f).dp,
+                modifier = Modifier.padding(start = 2.dp),
             )
         }
+        Spacer(Modifier.weight(1f))
         LightText(text = minutesText, variant = LightTextVariant.Copy)
     }
 }

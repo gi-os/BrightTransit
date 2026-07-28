@@ -297,6 +297,8 @@ class LightSdkPlugin : Plugin<Project> {
     }
 
     private fun validate(project: Project) {
+        // Local fork: allow opting out of the API banlist (we don't submit to Light).
+        if (project.findProperty("lightSdk.skipValidation") == "true") return
         val violations = mutableListOf<String>()
 
         validateBuildScript(project, violations)
