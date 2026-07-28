@@ -29,10 +29,14 @@ class ArrivalsRepository {
             async { runCatching { fetch(slug) }.getOrDefault(emptyList()) }
         }.awaitAll().flatten()
 
+        val stopIds = station.stops.toHashSet()
         raws.mapNotNull { raw ->
-            val dir = when {
-                raw.stopId == station.id + "N" -> Direction.NORTH
-                raw.stopId == station.id + "S" -> Direction.SOUTH
+            if (raw.stopId.isEmpty()) return@mapNotNull null
+            val base = raw.stopId.dropLast(1)
+            if (base !in stopIds) return@mapNotNull null
+            val dir = when (raw.stopId.last()) {
+                'N' -> Direction.NORTH
+                'S' -> Direction.SOUTH
                 else -> return@mapNotNull null
             }
             if (raw.time < nowSeconds - 30) return@mapNotNull null // already left

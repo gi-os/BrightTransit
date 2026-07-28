@@ -2,16 +2,21 @@ package com.thelightphone.subway
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.viewModelScope
@@ -40,7 +45,8 @@ import kotlinx.coroutines.launch
 
 data class StationBoard(
     val station: Station,
-    val arrivals: List<Arrival> = emptyList(),
+    val north: List<Arrival> = emptyList(),
+    val south: List<Arrival> = emptyList(),
     val failed: Boolean = false,
 )
 
@@ -79,7 +85,13 @@ class HomeViewModel(
             val now = System.currentTimeMillis() / 1000
             val boards = starred.map { station ->
                 runCatching { repo.arrivalsFor(station, now) }.fold(
-                    onSuccess = { StationBoard(station, it.take(5)) },
+                    onSuccess = { arrivals ->
+                        StationBoard(
+                            station,
+                            north = arrivals.filter { it.direction == Direction.NORTH }.take(4),
+                            south = arrivals.filter { it.direction == Direction.SOUTH }.take(4),
+                        )
+                    },
                     onFailure = { StationBoard(station, failed = true) },
                 )
             }
@@ -188,19 +200,55 @@ private fun StationBoardView(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onOpen)
-            .padding(bottom = 1f.gridUnitsAsDp()),
+            .padding(bottom = 1.5f.gridUnitsAsDp()),
     ) {
         LightText(text = board.station.name, variant = LightTextVariant.Heading)
         RouteBadgeRow(
             routes = board.station.routes,
             modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp(), bottom = 0.5f.gridUnitsAsDp()),
         )
-        when {
-            board.failed ->
-                LightText(text = "Times unavailable", variant = LightTextVariant.Detail, lighten = true)
-            board.arrivals.isEmpty() ->
-                LightText(text = "No trains scheduled", variant = LightTextVariant.Detail, lighten = true)
-            else -> board.arrivals.forEach { ArrivalRow(it, nowSeconds) }
+        if (board.failed) {
+            LightText(text = "Times unavailable", variant = LightTextVariant.Detail, lighten = true)
+        } else {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                DirectionColumn("Uptown", board.north, nowSeconds, Modifier.weight(1f))
+                Spacer(Modifier.width(16.dp))
+                DirectionColumn("Downtown", board.south, nowSeconds, Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** One labeled column (Uptown / Downtown) of upcoming trains: bullet + minutes. */
+@Composable
+private fun DirectionColumn(
+    label: String,
+    arrivals: List<Arrival>,
+    nowSeconds: Long,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        LightText(
+            text = label,
+            variant = LightTextVariant.Copy,
+            modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+        )
+        if (arrivals.isEmpty()) {
+            LightText(text = "—", variant = LightTextVariant.Detail, lighten = true)
+        } else {
+            arrivals.forEach { a ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 0.15f.gridUnitsAsDp()),
+                ) {
+                    RouteBadge(a.route, diameter = 20.dp)
+                    Spacer(Modifier.width(8.dp))
+                    LightText(
+                        text = minutesLabel(a.minutesFrom(nowSeconds)),
+                        variant = LightTextVariant.Copy,
+                    )
+                }
+            }
         }
     }
 }

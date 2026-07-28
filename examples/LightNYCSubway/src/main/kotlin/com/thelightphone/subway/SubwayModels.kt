@@ -3,9 +3,13 @@ package com.thelightphone.subway
 import kotlinx.serialization.Serializable
 
 /**
- * A subway station as parsed from assets/stations.json (derived from the MTA
- * "Stations" open-data table). [id] is the GTFS parent stop id, e.g. "635".
- * Realtime feeds append a direction suffix ("635N" / "635S").
+ * A subway station COMPLEX as parsed from assets/stations.json (derived from the
+ * MTA "Stations" open-data table, grouped by Complex ID so transfer-connected
+ * platforms — e.g. the three 14 St-Union Sq entries — are one station).
+ *
+ * [id] is the MTA Complex ID (stable key for starring). [stops] holds the GTFS
+ * parent stop ids of every constituent platform; realtime feeds append a
+ * direction suffix ("635N" / "635S"), so we match against each stop id in turn.
  */
 @Serializable
 data class Station(
@@ -13,6 +17,7 @@ data class Station(
     val name: String,
     val boro: String = "",
     val routes: List<String> = emptyList(),
+    val stops: List<String> = emptyList(),
     val nl: String = "",   // north direction label ("Uptown & The Bronx")
     val sl: String = "",   // south direction label ("Downtown & Brooklyn")
 ) {

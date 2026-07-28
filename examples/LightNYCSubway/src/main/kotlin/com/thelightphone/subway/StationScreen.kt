@@ -177,12 +177,12 @@ class StationScreen(
                                 )
                             else -> {
                                 DirectionSection(
-                                    label = station.nl.ifEmpty { "Northbound" },
+                                    label = "Uptown",
                                     arrivals = state.north,
                                     nowSeconds = state.nowSeconds,
                                 )
                                 DirectionSection(
-                                    label = station.sl.ifEmpty { "Southbound" },
+                                    label = "Downtown",
                                     arrivals = state.south,
                                     nowSeconds = state.nowSeconds,
                                 )
