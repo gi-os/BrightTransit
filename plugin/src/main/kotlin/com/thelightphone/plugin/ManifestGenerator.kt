@@ -37,6 +37,8 @@ object ManifestGenerator {
             |    <application
             |        android:name="com.thelightphone.sdk.LightSdkApplication"
             |        android:label="${xmlAttr(metadata.label)}"
+            |        android:icon="@mipmap/ic_launcher"
+            |        android:roundIcon="@mipmap/ic_launcher_round"
             |        android:supportsRtl="true"
             |        android:theme="@style/LightSdk.Theme.Splash">
             |        <meta-data
