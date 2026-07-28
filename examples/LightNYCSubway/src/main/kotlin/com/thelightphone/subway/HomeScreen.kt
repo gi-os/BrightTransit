@@ -32,10 +32,7 @@ import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
-import com.thelightphone.sdk.checkPermission
 import com.thelightphone.sdk.rememberPermissionRequestLauncher
-import com.thelightphone.sdk.shared.LightServiceMethod
-import com.thelightphone.sdk.shared.asKotlinResult
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
@@ -209,24 +206,23 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         val scope = rememberCoroutineScope()
         val locationLauncher = rememberPermissionRequestLauncher(LOCATION_PERMISSION)
 
+        // Try precise GPS; if the permission isn't granted or there's no fix,
+        // fall straight through to IP-approximate — never a "denied" dead end.
         val locate: () -> Unit = {
             scope.launch {
                 viewModel.setLocalStatus(LocalStatus.LOADING)
-                val granted = checkPermission(LOCATION_PERMISSION).asKotlinResult
-                    .map { it.permissionResult == LightServiceMethod.GetPermission.Result.Granted }
-                    .getOrDefault(false)
-                if (!granted) {
-                    viewModel.setLocalStatus(LocalStatus.NEED_PERMISSION)
-                } else {
-                    val gps = lastKnownLocation(context)
-                    if (gps != null) viewModel.onCoords(gps.first, gps.second, "GPS")
-                    else viewModel.loadViaIp()
-                }
+                val gps = lastKnownLocation(context)
+                if (gps != null) viewModel.onCoords(gps.first, gps.second, "GPS")
+                else viewModel.loadViaIp()
             }
         }
 
+        var askedLocation by remember { mutableStateOf(false) }
         LaunchedEffect(tab) {
-            if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) locate()
+            if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) {
+                if (!askedLocation) { askedLocation = true; locationLauncher?.launch() }
+                locate()
+            }
         }
 
         LightTheme(colors = themeColors) {
@@ -414,7 +410,16 @@ private fun LocalContent(
                     text = "$where · ${local.source}",
                     variant = LightTextVariant.Detail,
                     lighten = true,
-                    modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
+                    modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                )
+            }
+            if (local.source == "approximate") {
+                LightText(
+                    text = "Use precise location →",
+                    variant = LightTextVariant.Detail,
+                    modifier = Modifier
+                        .padding(bottom = 0.5f.gridUnitsAsDp())
+                        .lightClickable(onClick = onEnableLocation),
                 )
             }
             if (local.items.isEmpty()) {
