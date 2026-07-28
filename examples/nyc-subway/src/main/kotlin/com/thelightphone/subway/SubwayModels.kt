@@ -1,0 +1,83 @@
+package com.thelightphone.subway
+
+import kotlinx.serialization.Serializable
+
+/**
+ * A subway station as parsed from assets/stations.json (derived from the MTA
+ * "Stations" open-data table). [id] is the GTFS parent stop id, e.g. "635".
+ * Realtime feeds append a direction suffix ("635N" / "635S").
+ */
+@Serializable
+data class Station(
+    val id: String,
+    val name: String,
+    val boro: String = "",
+    val routes: List<String> = emptyList(),
+    val nl: String = "",   // north direction label ("Uptown & The Bronx")
+    val sl: String = "",   // south direction label ("Downtown & Brooklyn")
+) {
+    val boroLabel: String
+        get() = when (boro) {
+            "M" -> "Manhattan"
+            "Bx" -> "The Bronx"
+            "Bk" -> "Brooklyn"
+            "Q" -> "Queens"
+            "SI" -> "Staten Island"
+            else -> boro
+        }
+}
+
+@Serializable
+data class StationsFile(val stations: List<Station>)
+
+enum class Direction { NORTH, SOUTH }
+
+/** One upcoming train at a station. */
+data class Arrival(
+    val route: String,
+    val direction: Direction,
+    val epochSeconds: Long,
+) {
+    fun minutesFrom(nowSeconds: Long): Int =
+        (((epochSeconds - nowSeconds) + 30) / 60).toInt()
+}
+
+/**
+ * MTA GTFS-realtime feed endpoints. No API key required (as of 2023).
+ * Each feed carries a group of lines; a station is served by the union of the
+ * feeds for its routes.
+ *
+ * Endpoints live at
+ *   https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct/<slug>
+ * but the gateway treats "nyct/<slug>" as a SINGLE path parameter, so the
+ * internal slash MUST be percent-encoded (`nyct%2F<slug>`) or the request 403s.
+ * See [ArrivalsRepository] for how the request is built.
+ */
+object MtaFeeds {
+    const val HOST = "api-endpoint.mta.info"
+
+    /** Already-encoded request path for a feed slug (note the %2F). */
+    fun encodedPath(slug: String) = "/Dataservice/mtagtfsfeeds/nyct%2F$slug"
+
+    /** Which feed(s) carry a given daytime route. */
+    fun feedsForRoute(route: String): List<String> = when (route.uppercase()) {
+        "1", "2", "3", "4", "5", "6", "7" -> listOf("gtfs")
+        "A", "C", "E" -> listOf("gtfs-ace")
+        "B", "D", "F", "M" -> listOf("gtfs-bdfm")
+        "G" -> listOf("gtfs-g")
+        "J", "Z" -> listOf("gtfs-jz")
+        "N", "Q", "R", "W" -> listOf("gtfs-nqrw")
+        "L" -> listOf("gtfs-l")
+        "SIR" -> listOf("gtfs-si")
+        // Shuttles all show as "S" in the static table but live in different
+        // feeds (42 St -> numbered, Franklin/Rockaway -> ace). Query both.
+        "S" -> listOf("gtfs", "gtfs-ace")
+        else -> emptyList()
+    }
+
+    /** Distinct feed slugs needed to cover every route at [station]. */
+    fun slugsFor(station: Station): List<String> =
+        station.routes
+            .flatMap { feedsForRoute(it) }
+            .distinct()
+}

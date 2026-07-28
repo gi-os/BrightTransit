@@ -1,0 +1,9 @@
+[tool]
+id = "com.thelightphone.subway"
+label = "Subway"
+versionCode = 1
+versionName = "1.0.0"
+permissions = ["android.permission.INTERNET"]
+# Running on the LightOS emulator? swap the serverPackage below:
+# serverPackage = "com.thelightphone.sdk.emulator"
+serverPackage = "com.lightos"
