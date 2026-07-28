@@ -267,18 +267,22 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
 
                 LightBottomBar(
                     items = listOf(
-                        LightBarButton.Text(text = "Search", onClick = { navigateTo(::SearchScreen) }),
-                        if (tab == HomeTab.STARRED) {
-                            LightBarButton.Text(
-                                text = if (state.loading) "Refreshing…" else "Refresh",
-                                onClick = { if (!state.loading) viewModel.refresh() },
-                            )
-                        } else {
-                            LightBarButton.Text(
-                                text = if (local.status == LocalStatus.LOADING) "Locating…" else "Refresh",
-                                onClick = { if (local.status != LocalStatus.LOADING) locate() },
-                            )
-                        },
+                        LightBarButton.LightIcon(
+                            icon = LightIcons.SEARCH,
+                            onClick = { navigateTo(::SearchScreen) },
+                            contentDescription = "Search",
+                        ),
+                        LightBarButton.LightIcon(
+                            icon = LightIcons.REFRESH,
+                            onClick = {
+                                if (tab == HomeTab.STARRED) {
+                                    if (!state.loading) viewModel.refresh()
+                                } else if (local.status != LocalStatus.LOADING) {
+                                    locate()
+                                }
+                            },
+                            contentDescription = "Refresh",
+                        ),
                     ),
                 )
             }

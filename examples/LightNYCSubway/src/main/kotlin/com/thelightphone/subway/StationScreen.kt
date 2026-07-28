@@ -216,9 +216,10 @@ class StationScreen(
                             text = if (state.starred) "Unstar" else "Star",
                             onClick = { viewModel.toggleStar() },
                         ),
-                        LightBarButton.Text(
-                            text = "Refresh",
+                        LightBarButton.LightIcon(
+                            icon = LightIcons.REFRESH,
                             onClick = { viewModel.load() },
+                            contentDescription = "Refresh",
                         ),
                     ),
                 )
