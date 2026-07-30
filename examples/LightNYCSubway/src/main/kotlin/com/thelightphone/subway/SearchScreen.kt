@@ -1,11 +1,14 @@
 package com.thelightphone.subway
 
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -28,6 +31,10 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import com.thelightphone.subway.hw.LocalWheelBus
+import com.thelightphone.subway.hw.WheelBus
+import com.thelightphone.subway.hw.WheelScroll
+import com.thelightphone.subway.hw.dispatch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -81,6 +88,15 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
     override fun createViewModel(): SearchViewModel =
         SearchViewModel(lightContext.dataStore, lightContext::readAsset)
 
+    /** Wheel notches on their way to the results list. */
+    private val wheel = WheelBus()
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyDown(keyCode, event)
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyUp(keyCode, event)
+
     private fun openKeyboard() {
         navigateTo<String?>(
             screenFactory = { TextInputScreen(it, "Search stations", viewModel.query.value) },
@@ -95,78 +111,86 @@ class SearchScreen(sealedActivity: SealedLightActivity) :
         val favorites by viewModel.favorites.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
 
-        LightTheme(colors = themeColors) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(LightThemeTokens.colors.background),
-            ) {
-                LightTopBar(
-                    leftButton = LightBarButton.LightIcon(
-                        icon = LightIcons.BACK,
-                        onClick = { goBack() },
-                        contentDescription = "Back",
-                    ),
-                    center = LightTopBarCenter.Text(if (query.isEmpty()) "Search" else "\"$query\""),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.SEARCH,
-                        onClick = { openKeyboard() },
-                        contentDescription = "Type",
-                    ),
-                    modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-                )
-
-                LightScrollView(
+        CompositionLocalProvider(LocalWheelBus provides wheel) {
+            LightTheme(colors = themeColors) {
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 1f.gridUnitsAsDp()),
+                        .fillMaxSize()
+                        .background(LightThemeTokens.colors.background),
                 ) {
-                    when {
-                        query.isEmpty() ->
-                            LightText(
-                                text = "Tap the search icon and type a station name.",
-                                variant = LightTextVariant.Copy,
-                                lighten = true,
-                            )
+                    LightTopBar(
+                        leftButton = LightBarButton.LightIcon(
+                            icon = LightIcons.BACK,
+                            onClick = { goBack() },
+                            contentDescription = "Back",
+                        ),
+                        center = LightTopBarCenter.Text(if (query.isEmpty()) "Search" else "\"$query\""),
+                        rightButton = LightBarButton.LightIcon(
+                            icon = LightIcons.SEARCH,
+                            onClick = { openKeyboard() },
+                            contentDescription = "Type",
+                        ),
+                        modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                    )
 
-                        results.isEmpty() ->
-                            LightText(
-                                text = "No stations match \"$query\".",
-                                variant = LightTextVariant.Copy,
-                                lighten = true,
-                            )
+                    // A search for "st" returns most of the system, so this is the longest
+                    // list in the tool and the one that most wants the wheel.
+                    val scroll = rememberScrollState()
+                    WheelScroll(scroll)
 
-                        else -> results.forEach { station ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .lightClickable(onClick = {
-                                        navigateTo({ StationScreen(it, station.id) })
-                                    })
-                                    .padding(bottom = 0.75f.gridUnitsAsDp()),
-                            ) {
-                                LightText(text = station.name, variant = LightTextVariant.Copy)
-                                RouteBadgeRow(
-                                    routes = station.routes,
-                                    favorites = favorites,
-                                    modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
-                                )
+                    LightScrollView(
+                        scrollState = scroll,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 1f.gridUnitsAsDp()),
+                    ) {
+                        when {
+                            query.isEmpty() ->
                                 LightText(
-                                    text = station.boroLabel,
-                                    variant = LightTextVariant.Detail,
+                                    text = "Tap the search icon and type a station name.",
+                                    variant = LightTextVariant.Copy,
                                     lighten = true,
                                 )
+
+                            results.isEmpty() ->
+                                LightText(
+                                    text = "No stations match \"$query\".",
+                                    variant = LightTextVariant.Copy,
+                                    lighten = true,
+                                )
+
+                            else -> results.forEach { station ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .lightClickable(onClick = {
+                                            navigateTo({ StationScreen(it, station.id) })
+                                        })
+                                        .padding(bottom = 0.75f.gridUnitsAsDp()),
+                                ) {
+                                    LightText(text = station.name, variant = LightTextVariant.Copy)
+                                    RouteBadgeRow(
+                                        routes = station.routes,
+                                        favorites = favorites,
+                                        modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+                                    )
+                                    LightText(
+                                        text = station.boroLabel,
+                                        variant = LightTextVariant.Detail,
+                                        lighten = true,
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                LightBottomBar(
-                    items = listOf(
-                        LightBarButton.Text(text = "Type", onClick = { openKeyboard() }),
-                    ),
-                )
+                    LightBottomBar(
+                        items = listOf(
+                            LightBarButton.Text(text = "Type", onClick = { openKeyboard() }),
+                        ),
+                    )
+                }
             }
         }
     }

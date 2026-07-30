@@ -1,5 +1,6 @@
 package com.thelightphone.subway
 
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,7 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,6 +34,10 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
+import com.thelightphone.subway.hw.LocalWheelBus
+import com.thelightphone.subway.hw.WheelBus
+import com.thelightphone.subway.hw.WheelScroll
+import com.thelightphone.subway.hw.dispatch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -138,91 +145,108 @@ class StationScreen(
     override fun createViewModel(): StationViewModel =
         StationViewModel(lightContext.dataStore, lightContext::readAsset, stationId)
 
+    /** Wheel notches on their way to the arrivals board. */
+    private val wheel = WheelBus()
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyDown(keyCode, event)
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyUp(keyCode, event)
+
     @Composable
     override fun Content() {
         val state by viewModel.state.collectAsState()
         val themeColors by LightThemeController.colors.collectAsState()
         val station = state.station
 
-        LightTheme(colors = themeColors) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(LightThemeTokens.colors.background),
-            ) {
-                LightTopBar(
-                    leftButton = LightBarButton.LightIcon(
-                        icon = LightIcons.BACK,
-                        onClick = { goBack() },
-                        contentDescription = "Back",
-                    ),
-                    center = LightTopBarCenter.Text(station?.name ?: "Station"),
-                    modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-                )
-
-                LightScrollView(
+        CompositionLocalProvider(LocalWheelBus provides wheel) {
+            LightTheme(colors = themeColors) {
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 1f.gridUnitsAsDp()),
+                        .fillMaxSize()
+                        .background(LightThemeTokens.colors.background),
                 ) {
-                    if (station == null) {
-                        LightText(
-                            text = if (state.loading) "Loading…" else "Unknown station.",
-                            variant = LightTextVariant.Copy,
-                        )
-                    } else {
-                        RouteBadgeRow(
-                            routes = station.routes,
-                            favorites = state.favoriteRoutes,
-                            onRouteClick = { viewModel.toggleFavoriteRoute(it) },
-                            modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
-                        )
-                        LightText(
-                            text = station.boroLabel + "  ·  tap a line to favorite",
-                            variant = LightTextVariant.Detail,
-                            lighten = true,
-                            modifier = Modifier.padding(top = 0.15f.gridUnitsAsDp(), bottom = 0.75f.gridUnitsAsDp()),
-                        )
-                        when {
-                            state.loading ->
-                                LightText(text = "Loading…", variant = LightTextVariant.Copy)
-                            state.failed ->
-                                LightText(
-                                    text = "Live times unavailable right now.",
-                                    variant = LightTextVariant.Copy, lighten = true,
-                                )
-                            else -> {
-                                DirectionSection(
-                                    label = "Uptown",
-                                    arrivals = state.north,
-                                    nowSeconds = state.nowSeconds,
-                                    favoriteRoutes = state.favoriteRoutes,
-                                )
-                                DirectionSection(
-                                    label = "Downtown",
-                                    arrivals = state.south,
-                                    nowSeconds = state.nowSeconds,
-                                    favoriteRoutes = state.favoriteRoutes,
-                                )
+                    LightTopBar(
+                        leftButton = LightBarButton.LightIcon(
+                            icon = LightIcons.BACK,
+                            onClick = { goBack() },
+                            contentDescription = "Back",
+                        ),
+                        center = LightTopBarCenter.Text(station?.name ?: "Station"),
+                        modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                    )
+
+                    // A busy interchange lists both directions of half a dozen lines, which
+                    // runs well past the bottom of the panel.
+                    val scroll = rememberScrollState()
+                    WheelScroll(scroll)
+
+                    LightScrollView(
+                        scrollState = scroll,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 1f.gridUnitsAsDp()),
+                    ) {
+                        if (station == null) {
+                            LightText(
+                                text = if (state.loading) "Loading…" else "Unknown station.",
+                                variant = LightTextVariant.Copy,
+                            )
+                        } else {
+                            RouteBadgeRow(
+                                routes = station.routes,
+                                favorites = state.favoriteRoutes,
+                                onRouteClick = { viewModel.toggleFavoriteRoute(it) },
+                                modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+                            )
+                            LightText(
+                                text = station.boroLabel + "  ·  tap a line to favorite",
+                                variant = LightTextVariant.Detail,
+                                lighten = true,
+                                modifier = Modifier.padding(top = 0.15f.gridUnitsAsDp(), bottom = 0.75f.gridUnitsAsDp()),
+                            )
+                            when {
+                                state.loading ->
+                                    LightText(text = "Loading…", variant = LightTextVariant.Copy)
+                                state.failed ->
+                                    LightText(
+                                        text = "Live times unavailable right now.",
+                                        variant = LightTextVariant.Copy, lighten = true,
+                                    )
+                                else -> {
+                                    DirectionSection(
+                                        label = "Uptown",
+                                        arrivals = state.north,
+                                        nowSeconds = state.nowSeconds,
+                                        favoriteRoutes = state.favoriteRoutes,
+                                    )
+                                    DirectionSection(
+                                        label = "Downtown",
+                                        arrivals = state.south,
+                                        nowSeconds = state.nowSeconds,
+                                        favoriteRoutes = state.favoriteRoutes,
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                LightBottomBar(
-                    items = listOf(
-                        LightBarButton.Text(
-                            text = if (state.starred) "Unstar" else "Star",
-                            onClick = { viewModel.toggleStar() },
+                    LightBottomBar(
+                        items = listOf(
+                            LightBarButton.Text(
+                                text = if (state.starred) "Unstar" else "Star",
+                                onClick = { viewModel.toggleStar() },
+                            ),
+                            LightBarButton.LightIcon(
+                                icon = LightIcons.REFRESH,
+                                onClick = { viewModel.load() },
+                                contentDescription = "Refresh",
+                            ),
                         ),
-                        LightBarButton.LightIcon(
-                            icon = LightIcons.REFRESH,
-                            onClick = { viewModel.load() },
-                            contentDescription = "Refresh",
-                        ),
-                    ),
-                )
+                    )
+                }
             }
         }
     }

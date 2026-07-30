@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.LocationManager
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +49,10 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
+import com.thelightphone.subway.hw.LocalWheelBus
+import com.thelightphone.subway.hw.WheelBus
+import com.thelightphone.subway.hw.WheelScroll
+import com.thelightphone.subway.hw.dispatch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -193,6 +200,15 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         return HomeViewModel(lightContext.dataStore, lightContext::readAsset)
     }
 
+    /** Wheel notches on their way to the board this screen is showing. */
+    private val wheel = WheelBus()
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyDown(keyCode, event)
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent) =
+        wheel.dispatch(event) || super.onKeyUp(keyCode, event)
+
     @Composable
     override fun Content() {
         val state by viewModel.state.collectAsState()
@@ -222,69 +238,78 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
             if (tab == HomeTab.LOCAL && local.status == LocalStatus.IDLE) locate()
         }
 
-        LightTheme(colors = themeColors) {
-            if (showCrash && lastCrash != null) {
-                CrashReportView(lastCrash) { CrashReporter.clear(); showCrash = false }
-                return@LightTheme
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(LightThemeTokens.colors.background),
-            ) {
-                LightTopBar(
-                    center = LightTopBarCenter.Text("Subway Times"),
-                    rightButton = LightBarButton.LightIcon(
-                        icon = LightIcons.SEARCH,
-                        onClick = { navigateTo(::SearchScreen) },
-                        contentDescription = "Search stations",
-                    ),
-                    modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-                )
-
-                TabRow(tab) { tab = it }
-
-                LightScrollView(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 1f.gridUnitsAsDp()),
-                ) {
-                    when (tab) {
-                        HomeTab.STARRED -> StarredContent(state) { id ->
-                            navigateTo({ sealed -> StationScreen(sealed, id) })
-                        }
-                        HomeTab.LOCAL -> LocalContent(
-                            local = local,
-                            onNear = locate,
-                            onEnableLocation = { runCatching { locationLauncher?.launch() } },
-                            onBoro = { viewModel.loadBorough(it) },
-                            onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
-                        )
-                    }
+        // Everything this screen draws can reach the wheel, the crash view included.
+        CompositionLocalProvider(LocalWheelBus provides wheel) {
+            LightTheme(colors = themeColors) {
+                if (showCrash && lastCrash != null) {
+                    CrashReportView(lastCrash) { CrashReporter.clear(); showCrash = false }
+                    return@LightTheme
                 }
 
-                LightBottomBar(
-                    items = listOf(
-                        LightBarButton.LightIcon(
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(LightThemeTokens.colors.background),
+                ) {
+                    LightTopBar(
+                        center = LightTopBarCenter.Text("Subway Times"),
+                        rightButton = LightBarButton.LightIcon(
                             icon = LightIcons.SEARCH,
                             onClick = { navigateTo(::SearchScreen) },
-                            contentDescription = "Search",
+                            contentDescription = "Search stations",
                         ),
-                        LightBarButton.LightIcon(
-                            icon = LightIcons.REFRESH,
-                            onClick = {
-                                if (tab == HomeTab.STARRED) {
-                                    if (!state.loading) viewModel.refresh()
-                                } else if (local.status != LocalStatus.LOADING) {
-                                    locate()
-                                }
-                            },
-                            contentDescription = "Refresh",
+                        modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                    )
+
+                    TabRow(tab) { tab = it }
+
+                    // Starred and Local share the one scroll view, so switching tabs keeps the
+                    // position — the same thing that happens under a finger.
+                    val scroll = rememberScrollState()
+                    WheelScroll(scroll)
+
+                    LightScrollView(
+                        scrollState = scroll,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 1f.gridUnitsAsDp()),
+                    ) {
+                        when (tab) {
+                            HomeTab.STARRED -> StarredContent(state) { id ->
+                                navigateTo({ sealed -> StationScreen(sealed, id) })
+                            }
+                            HomeTab.LOCAL -> LocalContent(
+                                local = local,
+                                onNear = locate,
+                                onEnableLocation = { runCatching { locationLauncher?.launch() } },
+                                onBoro = { viewModel.loadBorough(it) },
+                                onOpen = { id -> navigateTo({ sealed -> StationScreen(sealed, id) }) },
+                            )
+                        }
+                    }
+
+                    LightBottomBar(
+                        items = listOf(
+                            LightBarButton.LightIcon(
+                                icon = LightIcons.SEARCH,
+                                onClick = { navigateTo(::SearchScreen) },
+                                contentDescription = "Search",
+                            ),
+                            LightBarButton.LightIcon(
+                                icon = LightIcons.REFRESH,
+                                onClick = {
+                                    if (tab == HomeTab.STARRED) {
+                                        if (!state.loading) viewModel.refresh()
+                                    } else if (local.status != LocalStatus.LOADING) {
+                                        locate()
+                                    }
+                                },
+                                contentDescription = "Refresh",
+                            ),
                         ),
-                    ),
-                )
+                    )
+                }
             }
         }
     }
@@ -519,7 +544,12 @@ private fun CrashReportView(trace: String, onDismiss: () -> Unit) {
             center = LightTopBarCenter.Text("Last error"),
             modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
         )
+        // A stack trace is the longest thing this tool ever shows, and it replaces the
+        // board rather than covering it, so it takes the wheel with no gate.
+        val scroll = rememberScrollState()
+        WheelScroll(scroll)
         LightScrollView(
+            scrollState = scroll,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()

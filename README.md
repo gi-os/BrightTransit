@@ -19,6 +19,26 @@ Part of the [gi-os Light App collection](#the-gi-os-light-app-collection).
 - Stores the chosen station on the device. The tool asks for `INTERNET`, and for coarse and
   fine location so that **Near me** works. It asks for nothing else.
 
+## The wheel
+
+Turning the phone's wheel scrolls the board, the station page and the search results. A
+search for "st" returns most of the system, so that last one is the reason it is here.
+
+A light-sdk tool has no activity of its own to override, but the SDK hands every key that
+is not Back or Home to the screen on top of the back stack before it forwards anything to
+LightOS. So each of the three screens claims the two wheel scancodes — LightOS relabels
+them `WHEEL_CCW` and `WHEEL_CW` — in `onKeyDown` and `onKeyUp`, and the notch reaches the
+scroll view through a flow rather than through the screen reaching into its own UI.
+Claiming both halves of the notch is what stops the turn carrying on to the server as a
+brightness change. Notches arrive faster than a frame, so each one becomes a debt that a
+share of gets paid off per frame, and the first notch after a pause is held back, because
+the wheel sits under a thumb.
+
+The wheel *click* and the camera button are left alone. Those belong to
+[LightControl](https://github.com/gi-os/LightControl), which owns them across the phone
+and passes bare turns through so an app can scroll per notch. The long version is in
+[LightNews](https://github.com/gi-os/LightNews#the-wheel-and-the-camera-button).
+
 ## How it stays fast
 
 The station catalog parses once, off the main thread, and then caches process-wide. An
@@ -41,6 +61,7 @@ added. Upstream code stays where upstream put it, which keeps a rebase cheap.
 | `examples/LightNYCSubway/` | The tool |
 | `examples/LightNYCSubway/src/main/kotlin/.../ArrivalsRepository.kt` | Feed fetch and GTFS-realtime decode |
 | `examples/LightNYCSubway/src/main/kotlin/.../StationCatalog.kt` | Cached station parse |
+| `examples/LightNYCSubway/src/main/kotlin/.../hw/` | Wheel keys and the notch-to-scroller bus |
 | `examples/LightNYCSubway/src/main/kotlin/.../HomeScreen.kt` | Uptown and Downtown columns |
 | `examples/LightNYCSubway/src/main/kotlin/.../StationScreen.kt` | Station search and selection |
 | `examples/LightNYCSubway/src/main/assets/stations.json` | Station and stop catalog |
