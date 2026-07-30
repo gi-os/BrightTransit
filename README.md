@@ -24,6 +24,11 @@ Part of the [gi-os Light App collection](#the-gi-os-light-app-collection).
 Turning the phone's wheel scrolls the board, the station page and the search results. A
 search for "st" returns most of the system, so that last one is the reason it is here.
 
+Nothing else has to be installed for it. Light patched
+`/system/usr/keylayout/Generic.kl`, so a notch is an ordinary key event that lands in
+whichever app holds focus, and this tool reads it itself. No companion service, no
+permission, no root.
+
 A light-sdk tool has no activity of its own to override, but the SDK hands every key that
 is not Back or Home to the screen on top of the back stack before it forwards anything to
 LightOS. So each of the three screens claims the two wheel scancodes — LightOS relabels
@@ -35,9 +40,41 @@ share of gets paid off per frame, and the first notch after a pause is held back
 the wheel sits under a thumb.
 
 The wheel *click* and the camera button are left alone. Those belong to
-[LightControl](https://github.com/gi-os/LightControl), which owns them across the phone
-and passes bare turns through so an app can scroll per notch. The long version is in
+[LightControl](https://github.com/gi-os/LightControl), which is optional and owns them
+across the phone: hold the wheel in and turn for brightness, tap it for the flashlight,
+press the camera button for the camera. Each is rebindable, tap and hold separately, to any
+installed app, and apps that handle no wheel keys of their own get brightness or a
+synthetic-swipe scroll out of it. The long version is in
 [LightNews](https://github.com/gi-os/LightNews#the-wheel-and-the-camera-button).
+
+Installing it changes nothing in here, deliberately. The tool ships as
+`com.thelightphone.lightnycsubway`, and LightControl treats every `com.thelightphone.` id
+as hands-off, because a key an SDK tool does not claim is forwarded to LightOS, which
+already does the sensible thing with it — a bare turn becomes brightness. A service in the
+middle would be taking that away rather than adding anything. The trade is that
+LightControl's button bindings do not reach this tool: the click and the camera button keep
+whatever LightOS does with them. Scrolling is unaffected either way, which is the part that
+matters here.
+
+If you want LightControl for the rest of the phone:
+
+```bash
+# Optional: LightControl, for brightness, the flashlight and the camera button
+adb install -r LightControl-v1.0.x.apk
+
+# The key service. NOTE: this setting is a list, and this command REPLACES it —
+# if you also run LightVoice's push-to-talk, colon-join both components instead.
+adb shell settings put secure enabled_accessibility_services \
+  com.gios.lightcontrol/com.gios.lightcontrol.keys.ControlService
+adb shell settings put secure accessibility_enabled 1
+
+# Brightness, and the level readout + opening apps from the service
+adb shell appops set com.gios.lightcontrol WRITE_SETTINGS allow
+adb shell appops set com.gios.lightcontrol SYSTEM_ALERT_WINDOW allow
+```
+
+The current build is at
+[LightControl/releases/latest](https://github.com/gi-os/LightControl/releases/latest).
 
 ## How it stays fast
 
