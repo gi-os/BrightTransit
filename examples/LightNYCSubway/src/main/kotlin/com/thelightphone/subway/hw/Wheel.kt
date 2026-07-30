@@ -141,6 +141,46 @@ fun WheelScroll(state: ScrollableState, active: Boolean = true) {
 }
 
 /**
+ * Notches, minus the stray ones. See [ARM_NOTCHES].
+ *
+ * Armed state lives in the effect rather than in composition state: it is a property of the
+ * turn in progress, and a recomposition mid-turn should not disarm the wheel.
+ */
+@Composable
+private fun ArmedNotches(active: Boolean, onNotch: (Int) -> Unit) {
+    val handler by rememberUpdatedState(onNotch)
+    val bus = LocalWheelBus.current ?: return
+    LaunchedEffect(bus, active) {
+        if (!active) return@LaunchedEffect
+        var armed = false
+        var held = 0
+        var count = 0
+        var last = 0L
+        bus.notches.collect { notches ->
+            val now = System.nanoTime() / 1_000_000
+            if (now - last > IDLE_MS) {
+                armed = false
+                held = 0
+                count = 0
+            }
+            last = now
+            if (armed) {
+                handler(notches)
+                return@collect
+            }
+            held += notches
+            count++
+            if (count >= ARM_NOTCHES) {
+                armed = true
+                // Release what the guard was holding, so nothing deliberate is lost.
+                if (held != 0) handler(held) else handler(notches.sign)
+                held = 0
+            }
+        }
+    }
+}
+
+/**
  * Distance still owed to the scroller.
  *
  * Deliberately not Compose state: nothing in composition reads it, and making it observable
