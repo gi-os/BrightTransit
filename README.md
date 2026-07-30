@@ -3,6 +3,9 @@
 Live subway arrival times for New York City, on the Light Phone III. LightOS shows the
 tool as **Subway Times**.
 
+**Current release: v1.2.0** (tag `v1.2.0-build.21`). `versionCode` 3, tool id
+`com.thelightphone.lightnycsubway`.
+
 Part of the [gi-os Light App collection](#the-gi-os-light-app-collection).
 
 ## What it does
@@ -188,6 +191,22 @@ Twelve tools for the Light Phone III, all open source, all built in one run.
 | [LightPods](https://github.com/gi-os/LightPods) | AirPods battery, in-ear and lid status | Plain Android, ports [LibrePods](https://github.com/kavishdevar/librepods) |
 
 The Light Phone does not sponsor or endorse any of these. Licences vary per repo.
+
+## Version history
+
+CI (`.github/workflows/build-apk.yml`) builds and releases automatically on every push to `main`
+that touches `examples/LightNYCSubway/` or the workflow file itself. The tag is
+`v<versionName>-build.<run number>`, with `versionName` read from `lighttool.toml` — a push that
+only edits docs elsewhere in the repo does not cut a release.
+
+- **v1.2.0** (build 21, 2026-07-29) — Hardware wheel scrolls the board, the station list and search
+  results, with a bump guard against stray brushes (`ArmedNotches`).
+- **v1.1.0** (builds 10–19, 2026-07-28) — Local tab: browse stations by borough, or by GPS/IP-based
+  distance under **Near me**; favorite lines and stations; real subway route bullets; adaptive
+  launcher icon; SDK icons on the bottom bar in place of text.
+- **v1.0.0** (builds 3–8, 2026-07-27) — Initial release: live GTFS-realtime arrivals over direct MTA
+  feeds, stations merged by MTA Complex ID, Uptown/Downtown columns, renamed from `nyc-subway` to
+  LightNYCSubway / "Subway Times".
 
 ## License
 
