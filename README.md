@@ -1,4 +1,4 @@
-# LightNYCSubway
+# BrightTransit
 
 Live subway arrival times for New York City, on the Light Phone III. LightOS shows the
 tool as **Subway Times**.
@@ -43,7 +43,7 @@ share of gets paid off per frame, and the first notch after a pause is held back
 the wheel sits under a thumb.
 
 The wheel *click* and the camera button are left alone. Those belong to
-[LightControl](https://github.com/gi-os/LightControl), which is optional and owns them
+[BrightControl](https://github.com/gi-os/BrightControl), which is optional and owns them
 across the phone: hold the wheel in and turn for brightness, tap it for the flashlight,
 press the camera button for the camera. Each is rebindable, tap and hold separately, to any
 installed app, and apps that handle no wheel keys of their own get brightness or a
@@ -51,18 +51,18 @@ synthetic-swipe scroll out of it. The long version is in
 [LightNews](https://github.com/gi-os/LightNews#the-wheel-and-the-camera-button).
 
 Installing it changes nothing in here, deliberately. The tool ships as
-`com.thelightphone.lightnycsubway`, and LightControl treats every `com.thelightphone.` id
+`com.thelightphone.lightnycsubway`, and BrightControl treats every `com.thelightphone.` id
 as hands-off, because a key an SDK tool does not claim is forwarded to LightOS, which
 already does the sensible thing with it — a bare turn becomes brightness. A service in the
 middle would be taking that away rather than adding anything. The trade is that
-LightControl's button bindings do not reach this tool: the click and the camera button keep
+BrightControl's button bindings do not reach this tool: the click and the camera button keep
 whatever LightOS does with them. Scrolling is unaffected either way, which is the part that
 matters here.
 
-If you want LightControl for the rest of the phone:
+If you want BrightControl for the rest of the phone:
 
 ```bash
-# Optional: LightControl, for brightness, the flashlight and the camera button
+# Optional: BrightControl, for brightness, the flashlight and the camera button
 adb install -r LightControl-v1.0.x.apk
 
 # The key service. NOTE: this setting is a list, and this command REPLACES it —
@@ -77,7 +77,7 @@ adb shell appops set com.gios.lightcontrol SYSTEM_ALERT_WINDOW allow
 ```
 
 The current build is at
-[LightControl/releases/latest](https://github.com/gi-os/LightControl/releases/latest).
+[BrightControl/releases/latest](https://github.com/gi-os/BrightControl/releases/latest).
 
 ## How it stays fast
 
@@ -98,14 +98,14 @@ added. Upstream code stays where upstream put it, which keeps a rebase cheap.
 
 | Path | What it is |
 | --- | --- |
-| `examples/LightNYCSubway/` | The tool |
-| `examples/LightNYCSubway/src/main/kotlin/.../ArrivalsRepository.kt` | Feed fetch and GTFS-realtime decode |
-| `examples/LightNYCSubway/src/main/kotlin/.../StationCatalog.kt` | Cached station parse |
-| `examples/LightNYCSubway/src/main/kotlin/.../hw/` | Wheel keys and the notch-to-scroller bus |
-| `examples/LightNYCSubway/src/main/kotlin/.../HomeScreen.kt` | Uptown and Downtown columns |
-| `examples/LightNYCSubway/src/main/kotlin/.../StationScreen.kt` | Station search and selection |
-| `examples/LightNYCSubway/src/main/assets/stations.json` | Station and stop catalog |
-| `examples/LightNYCSubway/lighttool.toml` | Tool identity, version and permissions |
+| `examples/BrightTransit/` | The tool |
+| `examples/BrightTransit/src/main/kotlin/.../ArrivalsRepository.kt` | Feed fetch and GTFS-realtime decode |
+| `examples/BrightTransit/src/main/kotlin/.../StationCatalog.kt` | Cached station parse |
+| `examples/BrightTransit/src/main/kotlin/.../hw/` | Wheel keys and the notch-to-scroller bus |
+| `examples/BrightTransit/src/main/kotlin/.../HomeScreen.kt` | Uptown and Downtown columns |
+| `examples/BrightTransit/src/main/kotlin/.../StationScreen.kt` | Station search and selection |
+| `examples/BrightTransit/src/main/assets/stations.json` | Station and stop catalog |
+| `examples/BrightTransit/lighttool.toml` | Tool identity, version and permissions |
 | `sdk/`, `plugin/`, `builder/`, `docs/`, other `examples/` | Upstream light-sdk |
 
 ## Build
@@ -126,12 +126,12 @@ You can put `gpr.user` and `gpr.key` in `local.properties` instead. Never commit
 one.
 
 `.github/workflows/build-apk.yml` builds the tool on each push to `main` that touches
-`examples/LightNYCSubway/`, and attaches the APK to a GitHub Release.
+`examples/BrightTransit/`, and attaches the APK to a GitHub Release.
 
 ## Run it
 
 To run against the LightOS emulator, set `serverPackage = "com.thelightphone.sdk.emulator"`
-in `examples/LightNYCSubway/lighttool.toml`. Set it back to `com.lightos` before a device
+in `examples/BrightTransit/lighttool.toml`. Set it back to `com.lightos` before a device
 build. The SDK [system-app guide](docs/system_app/README.md) covers the one-time emulator
 setup.
 
@@ -168,8 +168,8 @@ Taken on a Light Phone III against the live MTA feeds.
 
 This repo set the pattern the rest of the collection reuses. Fork light-sdk, write the
 tool into a module the SDK reserves for it, leave upstream alone, and let a GitHub
-Actions workflow build the APK. [LightRSS](https://github.com/gi-os/LightRSS) and
-[LightSolitaire](https://github.com/gi-os/LightSolitaire) both follow it.
+Actions workflow build the APK. [BrightNews](https://github.com/gi-os/BrightNews) and
+[BrightSolitaire](https://github.com/gi-os/BrightSolitaire) both follow it.
 
 ## The gi-os Light App collection
 
@@ -177,17 +177,17 @@ Twelve tools for the Light Phone III, all open source, all built in one run.
 
 | Tool | What it does | Built on |
 | --- | --- | --- |
-| [LightPass](https://github.com/gi-os/LightPass) | Photograph a movie ticket, keep the stub | Plain Android |
+| [BrightPasses](https://github.com/gi-os/BrightPasses) | Photograph a movie ticket, keep the stub | Plain Android |
 | [LightQR](https://github.com/gi-os/LightQR) | QR scanner, plus a browser generator | Plain Android |
-| [LightRSS](https://github.com/gi-os/LightRSS) | RSS and Atom reader with images and QR subscribe | light-sdk, fork of [zachattack323/LightRSS](https://github.com/zachattack323/LightRSS) |
-| **LightNYCSubway** (this repo) | Live MTA subway arrivals | light-sdk fork |
+| [BrightNews](https://github.com/gi-os/BrightNews) | RSS and Atom reader with images and QR subscribe | light-sdk, fork of [zachattack323/LightRSS](https://github.com/zachattack323/LightRSS) |
+| **BrightTransit** (this repo) | Live MTA subway arrivals | light-sdk fork |
 | [chat](https://github.com/gi-os/chat) | iMessage over a self-hosted BlueBubbles server | Fork of [craigeley/chat](https://github.com/craigeley/chat) |
-| [LightFog](https://github.com/gi-os/LightFog) | Fog of World companion, GPS recorder and fog map | Fork of [garado/light-topographic](https://github.com/garado/light-topographic) |
-| [LightNonogram](https://github.com/gi-os/LightNonogram) | Picross, plus a generator that only ships solvable puzzles | Kotlin generator, light-sdk tool |
-| [LightSolitaire](https://github.com/gi-os/LightSolitaire) | Klondike, draw one, unlimited redeals | light-sdk |
-| [LightFastread](https://github.com/gi-os/LightFastread) | RSVP speed reader for EPUB and MOBI | Fork of [fluffyspace/FastRead](https://github.com/fluffyspace/FastRead) |
-| [LightTip](https://github.com/gi-os/LightTip) | Tip calculator, plus a receipt splitter that reads the line items | Plain Android |
-| [LightNoise](https://github.com/gi-os/LightNoise) | Twelve synthesized sounds, a two-layer mixer and a sleep timer | Plain Android |
+| [FogLight](https://github.com/gi-os/FogLight) | Fog of World companion, GPS recorder and fog map | Fork of [garado/light-topographic](https://github.com/garado/light-topographic) |
+| [BrightNonogram](https://github.com/gi-os/BrightNonogram) | Picross, plus a generator that only ships solvable puzzles | Kotlin generator, light-sdk tool |
+| [BrightSolitaire](https://github.com/gi-os/BrightSolitaire) | Klondike, draw one, unlimited redeals | light-sdk |
+| [BrightLibrary](https://github.com/gi-os/BrightLibrary) | RSVP speed reader for EPUB and MOBI | Fork of [fluffyspace/FastRead](https://github.com/fluffyspace/FastRead) |
+| [BrightTip](https://github.com/gi-os/BrightTip) | Tip calculator, plus a receipt splitter that reads the line items | Plain Android |
+| [BrightNoise](https://github.com/gi-os/BrightNoise) | Twelve synthesized sounds, a two-layer mixer and a sleep timer | Plain Android |
 | [LightPods](https://github.com/gi-os/LightPods) | AirPods battery, in-ear and lid status | Plain Android, ports [LibrePods](https://github.com/kavishdevar/librepods) |
 
 The Light Phone does not sponsor or endorse any of these. Licences vary per repo.
@@ -195,7 +195,7 @@ The Light Phone does not sponsor or endorse any of these. Licences vary per repo
 ## Version history
 
 CI (`.github/workflows/build-apk.yml`) builds and releases automatically on every push to `main`
-that touches `examples/LightNYCSubway/` or the workflow file itself. The tag is
+that touches `examples/BrightTransit/` or the workflow file itself. The tag is
 `v<versionName>-build.<run number>`, with `versionName` read from `lighttool.toml` — a push that
 only edits docs elsewhere in the repo does not cut a release.
 
@@ -206,7 +206,7 @@ only edits docs elsewhere in the repo does not cut a release.
   launcher icon; SDK icons on the bottom bar in place of text.
 - **v1.0.0** (builds 3–8, 2026-07-27) — Initial release: live GTFS-realtime arrivals over direct MTA
   feeds, stations merged by MTA Complex ID, Uptown/Downtown columns, renamed from `nyc-subway` to
-  LightNYCSubway / "Subway Times".
+  BrightTransit / "Subway Times".
 
 ## License
 
