@@ -6,13 +6,13 @@ tool as **Subway Times**.
 ## Install via BrightMarket
 
 <p align="center">
-  <img src="https://gi-os.github.io/brightmarket-index/assets/brightmarket-qr.png" alt="Scan to open BrightMarket" width="180" />
+  <img src="https://gi-os.github.io/brightmarket-index/assets/qr/BrightTransit.png" alt="Scan to open BrightTransit in BrightMarket" width="180" />
 </p>
 
-Scan the code above, or visit
-**[gi-os.github.io/brightmarket-index/browse.html](https://gi-os.github.io/brightmarket-index/browse.html)**, to install
-and keep this app updated through **BrightMarket** — no Play Store, no PC
-required.
+Scan the code above with **BrightMarket** installed to open BrightTransit there and
+install or update it directly. Don't have BrightMarket yet? Get it, and browse
+every Bright app, at
+**[gi-os.github.io/brightmarket-index/browse.html](https://gi-os.github.io/brightmarket-index/browse.html)**.
 
 **Current release: v1.2.0** (tag `v1.2.0-build.21`). `versionCode` 3, tool id
 `com.thelightphone.lightnycsubway`.
