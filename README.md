@@ -3,6 +3,17 @@
 Live subway arrival times for New York City, on the Light Phone III. LightOS shows the
 tool as **Subway Times**.
 
+## Install via BrightMarket
+
+<p align="center">
+  <img src="https://gi-os.github.io/brightmarket-index/assets/brightmarket-qr.png" alt="Scan to open BrightMarket" width="180" />
+</p>
+
+Scan the code above, or visit
+**[gi-os.github.io/brightmarket-index/browse.html](https://gi-os.github.io/brightmarket-index/browse.html)**, to install
+and keep this app updated through **BrightMarket** — no Play Store, no PC
+required.
+
 **Current release: v1.2.0** (tag `v1.2.0-build.21`). `versionCode` 3, tool id
 `com.thelightphone.lightnycsubway`.
 
