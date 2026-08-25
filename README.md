@@ -17,7 +17,7 @@ every Bright app, at
 **Current release: v1.2.0** (tag `v1.2.0-build.21`). `versionCode` 3, tool id
 `com.thelightphone.lightnycsubway`.
 
-Part of the [gi-os Light App collection](#the-gi-os-light-app-collection).
+Part of the [Bright* collection](https://brightmarket.gzl.dev).
 
 ## What it does
 
