@@ -12,7 +12,7 @@ tool as **Subway Times**.
 Scan the code above with **BrightMarket** installed to open BrightTransit there and
 install or update it directly. Don't have BrightMarket yet? Get it, and browse
 every Bright app, at
-**[gi-os.github.io/brightmarket-index/browse.html](https://gi-os.github.io/brightmarket-index/browse.html)**.
+**[brightmarket.gzl.dev](https://brightmarket.gzl.dev)**.
 
 **Current release: v1.2.0** (tag `v1.2.0-build.21`). `versionCode` 3, tool id
 `com.thelightphone.lightnycsubway`.
@@ -182,26 +182,6 @@ tool into a module the SDK reserves for it, leave upstream alone, and let a GitH
 Actions workflow build the APK. [BrightNews](https://github.com/gi-os/BrightNews) and
 [BrightSolitaire](https://github.com/gi-os/BrightSolitaire) both follow it.
 
-## The gi-os Light App collection
-
-Twelve tools for the Light Phone III, all open source, all built in one run.
-
-| Tool | What it does | Built on |
-| --- | --- | --- |
-| [BrightPasses](https://github.com/gi-os/BrightPasses) | Photograph a movie ticket, keep the stub | Plain Android |
-| [LightQR](https://github.com/gi-os/LightQR) | QR scanner, plus a browser generator | Plain Android |
-| [BrightNews](https://github.com/gi-os/BrightNews) | RSS and Atom reader with images and QR subscribe | light-sdk, fork of [zachattack323/LightRSS](https://github.com/zachattack323/LightRSS) |
-| **BrightTransit** (this repo) | Live MTA subway arrivals | light-sdk fork |
-| [chat](https://github.com/gi-os/chat) | iMessage over a self-hosted BlueBubbles server | Fork of [craigeley/chat](https://github.com/craigeley/chat) |
-| [FogLight](https://github.com/gi-os/FogLight) | Fog of World companion, GPS recorder and fog map | Fork of [garado/light-topographic](https://github.com/garado/light-topographic) |
-| [BrightNonogram](https://github.com/gi-os/BrightNonogram) | Picross, plus a generator that only ships solvable puzzles | Kotlin generator, light-sdk tool |
-| [BrightSolitaire](https://github.com/gi-os/BrightSolitaire) | Klondike, draw one, unlimited redeals | light-sdk |
-| [BrightLibrary](https://github.com/gi-os/BrightLibrary) | RSVP speed reader for EPUB and MOBI | Fork of [fluffyspace/FastRead](https://github.com/fluffyspace/FastRead) |
-| [BrightTip](https://github.com/gi-os/BrightTip) | Tip calculator, plus a receipt splitter that reads the line items | Plain Android |
-| [BrightNoise](https://github.com/gi-os/BrightNoise) | Twelve synthesized sounds, a two-layer mixer and a sleep timer | Plain Android |
-| [LightPods](https://github.com/gi-os/LightPods) | AirPods battery, in-ear and lid status | Plain Android, ports [LibrePods](https://github.com/kavishdevar/librepods) |
-
-The Light Phone does not sponsor or endorse any of these. Licences vary per repo.
 
 ## Version history
 
@@ -222,3 +202,21 @@ only edits docs elsewhere in the repo does not cut a release.
 ## License
 
 MIT, the same as upstream light-sdk. See [LICENSE](LICENSE).
+
+<!-- bright-footer:begin -->
+---
+
+## Bright\*
+
+*Live MTA arrivals — the subway is where a Light Phone is at its best and, without this, its worst.*
+
+26 open-source apps for the **Light Phone III** — camera, music, maps, messages,
+reading, transit, games. The phone has no app store, so they install by sideload: scan one
+code from **[brightmarket.gzl.dev](https://brightmarket.gzl.dev)** and BrightMarket keeps them updated.
+
+[Roll](https://github.com/gi-os/Roll) · [BrightMusic](https://github.com/gi-os/BrightMusic) · [BrightWay](https://github.com/gi-os/BrightWay) · [BrightChat](https://github.com/gi-os/BrightChat) · [BrightControl](https://github.com/gi-os/BrightControl) · [BrightRemote](https://github.com/gi-os/BrightRemote) · [browse all 26 →](https://brightmarket.gzl.dev)
+
+The Light Phone does not sponsor or endorse any of these. Built by
+[Giovanni Lupo](https://github.com/gi-os) — if this one is useful to you, a ⭐ helps the next
+person find it.
+<!-- bright-footer:end -->

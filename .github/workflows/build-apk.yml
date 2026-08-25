@@ -5,6 +5,8 @@ name: Build & Release LightNYCSubway APK
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
     paths:
       - 'examples/LightNYCSubway/**'
       - '.github/workflows/build-apk.yml'
