@@ -5,10 +5,12 @@ name: Build & Release LightNYCSubway APK
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - '**.md'
+    # One of paths / paths-ignore, never both — GitHub rejects the file outright and the
+    # run shows up as a failure with no jobs in it. Documentation is excluded with a
+    # negated pattern inside paths instead.
     paths:
       - 'examples/LightNYCSubway/**'
+      - '!**.md'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
