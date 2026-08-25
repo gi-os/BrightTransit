@@ -208,8 +208,6 @@ MIT, the same as upstream light-sdk. See [LICENSE](LICENSE).
 
 ## Bright\*
 
-*Live MTA arrivals — the subway is where a Light Phone is at its best and, without this, its worst.*
-
 26 open-source apps for the **Light Phone III** — camera, music, maps, messages,
 reading, transit, games. The phone has no app store, so they install by sideload: scan one
 code from **[brightmarket.gzl.dev](https://brightmarket.gzl.dev)** and BrightMarket keeps them updated.
