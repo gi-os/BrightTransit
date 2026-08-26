@@ -1,3 +1,5 @@
+<img src="docs/icon.png" alt="" width="72" align="left" />
+
 # BrightTransit
 
 Live subway arrival times for New York City, on the Light Phone III. LightOS shows the
