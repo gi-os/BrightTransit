@@ -35,6 +35,7 @@ MARK = [
 # tool can show a mark of its own.
 TARGETS = [
     ('examples/LightNYCSubway/src/main/res/drawable/ic_launcher_foreground.xml', 108),
+    ('tool/src/main/res/drawable/ic_launcher_foreground.xml', 108),
 ]
 
 # Legacy rasters: (path, pixels, circular mask, inset, transparent plate).
@@ -58,6 +59,16 @@ RASTERS = [
     ('examples/LightNYCSubway/src/main/res/mipmap-xxxhdpi/ic_launcher.png', 192, False, 0.72, False),
     ('examples/LightNYCSubway/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png', 192, False, 1.0, True),
     ('examples/LightNYCSubway/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png', 192, True, 0.72, False),
+    ('tool/src/main/res/mipmap-hdpi/ic_launcher.png', 72, False, 0.72, False),
+    ('tool/src/main/res/mipmap-hdpi/ic_launcher_round.png', 72, True, 0.72, False),
+    ('tool/src/main/res/mipmap-mdpi/ic_launcher.png', 48, False, 0.72, False),
+    ('tool/src/main/res/mipmap-mdpi/ic_launcher_round.png', 48, True, 0.72, False),
+    ('tool/src/main/res/mipmap-xhdpi/ic_launcher.png', 96, False, 0.72, False),
+    ('tool/src/main/res/mipmap-xhdpi/ic_launcher_round.png', 96, True, 0.72, False),
+    ('tool/src/main/res/mipmap-xxhdpi/ic_launcher.png', 144, False, 0.72, False),
+    ('tool/src/main/res/mipmap-xxhdpi/ic_launcher_round.png', 144, True, 0.72, False),
+    ('tool/src/main/res/mipmap-xxxhdpi/ic_launcher.png', 192, False, 0.72, False),
+    ('tool/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png', 192, True, 0.72, False),
 ]
 
 # Files that are the same in every app: the black plate, and the adaptive-icon
@@ -66,6 +77,9 @@ STATIC = [
     ('examples/LightNYCSubway/src/main/res/drawable/ic_launcher_background.xml', '<?xml version="1.0" encoding="utf-8"?>\n<!-- Solid black plate. The whole set is black and white; nothing else belongs here. -->\n<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="108dp"\n    android:height="108dp"\n    android:viewportWidth="108"\n    android:viewportHeight="108">\n    <path\n        android:pathData="M0,0 H108 V108 H0 Z"\n        android:fillColor="#000000" />\n</vector>\n'),
     ('examples/LightNYCSubway/src/main/res/mipmap-anydpi-v26/ic_launcher.xml', '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@drawable/ic_launcher_background" />\n    <foreground android:drawable="@drawable/ic_launcher_foreground" />\n    <monochrome android:drawable="@drawable/ic_launcher_foreground" />\n</adaptive-icon>\n'),
     ('examples/LightNYCSubway/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml', '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@drawable/ic_launcher_background" />\n    <foreground android:drawable="@drawable/ic_launcher_foreground" />\n    <monochrome android:drawable="@drawable/ic_launcher_foreground" />\n</adaptive-icon>\n'),
+    ('tool/src/main/res/drawable/ic_launcher_background.xml', '<?xml version="1.0" encoding="utf-8"?>\n<!-- Solid black plate. The whole set is black and white; nothing else belongs here. -->\n<vector xmlns:android="http://schemas.android.com/apk/res/android"\n    android:width="108dp"\n    android:height="108dp"\n    android:viewportWidth="108"\n    android:viewportHeight="108">\n    <path\n        android:pathData="M0,0 H108 V108 H0 Z"\n        android:fillColor="#000000" />\n</vector>\n'),
+    ('tool/src/main/res/mipmap-anydpi-v26/ic_launcher.xml', '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@drawable/ic_launcher_background" />\n    <foreground android:drawable="@drawable/ic_launcher_foreground" />\n    <monochrome android:drawable="@drawable/ic_launcher_foreground" />\n</adaptive-icon>\n'),
+    ('tool/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml', '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@drawable/ic_launcher_background" />\n    <foreground android:drawable="@drawable/ic_launcher_foreground" />\n    <monochrome android:drawable="@drawable/ic_launcher_foreground" />\n</adaptive-icon>\n'),
 ]
 
 STROKE = ('        android:fillColor="#00000000"\n'
