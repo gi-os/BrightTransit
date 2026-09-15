@@ -2,6 +2,8 @@
 
 # BrightTransit
 
+[**⬇ Download the latest APK**](https://github.com/gi-os/BrightTransit/releases/latest) · free, open source.
+
 Live subway arrival times for New York City, on the Light Phone III. LightOS shows the
 tool as **Subway Times**.
 
