@@ -196,6 +196,14 @@ that touches `examples/BrightTransit/` or the workflow file itself. The tag is
 `v<versionName>-build.<run number>`, with `versionName` read from `lighttool.toml` — a push that
 only edits docs elsewhere in the repo does not cut a release.
 
+- **v2.0.0** (2026-11-12) — Rewritten after feedback from Light. Home is only your saved
+  stations; one bottom row everywhere (nearby, search, refresh); "Save" replaces "Star". Trains are
+  grouped by where they go ("Manhattan", not "Uptown", for the L) and each shows its last stop from
+  the live feed. Search matches words in any order, abbreviations, typos and nicknames, and opens
+  on the keyboard. Times count down and refresh on their own, and stay up marked "not live" when
+  the signal drops. Location comes from LightOS; the IP lookup is gone, so the app talks only to
+  the MTA. Saved stations and favorite lines carry over, including ones saved under old ids.
+  Built on Light SDK 0.2.0, which no longer needs a GitHub Packages token.
 - **v1.2.0** (build 21, 2026-07-29) — Hardware wheel scrolls the board, the station list and search
   results, with a bump guard against stray brushes (`ArmedNotches`).
 - **v1.1.0** (builds 10–19, 2026-07-28) — Local tab: browse stations by borough, or by GPS/IP-based

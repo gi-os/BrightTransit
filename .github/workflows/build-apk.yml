@@ -42,17 +42,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APK
-        env:
-          # Light SDK libraries live in lightphone's GitHub Packages.
-          # Add these two repo secrets (Settings > Secrets and variables > Actions):
-          #   GH_PACKAGES_USER  = your GitHub username (gi-os)
-          #   GH_PACKAGES_TOKEN = a PAT with read:packages
-          GH_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER }}
-          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-          GITHUB_ACTOR: ${{ secrets.GH_PACKAGES_USER }}
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        run: ./gradlew :examples:LightNYCSubway:assembleDebug --stacktrace --no-daemon
+      - name: Test and build debug APK
+        # toolOnly leaves out the SDK's emulator and example modules, which this app does not need.
+        run: ./gradlew -DlightSdk.toolOnly=true :examples:LightNYCSubway:testDebugUnitTest :examples:LightNYCSubway:assembleDebug --stacktrace --no-daemon
 
       - name: Collect APK + version
         id: apk

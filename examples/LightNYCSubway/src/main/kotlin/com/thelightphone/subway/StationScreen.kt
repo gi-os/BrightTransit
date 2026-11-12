@@ -1,140 +1,91 @@
 package com.thelightphone.subway
 
 import android.view.KeyEvent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.viewModelScope
+import com.thelightphone.subway.data.Board
+import com.thelightphone.subway.data.Catalog
+import com.thelightphone.subway.data.Routes
+import com.thelightphone.subway.data.SavedStore
+import com.thelightphone.subway.hw.WheelBus
+import com.thelightphone.subway.hw.dispatch
+import com.thelightphone.subway.ui.ArrivalRow
+import com.thelightphone.subway.ui.FadeIn
+import com.thelightphone.subway.ui.dimWhileRefreshing
+import com.thelightphone.subway.ui.Note
+import com.thelightphone.subway.ui.RouteBadgeRow
+import com.thelightphone.subway.ui.StaleNote
+import com.thelightphone.subway.ui.SubwayScreen
+import com.thelightphone.subway.ui.refreshButton
+import com.thelightphone.subway.ui.rememberNow
+import com.thelightphone.subway.ui.searchButton
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightBottomBar
-import com.thelightphone.sdk.ui.LightIcons
-import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
-import com.thelightphone.sdk.ui.LightTheme
-import com.thelightphone.sdk.ui.LightThemeController
-import com.thelightphone.sdk.ui.LightThemeTokens
-import com.thelightphone.sdk.ui.LightTopBar
-import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
-import com.thelightphone.subway.hw.LocalWheelBus
-import com.thelightphone.subway.hw.WheelBus
-import com.thelightphone.subway.hw.WheelScroll
-import com.thelightphone.subway.hw.dispatch
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class StationUiState(
-    val station: Station? = null,
-    val loading: Boolean = true,
-    val failed: Boolean = false,
-    val starred: Boolean = false,
-    val favoriteRoutes: Set<String> = emptySet(),
-    val north: List<Arrival> = emptyList(),
-    val south: List<Arrival> = emptyList(),
-    val nowSeconds: Long = System.currentTimeMillis() / 1000,
-)
-
 class StationViewModel(
-    private val dataStore: DataStore<Preferences>,
-    private val readAsset: (String) -> ByteArray,
+    private val saved: SavedStore,
+    private val catalog: suspend () -> Catalog,
     private val stationId: String,
 ) : LightViewModel<Unit>() {
 
-    private val repo = ArrivalsRepository()
-    private val _state = MutableStateFlow(StationUiState())
-    val state: StateFlow<StationUiState> = _state
+    val live = LiveBoards(viewModelScope, catalog)
 
-    @Volatile
-    private var store: StationStore? = null
+    val isSaved: StateFlow<Boolean> =
+        saved.stationIds.map { stationId in it }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    private fun store(): StationStore =
-        store ?: StationStore(dataStore, StationCatalog.load(readAsset)).also { store = it }
+    val favorites: StateFlow<Set<String>> =
+        saved.favoriteRoutes.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            live.follow(listOfNotNull(catalog().station(stationId)))
+        }
+    }
+
+    fun toggleSaved() {
+        viewModelScope.launch(Dispatchers.Default) { runCatching { saved.toggleStation(stationId) } }
+    }
+
+    fun toggleFavorite(route: String) {
+        viewModelScope.launch(Dispatchers.Default) { runCatching { saved.toggleRoute(route) } }
+    }
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
-        load()
+        live.resume()
     }
 
-    fun load() {
-        viewModelScope.launch(Dispatchers.Default) {
-            val s = store()
-            val station = s.station(stationId)
-            if (station == null) {
-                _state.value = StationUiState(station = null, loading = false, failed = true)
-                return@launch
-            }
-            val starred = runCatching { s.isStarred(stationId) }.getOrDefault(false)
-            val favs = runCatching { s.favoriteRoutes() }.getOrDefault(emptySet())
-            _state.value = _state.value.copy(
-                station = station, loading = true, starred = starred, favoriteRoutes = favs,
-            )
-            val now = System.currentTimeMillis() / 1000
-            runCatching { repo.arrivalsFor(station, now) }.fold(
-                onSuccess = { arrivals ->
-                    _state.value = StationUiState(
-                        station = station,
-                        loading = false,
-                        starred = starred,
-                        favoriteRoutes = favs,
-                        north = arrivals.filter { it.direction == Direction.NORTH }.take(6),
-                        south = arrivals.filter { it.direction == Direction.SOUTH }.take(6),
-                        nowSeconds = now,
-                    )
-                },
-                onFailure = {
-                    _state.value = StationUiState(
-                        station = station, loading = false, failed = true,
-                        starred = starred, favoriteRoutes = favs,
-                    )
-                },
-            )
-        }
+    override fun onScreenHide(screen: SimpleLightScreen<Unit>) {
+        super.onScreenHide(screen)
+        live.pause()
     }
 
-    fun toggleStar() {
-        viewModelScope.launch(Dispatchers.Default) {
-            runCatching {
-                store().toggleStar(stationId)
-                _state.value = _state.value.copy(starred = store().isStarred(stationId))
-            }
-        }
-    }
-
-    fun toggleFavoriteRoute(route: String) {
-        viewModelScope.launch(Dispatchers.Default) {
-            runCatching {
-                store().toggleFavoriteRoute(route)
-                _state.value = _state.value.copy(favoriteRoutes = store().favoriteRoutes())
-            }
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        repo.close()
+    override fun onAppPause() {
+        super.onAppPause()
+        live.pause()
     }
 }
 
+/** Every train due at one station, listed under the direction it is going. */
 class StationScreen(
     sealedActivity: SealedLightActivity,
     private val stationId: String,
@@ -142,10 +93,11 @@ class StationScreen(
 
     override val viewModelClass: Class<StationViewModel> get() = StationViewModel::class.java
 
-    override fun createViewModel(): StationViewModel =
-        StationViewModel(lightContext.dataStore, lightContext::readAsset, stationId)
+    override fun createViewModel(): StationViewModel {
+        val readAsset = lightContext::readAsset
+        return StationViewModel(Subway.saved(lightContext.dataStore), { Subway.catalog(readAsset) }, stationId)
+    }
 
-    /** Wheel notches on their way to the arrivals board. */
     private val wheel = WheelBus()
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent) =
@@ -156,132 +108,81 @@ class StationScreen(
 
     @Composable
     override fun Content() {
-        val state by viewModel.state.collectAsState()
-        val themeColors by LightThemeController.colors.collectAsState()
-        val station = state.station
+        val boards by viewModel.live.boards.collectAsState()
+        val isSaved by viewModel.isSaved.collectAsState()
+        val favorites by viewModel.favorites.collectAsState()
+        val refreshing by viewModel.live.refreshing.collectAsState()
+        val now by rememberNow()
+        val board = boards.firstOrNull()
 
-        CompositionLocalProvider(LocalWheelBus provides wheel) {
-            LightTheme(colors = themeColors) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(LightThemeTokens.colors.background),
-                ) {
-                    LightTopBar(
-                        leftButton = LightBarButton.LightIcon(
-                            icon = LightIcons.BACK,
-                            onClick = { goBack() },
-                            contentDescription = "Back",
-                        ),
-                        center = LightTopBarCenter.Text(station?.name ?: "Station"),
-                        modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-                    )
-
-                    // A busy interchange lists both directions of half a dozen lines, which
-                    // runs well past the bottom of the panel.
-                    val scroll = rememberScrollState()
-                    WheelScroll(scroll)
-
-                    LightScrollView(
-                        scrollState = scroll,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = 1f.gridUnitsAsDp()),
-                    ) {
-                        if (station == null) {
-                            LightText(
-                                text = if (state.loading) "Loading…" else "Unknown station.",
-                                variant = LightTextVariant.Copy,
-                            )
-                        } else {
-                            RouteBadgeRow(
-                                routes = station.routes,
-                                favorites = state.favoriteRoutes,
-                                onRouteClick = { viewModel.toggleFavoriteRoute(it) },
-                                modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
-                            )
-                            LightText(
-                                text = station.boroLabel + "  ·  tap a line to favorite",
-                                variant = LightTextVariant.Detail,
-                                lighten = true,
-                                modifier = Modifier.padding(top = 0.15f.gridUnitsAsDp(), bottom = 0.75f.gridUnitsAsDp()),
-                            )
-                            when {
-                                state.loading ->
-                                    LightText(text = "Loading…", variant = LightTextVariant.Copy)
-                                state.failed ->
-                                    LightText(
-                                        text = "Live times unavailable right now.",
-                                        variant = LightTextVariant.Copy, lighten = true,
-                                    )
-                                else -> {
-                                    DirectionSection(
-                                        label = "Uptown",
-                                        arrivals = state.north,
-                                        nowSeconds = state.nowSeconds,
-                                        favoriteRoutes = state.favoriteRoutes,
-                                    )
-                                    DirectionSection(
-                                        label = "Downtown",
-                                        arrivals = state.south,
-                                        nowSeconds = state.nowSeconds,
-                                        favoriteRoutes = state.favoriteRoutes,
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    LightBottomBar(
-                        items = listOf(
-                            LightBarButton.Text(
-                                text = if (state.starred) "Unstar" else "Star",
-                                onClick = { viewModel.toggleStar() },
-                            ),
-                            LightBarButton.LightIcon(
-                                icon = LightIcons.REFRESH,
-                                onClick = { viewModel.load() },
-                                contentDescription = "Refresh",
-                            ),
-                        ),
-                    )
-                }
-            }
+        SubwayScreen(
+            title = board?.station?.name ?: "",
+            wheel = wheel,
+            onBack = { goBack() },
+            refreshing = refreshing,
+            bottom = listOf(
+                searchButton { navigateTo(::SearchScreen) },
+                LightBarButton.Text(
+                    text = if (isSaved) "UNSAVE" else "SAVE STATION",
+                    onClick = { viewModel.toggleSaved() },
+                ),
+                refreshButton { viewModel.live.refreshNow() },
+            ),
+        ) {
+            if (board != null) StationPage(board, now, favorites) { viewModel.toggleFavorite(it) }
         }
     }
 }
 
 @Composable
-private fun DirectionSection(
-    label: String,
-    arrivals: List<Arrival>,
-    nowSeconds: Long,
-    favoriteRoutes: Set<String>,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 1f.gridUnitsAsDp()),
-    ) {
-        LightText(
-            text = label,
-            variant = LightTextVariant.Heading,
-            modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-        )
-        if (arrivals.isEmpty()) {
-            LightText(text = "No trains", variant = LightTextVariant.Detail, lighten = true)
-        } else {
-            arrivals.forEach { arrival ->
-                ArrivalRowLine(
-                    route = arrival.route,
-                    minutesText = minutesLabel(arrival.minutesFrom(nowSeconds)),
-                    favorite = arrival.route in favoriteRoutes,
+private fun StationPage(board: Board, now: Long, favorites: Set<String>, onRoute: (String) -> Unit) {
+    val station = board.station
+    RouteBadgeRow(
+        routes = station.routes,
+        favorites = favorites,
+        onRouteClick = onRoute,
+        modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp()),
+    )
+    Note(
+        text = station.boroLabel + "  ·  tap a line to favorite",
+        modifier = Modifier.padding(top = 0.15f.gridUnitsAsDp(), bottom = 0.75f.gridUnitsAsDp()),
+    )
+
+    val groups = board.groups(now)
+    when {
+        board.failed -> Note("Times unavailable. Check your connection.")
+        board.loading && board.arrivals.isEmpty() -> Note("Loading…")
+        groups.isEmpty() -> Note("No trains due right now.")
+        else -> {
+            groups.forEachIndexed { index, group ->
+                key(group.heading) {
+                FadeIn(order = index) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 0.25f.gridUnitsAsDp()),
-                )
+                        .dimWhileRefreshing()
+                        .padding(bottom = 1f.gridUnitsAsDp()),
+                ) {
+                    LightText(
+                        text = group.heading,
+                        variant = LightTextVariant.Heading,
+                        modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                    )
+                    group.arrivals.take(PER_DIRECTION).forEach { arrival ->
+                        ArrivalRow(
+                            arrival = arrival,
+                            nowSeconds = now,
+                            favorite = Routes.plain(arrival.route) in favorites,
+                            modifier = Modifier.padding(vertical = 0.25f.gridUnitsAsDp()),
+                        )
+                    }
+                }
+                }
+                }
             }
+            if (board.stale) StaleNote(board)
         }
     }
 }
+
+private const val PER_DIRECTION = 5
