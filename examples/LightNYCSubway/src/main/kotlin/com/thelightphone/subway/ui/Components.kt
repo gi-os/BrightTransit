@@ -46,6 +46,7 @@ import com.thelightphone.subway.data.Arrival
 import com.thelightphone.subway.data.Board
 import com.thelightphone.subway.data.Directions
 import com.thelightphone.subway.data.Routes
+import com.thelightphone.subway.data.ServiceAlert
 import com.thelightphone.subway.hw.LocalWheelBus
 import com.thelightphone.subway.hw.WheelBus
 import com.thelightphone.subway.hw.WheelScroll
@@ -288,7 +289,8 @@ fun clockLabel(epochSeconds: Long): String =
 /**
  * A station as it appears on the home screen and at the top of the nearby list: its name,
  * its lines, and the next trains each way in two columns.
- * Trains on a favorite line carry a small star.
+ * Trains on a favorite line carry a small star. With [alerts], the worst of them gets one
+ * line under the bullets; the station page has them all in full.
  */
 @Composable
 fun StationBoard(
@@ -298,6 +300,7 @@ fun StationBoard(
     onOpen: () -> Unit,
     modifier: Modifier = Modifier,
     trailing: String? = null,
+    alerts: List<ServiceAlert> = emptyList(),
 ) {
     val station = board.station
     Column(
@@ -328,6 +331,7 @@ fun StationBoard(
             favorites = favorites,
             modifier = Modifier.padding(top = 0.25f.gridUnitsAsDp(), bottom = 0.5f.gridUnitsAsDp()),
         )
+        if (alerts.isNotEmpty()) AlertLine(alerts, Modifier.padding(bottom = 0.5f.gridUnitsAsDp()))
 
         val groups = board.groups(nowSeconds)
         when {
@@ -356,6 +360,27 @@ fun StationBoard(
                     if (board.stale) StaleNote(board)
                 }
             }
+        }
+    }
+}
+
+/**
+ * The first alert's headline on one line, cut off where the line ends, and "+2" when two
+ * more are waiting on the station page. Quiet on purpose: this is a hint to open the station.
+ */
+@Composable
+private fun AlertLine(alerts: List<ServiceAlert>, modifier: Modifier = Modifier) {
+    FadeIn(modifier) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            LightText(
+                text = alerts.first().headline,
+                variant = LightTextVariant.Detail,
+                lighten = true,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            if (alerts.size > 1) Note("+${alerts.size - 1}", Modifier.padding(start = 8.dp))
         }
     }
 }

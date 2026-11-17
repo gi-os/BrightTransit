@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap
  * dead zone leaves the board on screen instead of blanking it.
  */
 class ArrivalsRepository(
-    private val download: suspend (String) -> ByteArray = { httpGet(it) },
+    private val download: suspend (String) -> ByteArray = { MtaHttp.get(it) },
     private val clock: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
     private class Cached(val feed: GtfsRealtime.Feed, val fetchedAt: Long)
@@ -84,22 +85,35 @@ class ArrivalsRepository(
         const val KEEP_FOR = 20 * 60L
 
         const val STALE_AFTER = 120L
+    }
+}
 
-        private val client by lazy {
-            HttpClient(OkHttp) {
-                install(HttpTimeout) {
-                    connectTimeoutMillis = 8_000
-                    requestTimeoutMillis = 15_000
-                    socketTimeoutMillis = 10_000
-                }
+/** The one HTTP client behind every request to the MTA, shared by the trains and the alerts. */
+internal object MtaHttp {
+    private val client by lazy {
+        HttpClient(OkHttp) {
+            install(HttpTimeout) {
+                connectTimeoutMillis = 8_000
+                requestTimeoutMillis = 15_000
+                socketTimeoutMillis = 10_000
             }
         }
+    }
 
-        private suspend fun httpGet(url: String): ByteArray {
-            // The already-encoded string is passed through so the %2F reaches the server.
-            val response: HttpResponse = client.get(url) { header("Accept", "application/x-protobuf") }
-            if (!response.status.isSuccess()) throw java.io.IOException("HTTP ${response.status.value}")
-            return response.body()
+    /**
+     * [requestTimeoutMs] gives one request longer than the usual fifteen seconds.
+     *
+     * Accept-Encoding and Range are never set here. OkHttp asks for gzip and unpacks it on
+     * its own, but only while neither header is set by hand, and the alerts feed is six
+     * times the size without it.
+     */
+    suspend fun get(url: String, requestTimeoutMs: Long? = null): ByteArray {
+        // The already-encoded string is passed through so the %2F reaches the server.
+        val response: HttpResponse = client.get(url) {
+            header("Accept", "application/x-protobuf")
+            if (requestTimeoutMs != null) timeout { requestTimeoutMillis = requestTimeoutMs }
         }
+        if (!response.status.isSuccess()) throw java.io.IOException("HTTP ${response.status.value}")
+        return response.body()
     }
 }

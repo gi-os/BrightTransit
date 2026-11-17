@@ -73,6 +73,30 @@ object Routes {
 
     /** A favorited "6" also covers the "6X". */
     fun plain(route: String): String = glyph(route)
+
+    /**
+     * A line at one platform, spelled the way the feeds spell it. The station file writes
+     * all three shuttles as "S"; which one it is can only be told from the stop: 42 St has
+     * numbered stops (901, 902), Rockaway Park has H stops, and Franklin Av is the rest.
+     */
+    fun feedId(route: String, stop: String): String = when (route) {
+        "SIR" -> "SI"
+        "S" -> when {
+            stop.firstOrNull()?.isDigit() == true -> "GS"
+            stop.startsWith("H") -> "H"
+            else -> "FS"
+        }
+        else -> route
+    }
+
+    /**
+     * A line as an alert names it, turned into the id stations are matched on. An alert for
+     * the "6X" is an alert for the 6, and the railway turns up as both "SI" and "SIR".
+     */
+    fun alertId(feedRoute: String): String = when (val r = feedRoute.uppercase()) {
+        "SIR" -> "SI"
+        else -> plain(r)
+    }
 }
 
 /** The MTA's realtime feeds. No key is needed. */
@@ -82,6 +106,9 @@ object Feeds {
      * percent-encoded or the request is refused.
      */
     fun url(slug: String) = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2F$slug"
+
+    /** Service alerts for every line in one feed. Its slash has to stay encoded too. */
+    const val ALERTS = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts"
 
     private fun forRoute(route: String, stop: String): List<String> = when (route.uppercase()) {
         "1", "2", "3", "4", "5", "6", "7" -> listOf("gtfs")

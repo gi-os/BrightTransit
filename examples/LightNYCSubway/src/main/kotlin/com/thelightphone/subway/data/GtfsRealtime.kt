@@ -9,7 +9,9 @@ package com.thelightphone.subway.data
  *   FeedMessage      header            = 1
  *                    entity            = 2  (repeated)
  *   FeedHeader       timestamp         = 3  (unix seconds the MTA built the feed)
- *   FeedEntity       trip_update       = 3
+ *   FeedEntity       id                = 1
+ *                    trip_update       = 3
+ *                    alert             = 5
  *   TripUpdate       trip              = 1
  *                    stop_time_update  = 2  (repeated, in the order the train runs)
  *   TripDescriptor   route_id          = 5
@@ -17,9 +19,23 @@ package com.thelightphone.subway.data
  *                    departure         = 3
  *                    stop_id           = 4  ("L14N": parent stop + direction)
  *   StopTimeEvent    time              = 2  (unix seconds)
+ *   Alert            active_period     = 1  (repeated)
+ *                    informed_entity   = 5  (repeated)
+ *                    header_text       = 10
+ *                    MTA extension     = 1001, holding alert_type = 3 ("Delays")
+ *   TimeRange        start             = 1  (unix seconds)
+ *                    end               = 2  (missing or 0: no end set)
+ *   EntitySelector   route_id          = 2
+ *                    stop_id           = 5  (parent stop, no direction letter)
+ *                    MTA extension     = 1001, holding sort_order = 1 ("MTASBWY:L:20")
+ *   TranslatedString translation       = 1  (repeated)
+ *   Translation      text              = 1
+ *                    language          = 2  ("en" or "en-html")
  *
  * Unlike the first version, a trip keeps its stops together and in order. That is what lets
  * the tool say where each train ends up.
+ *
+ * Trains and alerts come in separate feeds, so there is a reader for each: [parse] and [alerts].
  */
 object GtfsRealtime {
 
@@ -28,6 +44,27 @@ object GtfsRealtime {
     data class Trip(val route: String, val stops: List<StopTime>)
 
     data class Feed(val timestamp: Long, val trips: List<Trip>)
+
+    /** When an alert applies, in unix seconds. An [end] of 0 means no end has been set. */
+    data class Period(val start: Long, val end: Long)
+
+    /**
+     * One place an alert is about. [route] is spelled as the feed spells it ("GS", "6X", "SI").
+     * An empty [stop] means the whole line. [sort] is the MTA's own ranking of how much the
+     * alert matters, higher for worse, and 0 when the feed gives none.
+     */
+    data class Selector(val route: String, val stop: String, val sort: Int)
+
+    /** [header] is the MTA's plain-text headline untouched, "[L]" tokens and line breaks included. */
+    data class Alert(
+        val id: String,
+        val periods: List<Period>,
+        val selectors: List<Selector>,
+        val header: String,
+        val type: String,
+    )
+
+    data class AlertFeed(val timestamp: Long, val alerts: List<Alert>)
 
     /** Thrown for bytes that are not a readable feed (a captive portal page, a cut-off download). */
     class BadFeed(message: String) : Exception(message)
@@ -84,6 +121,12 @@ object GtfsRealtime {
             val e = lenEnd()
             return Reader(b, p, e).also { p = e }
         }
+
+        /** A second reader over what this one has left, for going through the same bytes twice. */
+        fun again() = Reader(b, p, end)
+
+        /** Everything this reader has left, as text. */
+        fun text() = String(b, p, end - p, Charsets.UTF_8)
     }
 
     fun parse(data: ByteArray): Feed {
@@ -164,5 +207,154 @@ object GtfsRealtime {
             if (field == 2 && wire == 0) time = r.varint() else r.skip(wire)
         }
         return time
+    }
+
+    /**
+     * Reads the service alerts feed, keeping only the alerts that apply at some point between
+     * [from] and [until] (unix seconds).
+     *
+     * The feed is about half a megabyte and nearly all of it is planned work for the weeks
+     * ahead, so each alert is gone through twice. The first pass reads nothing but its
+     * periods, which are plain numbers. Only an alert with a period in reach gets the second
+     * pass, where its text is decoded. An alert with no periods at all is kept: GTFS says it
+     * applies for as long as it is in the feed.
+     */
+    fun alerts(data: ByteArray, from: Long, until: Long): AlertFeed {
+        var timestamp = 0L
+        val alerts = ArrayList<Alert>()
+        try {
+            val r = Reader(data, 0, data.size)
+            r.fields { field, wire ->
+                when {
+                    field == 1 && wire == 2 -> timestamp = header(r.sub())
+                    field == 2 && wire == 2 -> alertEntity(r.sub(), from, until)?.let { alerts.add(it) }
+                    else -> r.skip(wire)
+                }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            throw BadFeed("truncated")
+        }
+        // A day with no alerts at all is still a feed, so the header is the only proof of one.
+        if (timestamp == 0L) throw BadFeed("not a feed")
+        return AlertFeed(timestamp, alerts)
+    }
+
+    private fun alertEntity(r: Reader, from: Long, until: Long): Alert? {
+        var id: Reader? = null
+        var body: Reader? = null
+        r.fields { field, wire ->
+            when {
+                field == 1 && wire == 2 -> id = r.sub()
+                field == 5 && wire == 2 -> body = r.sub()
+                else -> r.skip(wire)
+            }
+        }
+        val alert = body ?: return null
+        val periods = periodsInReach(alert.again(), from, until) ?: return null
+
+        val selectors = ArrayList<Selector>()
+        var header = ""
+        var type = ""
+        alert.fields { field, wire ->
+            when {
+                field == 5 && wire == 2 -> selectors.add(selector(alert.sub()))
+                field == 10 && wire == 2 -> header = english(alert.sub())
+                field == 1001 && wire == 2 -> type = alertType(alert.sub())
+                else -> alert.skip(wire)
+            }
+        }
+        return Alert(id?.text() ?: "", periods, selectors, header, type)
+    }
+
+    /** Null for an alert that has periods, none of which reaches into [from]..[until]. */
+    private fun periodsInReach(r: Reader, from: Long, until: Long): List<Period>? {
+        var hasPeriods = false
+        var kept: ArrayList<Period>? = null
+        r.fields { field, wire ->
+            if (field == 1 && wire == 2) {
+                hasPeriods = true
+                val range = r.sub()
+                var start = 0L
+                var end = 0L
+                range.fields { f, w ->
+                    when {
+                        f == 1 && w == 0 -> start = range.varint()
+                        f == 2 && w == 0 -> end = range.varint()
+                        else -> range.skip(w)
+                    }
+                }
+                if (start <= until && (end == 0L || end > from)) {
+                    val list = kept ?: ArrayList<Period>().also { kept = it }
+                    list.add(Period(start, end))
+                }
+            } else {
+                r.skip(wire)
+            }
+        }
+        return if (hasPeriods) kept else emptyList()
+    }
+
+    private fun selector(r: Reader): Selector {
+        var route = ""
+        var stop = ""
+        var sort = 0
+        r.fields { field, wire ->
+            when {
+                field == 2 && wire == 2 -> route = r.string()
+                field == 5 && wire == 2 -> stop = r.string()
+                field == 1001 && wire == 2 -> sort = sortOrder(r.sub())
+                else -> r.skip(wire)
+            }
+        }
+        return Selector(route, stop, sort)
+    }
+
+    /** The number at the end of "MTASBWY:L:20". */
+    private fun sortOrder(r: Reader): Int {
+        var sort = 0
+        r.fields { field, wire ->
+            if (field == 1 && wire == 2) sort = r.string().substringAfterLast(':').toIntOrNull() ?: 0 else r.skip(wire)
+        }
+        return sort
+    }
+
+    private fun alertType(r: Reader): String {
+        var type = ""
+        r.fields { field, wire ->
+            if (field == 3 && wire == 2) type = r.string() else r.skip(wire)
+        }
+        return type
+    }
+
+    /**
+     * The plain English copy of a text. The MTA sends every text twice, as "en" and as
+     * "en-html", and the HTML copy is the longer one. Where each text sits is noted first and
+     * only the one wanted is decoded, so the HTML never becomes a String. A feed that tags no
+     * language at all gets its first text used.
+     */
+    private fun english(r: Reader): String {
+        var english: Reader? = null
+        var untagged: Reader? = null
+        r.fields { field, wire ->
+            if (field == 1 && wire == 2) {
+                val translation = r.sub()
+                var text: Reader? = null
+                var language = ""
+                translation.fields { f, w ->
+                    when {
+                        f == 1 && w == 2 -> text = translation.sub()
+                        f == 2 && w == 2 -> language = translation.string()
+                        else -> translation.skip(w)
+                    }
+                }
+                when (language) {
+                    "en" -> if (english == null) english = text
+                    "" -> if (untagged == null) untagged = text
+                }
+            } else {
+                r.skip(wire)
+            }
+        }
+        return (english ?: untagged)?.text() ?: ""
     }
 }

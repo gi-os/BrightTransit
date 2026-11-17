@@ -4,6 +4,7 @@ import com.thelightphone.subway.data.Board
 import com.thelightphone.subway.data.Direction
 import com.thelightphone.subway.data.Directions
 import com.thelightphone.subway.data.Feeds
+import com.thelightphone.subway.data.Platform
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,12 +24,36 @@ class DirectionsTest {
     }
 
     @Test
-    fun aDirectionTheMtaOnlyCallsOutboundIsNamedAfterWhereTheTrainEnds() {
+    fun theOtherWayOnTheLIsBrooklynWhereverTheTrainTurnsBack() {
         val south = arrivals("Morgan Av").filter { it.direction == Direction.SOUTH }
         assertTrue(south.isNotEmpty())
-        // This feed was captured with the L turning back early.
+        // This feed was captured with the L turning back early. The heading stays put; the
+        // last stop is what tells a rider the train is not going all the way.
         assertTrue(south.all { it.destination == "Myrtle-Wyckoff Avs" })
-        assertTrue(south.all { it.heading == "Myrtle-Wyckoff Avs" })
+        assertTrue(south.all { it.heading == "Brooklyn" })
+    }
+
+    @Test
+    fun everyLStopOutsideManhattanReadsManhattanAndBrooklyn() {
+        val outside = Fixtures.catalog.stations
+            .flatMap { it.platforms }
+            .filter { it.routes == listOf("L") && it.n == "Manhattan" && it.stop != "L29" }
+        assertEquals(18, outside.size)
+        assertTrue(outside.all { it.s == "Brooklyn" })
+        // Nothing leaves Canarsie going that way.
+        assertEquals("", Fixtures.catalog.stop("L29")!!.second.s)
+    }
+
+    @Test
+    fun aDirectionWithNoSignIsNamedAfterWhereTheTrainEnds() {
+        val morgan = Fixtures.station("Morgan Av")
+        val unsigned = Platform(stop = "X00")
+        val canarsie = Fixtures.catalog.stop("L29")
+        val eighthAv = Fixtures.catalog.stop("L01")
+        // Another borough is named as the borough, the same borough by the last stop.
+        assertEquals("Manhattan", Directions.heading(morgan, unsigned, Direction.NORTH, eighthAv))
+        assertEquals("Canarsie", Directions.heading(morgan, unsigned, Direction.SOUTH, canarsie))
+        assertEquals("Southbound", Directions.heading(morgan, unsigned, Direction.SOUTH, null))
     }
 
     @Test

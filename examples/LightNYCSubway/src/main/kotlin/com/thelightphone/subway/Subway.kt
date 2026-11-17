@@ -2,6 +2,8 @@ package com.thelightphone.subway
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.thelightphone.subway.data.Alerts
+import com.thelightphone.subway.data.AlertsRepository
 import com.thelightphone.subway.data.ArrivalsRepository
 import com.thelightphone.subway.data.Board
 import com.thelightphone.subway.data.Catalog
@@ -20,11 +22,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The parts every screen shares: the station catalog, the feed cache and what is saved.
- * Version 1 built a catalog reader, a store and an HTTP client per screen.
+ * The parts every screen shares: the station catalog, the feed cache, the service alerts
+ * and what is saved. Version 1 built a catalog reader, a store and an HTTP client per screen.
  */
 object Subway {
     val arrivals = ArrivalsRepository()
+
+    val alerts = AlertsRepository()
 
     @Volatile
     private var catalog: Catalog? = null
@@ -62,6 +66,12 @@ class LiveBoards(
     private val _refreshing = MutableStateFlow(false)
     val refreshing: StateFlow<Boolean> = _refreshing
 
+    /**
+     * The service alerts in hand. They are the same for every screen and are not part of a
+     * board: a screen picks out the ones for its stations as it draws.
+     */
+    val alerts: StateFlow<Alerts> get() = Subway.alerts.current
+
     @Volatile
     private var stations: List<Station> = emptyList()
     private var visible = false
@@ -72,7 +82,9 @@ class LiveBoards(
         this.stations = stations
         val old = _boards.value.associateBy { it.station.id }
         _boards.value = stations.map { old[it.id] ?: Board(it, loading = true) }
-        if (visible) restart(force = false)
+        // A refresh the person asked for is carried over, not dropped, when the stations are
+        // set again in the middle of it. Nearby looks the location up again on the same press.
+        if (visible) restart(force = _refreshing.value)
     }
 
     fun resume() {
@@ -106,6 +118,9 @@ class LiveBoards(
                 } else {
                     load(force = false)
                 }
+                // Alerts are asked for once the trains are back, never beside them, and are
+                // not waited for. Most times this does nothing: the copy in hand is new enough.
+                if (stations.isNotEmpty()) Subway.alerts.refresh(force = forced)
                 forced = false
                 delay(EVERY_MS)
             }

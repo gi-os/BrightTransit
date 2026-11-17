@@ -110,6 +110,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         val boards by viewModel.live.boards.collectAsState()
         val favorites by viewModel.favorites.collectAsState()
         val refreshing by viewModel.live.refreshing.collectAsState()
+        val snapshot by viewModel.live.alerts.collectAsState()
         val now by rememberNow()
 
         SubwayScreen(
@@ -133,12 +134,19 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         ) {
             boards.forEachIndexed { index, board ->
                 key(board.station.id) {
+                    val station = board.station
+                    // Station notices are left for the station page. A closed entrance can
+                    // stay posted for months, and would sit on this screen the whole time.
+                    val alerts = remember(snapshot, station.id, now) {
+                        snapshot.at(station, now).filterNot { it.notice }
+                    }
                     FadeIn(order = index) {
                         StationBoard(
                             board = board,
                             nowSeconds = now,
                             favorites = favorites,
-                            onOpen = { navigateTo({ StationScreen(it, board.station.id) }) },
+                            onOpen = { navigateTo({ StationScreen(it, station.id) }) },
+                            alerts = alerts,
                         )
                     }
                 }

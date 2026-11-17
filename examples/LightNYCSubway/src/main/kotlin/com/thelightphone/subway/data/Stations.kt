@@ -51,6 +51,13 @@ data class Station(
             else -> boro
         }
 
+    /**
+     * The station's lines under the ids the feeds use, which is what a service alert is
+     * matched on. A function and not a property, so reading the station file is unchanged.
+     */
+    fun feedRoutes(): Set<String> =
+        platforms.flatMapTo(HashSet()) { platform -> platform.routes.map { Routes.feedId(it, platform.stop) } }
+
     /** Great-circle distance to a point, in meters. */
     fun metersTo(lat2: Double, lon2: Double): Double {
         val r = 6_371_000.0

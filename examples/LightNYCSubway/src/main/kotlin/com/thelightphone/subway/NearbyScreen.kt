@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -148,6 +149,7 @@ class NearbyScreen(sealedActivity: SealedLightActivity) :
         val boards by viewModel.live.boards.collectAsState()
         val favorites by viewModel.favorites.collectAsState()
         val refreshing by viewModel.live.refreshing.collectAsState()
+        val snapshot by viewModel.live.alerts.collectAsState()
         val now by rememberNow()
         val permission = rememberPermissionRequestLauncher(LOCATION)
 
@@ -192,7 +194,18 @@ class NearbyScreen(sealedActivity: SealedLightActivity) :
                 key(station.id) {
                     FadeIn(order = index) {
                         if (index == 0 && board != null) {
-                            StationBoard(board, now, favorites, onOpen = { open(station) }, trailing = distanceLabel(meters))
+                            // As on the home screen, station notices wait for the station page.
+                            val alerts = remember(snapshot, station.id, now) {
+                                snapshot.at(station, now).filterNot { it.notice }
+                            }
+                            StationBoard(
+                                board = board,
+                                nowSeconds = now,
+                                favorites = favorites,
+                                onOpen = { open(station) },
+                                trailing = distanceLabel(meters),
+                                alerts = alerts,
+                            )
                         } else {
                             NearbyRow(station, meters, favorites) { open(station) }
                         }

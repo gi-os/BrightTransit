@@ -52,6 +52,22 @@ def label(text):
     return "" if text.lower() in VAGUE else text
 
 
+def labels(row):
+    """The (north, south) direction names for one platform.
+
+    The L is the one line riders name differently from the table: its two directions are
+    Manhattan and Brooklyn to everyone who rides it. The table has "Outbound" for most of
+    its stops outside Manhattan and "Canarsie" for the last five, so the same direction
+    changed name partway down the line, and changed again whenever trains turned back early.
+    The end of the line keeps its blank: nothing leaves Canarsie going that way.
+    """
+    n = label(row["North Direction Label"])
+    s = label(row["South Direction Label"])
+    if row["Daytime Routes"].split() == ["L"] and n == "Manhattan" and row["South Direction Label"].strip().lower() != "last stop":
+        s = "Brooklyn"
+    return n, s
+
+
 def main():
     with open(SRC, newline="") as f:
         rows = list(csv.DictReader(f))
@@ -77,12 +93,13 @@ def main():
         routes = sorted({x for r in group for x in r["Daytime Routes"].split()}, key=route_key)
         platforms = []
         for r in group:
+            north, south = labels(r)
             platforms.append({
                 "stop": r["GTFS Stop ID"].strip(),
                 "name": r["Stop Name"].strip(),
                 "routes": sorted(r["Daytime Routes"].split(), key=route_key),
-                "n": label(r["North Direction Label"]),
-                "s": label(r["South Direction Label"]),
+                "n": north,
+                "s": south,
             })
         entry = {
             "id": cid,
