@@ -29,10 +29,19 @@ data class Platform(
 }
 
 /**
+ * The least time the MTA allows to change from a train at one platform of a station to a
+ * train at another, in seconds, from the transfers file in its schedule. [from] and [to]
+ * are the platforms' stop ids, the same id twice for a change on one platform.
+ */
+@Serializable
+data class Transfer(val from: String, val to: String, val seconds: Long)
+
+/**
  * A station as a rider thinks of it: every platform you can reach without leaving the
  * turnstiles. [id] is the MTA Complex ID, which is also the key a saved station is stored
  * under. [aka] holds other names the same place goes by, and [avenues] the avenues its
- * lines run under ("7 Av" at 34 St-Penn Station). Both are for search only.
+ * lines run under ("7 Av" at 34 St-Penn Station). Both are for search only. [changes] are
+ * the MTA's times to change trains here that are not [SAME_PLATFORM]: see [change].
  */
 @Serializable
 data class Station(
@@ -45,6 +54,7 @@ data class Station(
     val platforms: List<Platform> = emptyList(),
     val aka: List<String> = emptyList(),
     val avenues: List<String> = emptyList(),
+    val changes: List<Transfer> = emptyList(),
 ) {
     val boroLabel: String
         get() = when (boro) {
@@ -63,6 +73,16 @@ data class Station(
     fun feedRoutes(): Set<String> =
         platforms.flatMapTo(HashSet()) { platform -> platform.routes.map { Routes.feedId(it, platform.stop) } }
 
+    /**
+     * The least time, in seconds, the MTA allows to get off a train at platform [from] here
+     * and onto one at platform [to], or null where it lists no change between the two. A
+     * change on one platform takes [SAME_PLATFORM] unless the station file says otherwise.
+     * build_stations.py says where the times come from.
+     */
+    fun change(from: String, to: String): Long? =
+        changes.firstOrNull { it.from == from && it.to == to }?.seconds
+            ?: SAME_PLATFORM.takeIf { from == to && platforms.any { it.stop == from } }
+
     /** Great-circle distance to a point, in meters. */
     fun metersTo(lat2: Double, lon2: Double): Double {
         val r = 6_371_000.0
@@ -71,6 +91,11 @@ data class Station(
         val a = sin(dLat / 2).let { it * it } +
             cos(Math.toRadians(lat)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).let { it * it }
         return 2 * r * asin(min(1.0, sqrt(a)))
+    }
+
+    companion object {
+        /** What the MTA gives most platforms for a change on the platform itself. */
+        const val SAME_PLATFORM = 180L
     }
 }
 

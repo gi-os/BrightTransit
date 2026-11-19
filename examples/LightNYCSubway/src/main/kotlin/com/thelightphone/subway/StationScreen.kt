@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.subway.data.Board
 import com.thelightphone.subway.data.Catalog
+import com.thelightphone.subway.data.Change
 import com.thelightphone.subway.data.Direct
 import com.thelightphone.subway.data.Plan
 import com.thelightphone.subway.data.Planner
@@ -31,6 +32,7 @@ import com.thelightphone.subway.data.Station
 import com.thelightphone.subway.hw.WheelBus
 import com.thelightphone.subway.hw.dispatch
 import com.thelightphone.subway.ui.BoardNotes
+import com.thelightphone.subway.ui.ChangeRow
 import com.thelightphone.subway.ui.DirectRow
 import com.thelightphone.subway.ui.FadeIn
 import com.thelightphone.subway.ui.Note
@@ -261,9 +263,18 @@ internal object StationHint {
 internal sealed interface WayHere {
     /**
      * The first train of those worth choosing from. [others] is how many more there are,
-     * and [unchecked] the lines that come here too and could not be looked at.
+     * ways with a change included, and [unchecked] the lines that come here too and could
+     * not be looked at.
      */
     data class Trains(val first: Direct, val others: Int, val unchecked: List<String>) : WayHere
+
+    /**
+     * No direct train to name, and a way with a change to name instead: the first of
+     * those worth choosing from. [others] and [unchecked] are as for [Trains]. [checked]
+     * is true only when every feed a direct train could ride in was looked in, which is
+     * the only time "no direct train" can be said.
+     */
+    data class Changed(val first: Change, val others: Int, val unchecked: List<String>, val checked: Boolean) : WayHere
 
     /** No train to name, because not everything could be looked at. [lines] are the ones that come here, where any are known to. */
     data class Unchecked(val lines: List<String>) : WayHere
@@ -283,10 +294,15 @@ internal sealed interface WayHere {
          */
         fun of(following: LivePlan.Following?, now: Long): WayHere? {
             following ?: return null
+            val changes = following.plan?.changes(now).orEmpty()
             return when (val view = following.plan?.view(now)) {
-                is Plan.View.Trains -> Trains(view.choices.first(), view.choices.size - 1, view.unchecked)
-                is Plan.View.Unchecked -> if (following.loading) Checking else Unchecked(view.lines)
-                Plan.View.None -> NoTrain
+                is Plan.View.Trains -> Trains(view.choices.first(), view.choices.size - 1 + changes.size, view.unchecked)
+                is Plan.View.Unchecked -> when {
+                    following.loading -> Checking
+                    changes.isNotEmpty() -> Changed(changes.first(), changes.size - 1, view.lines, checked = false)
+                    else -> Unchecked(view.lines)
+                }
+                Plan.View.None -> if (changes.isNotEmpty()) Changed(changes.first(), changes.size - 1, emptyList(), checked = true) else NoTrain
                 null -> Checking
             }
         }
@@ -339,6 +355,21 @@ private fun WayHereBlock(way: WayOnPage) {
                     if (said.unchecked.isNotEmpty()) Note(PlanWords.unchecked(said.unchecked))
                 }
                 // On a line of its own. Beside a name that is long or carries its bullets it would run over.
+                Note(PlanWords.TAP)
+            }
+            is WayHere.Changed -> Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged { way.page.wayRoom = it.height }
+                    .lightClickable(onClick = way.onOpen)
+                    .padding(bottom = 0.75f.gridUnitsAsDp()),
+            ) {
+                StationLabel(PlanWords.from(way.from), way.from, bullets)
+                Note(if (said.checked) PlanWords.NONE_HERE else PlanWords.unchecked(said.unchecked))
+                Column(modifier = Modifier.dimWhileRefreshing()) {
+                    if (way.plan != null) ChangeRow(said.first.first.route, said.first.second.route, PlanWords.change(said.first, way.plan, way.now, way.names, here = true))
+                    if (said.others > 0) Note(PlanWords.others(said.others))
+                }
                 Note(PlanWords.TAP)
             }
             WayHere.NoTrain -> Column(modifier = Modifier.fillMaxWidth().padding(bottom = 0.75f.gridUnitsAsDp())) {

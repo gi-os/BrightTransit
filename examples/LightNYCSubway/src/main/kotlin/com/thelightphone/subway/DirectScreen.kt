@@ -13,9 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.subway.data.Board
 import com.thelightphone.subway.data.Catalog
+import com.thelightphone.subway.data.Change
 import com.thelightphone.subway.data.Plan
 import com.thelightphone.subway.hw.WheelBus
 import com.thelightphone.subway.hw.dispatch
+import com.thelightphone.subway.ui.ChangeRow
 import com.thelightphone.subway.ui.DirectRow
 import com.thelightphone.subway.ui.FadeIn
 import com.thelightphone.subway.ui.Note
@@ -79,14 +81,17 @@ internal object DirectWords {
     /**
      * What the list says in place of its trains, or null when it has trains to show.
      * [view] is what the plan in hand offers, and [later] says the list is of later trains.
+     * [changes] says it has ways with a change to show, which are shown with or without
+     * direct trains above them.
      *
      * A plan with nothing to offer says "loading" while an answer is on its way, and "no
      * direct train" only once every feed one could ride in has been looked in.
      */
-    fun instead(following: LivePlan.Following, view: Plan.View?, later: Boolean): String? {
+    fun instead(following: LivePlan.Following, view: Plan.View?, later: Boolean, changes: Boolean = false): String? {
         val plan = following.plan
         return when {
             view is Plan.View.Trains -> null
+            changes && plan != null && view != null -> null
             plan == null || view == null || following.loading -> Board.View.Loading.text
             view is Plan.View.Unchecked -> "${PlanWords.unchecked(view.lines)}\n\nCheck your connection."
             else -> PlanWords.none(plan, later)
@@ -96,7 +101,8 @@ internal object DirectWords {
 
 /**
  * The trains that run direct from one station to another, the one that gets there first
- * at the top. Tapping one starts a ride on it with the stop already chosen.
+ * at the top, and below them the ways with one change that get there sooner. Tapping one
+ * starts a ride on it with the stop already chosen: for a change, the stop to change at.
  *
  * [from] and [to] are station ids. With [after], the trains passed over there are left
  * out: the button in the middle opens the same list without the first train to go, for a
@@ -134,6 +140,7 @@ class DirectScreen(
         val names = catalog
         val plan = following.plan
         val view = remember(plan, now) { plan?.view(now, after) }
+        val changes = remember(plan, now) { plan?.changes(now, after).orEmpty() }
         val trains = view as? Plan.View.Trains
 
         SubwayScreen(
@@ -150,16 +157,22 @@ class DirectScreen(
                 },
                 refreshButton { viewModel.live.refreshNow() },
             ),
-            message = if (names == null) "" else DirectWords.instead(following, view, later = after != null),
+            message = if (names == null) "" else DirectWords.instead(following, view, later = after != null, changes = changes.isNotEmpty()),
         ) {
-            if (names != null && plan != null && trains != null) {
-                DirectPage(plan, trains, now, names)
+            if (names != null && plan != null && view != null && (trains != null || changes.isNotEmpty())) {
+                DirectPage(plan, view, changes, now, names)
             }
         }
     }
 
     @Composable
-    private fun DirectPage(plan: Plan, trains: Plan.View.Trains, now: Long, names: Catalog) {
+    private fun DirectPage(plan: Plan, view: Plan.View, changes: List<Change>, now: Long, names: Catalog) {
+        val trains = view as? Plan.View.Trains
+        val unchecked = when (view) {
+            is Plan.View.Trains -> view.unchecked.takeIf { it.isNotEmpty() }
+            is Plan.View.Unchecked -> view.lines
+            Plan.View.None -> null
+        }
         // The station's own bullets and borough, as on its page: 138 stations share a name.
         RouteBadgeRow(routes = plan.to.routes)
         Note(plan.to.boroLabel, Modifier.padding(bottom = 0.25f.gridUnitsAsDp()))
@@ -167,10 +180,11 @@ class DirectScreen(
         FadeIn {
             Column(modifier = Modifier.fillMaxWidth().padding(top = 0.5f.gridUnitsAsDp())) {
                 // What has to be read before the trains goes above them, where it cannot be scrolled past.
-                if (trains.unchecked.isNotEmpty()) Note(PlanWords.unchecked(trains.unchecked))
+                if (unchecked != null) Note(PlanWords.unchecked(unchecked))
                 if (after != null) Note(PlanWords.after(after.time))
+                if (view == Plan.View.None) Note(PlanWords.none(plan, later = after != null))
                 Column(modifier = Modifier.dimWhileRefreshing()) {
-                    trains.choices.forEach { train ->
+                    trains?.choices?.forEach { train ->
                         key(train.train.feed, train.train.id) {
                             DirectRow(
                                 route = train.route,
@@ -179,8 +193,20 @@ class DirectScreen(
                             )
                         }
                     }
+                    if (trains != null && changes.isNotEmpty()) Note(PlanWords.WITH_A_CHANGE, Modifier.padding(top = 0.5f.gridUnitsAsDp()))
+                    changes.forEach { way ->
+                        key(way.key) {
+                            ChangeRow(
+                                first = way.first.route,
+                                second = way.second.route,
+                                words = PlanWords.change(way, plan, now, names),
+                                onClick = { navigateTo({ RideScreen(it, way.ride(to)) }) },
+                            )
+                        }
+                    }
                 }
-                Note(DirectWords.TAP, Modifier.padding(top = 0.5f.gridUnitsAsDp()))
+                if (trains != null) Note(DirectWords.TAP, Modifier.padding(top = 0.5f.gridUnitsAsDp()))
+                if (changes.isNotEmpty()) Note(PlanWords.CHANGE_TAP, Modifier.padding(top = if (trains != null) 0f.gridUnitsAsDp() else 0.5f.gridUnitsAsDp()))
             }
         }
     }

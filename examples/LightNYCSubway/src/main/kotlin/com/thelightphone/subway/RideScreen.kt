@@ -147,10 +147,17 @@ class RideScreen(
             still = true,
             bottom = listOf(
                 null,
-                LightBarButton.Text(
-                    text = "OTHER TRAIN",
-                    onClick = { navigateTo<Train>({ OtherTrainScreen(it, ride) }, { chosen -> viewModel.switchTo(chosen) }) },
-                ),
+                // Near the change, the trains from there are what the rider wants next.
+                when (val then = ride.then?.takeIf { RideWords.atTheChange(ride.state(now)) }) {
+                    null -> LightBarButton.Text(
+                        text = "OTHER TRAIN",
+                        onClick = { navigateTo<Train>({ OtherTrainScreen(it, ride) }, { chosen -> viewModel.switchTo(chosen) }) },
+                    )
+                    else -> LightBarButton.Text(
+                        text = "NEXT TRAIN",
+                        onClick = { navigateTo({ DirectScreen(it, then.at, then.to) }) },
+                    )
+                },
                 refreshButton { viewModel.ride.live.refreshNow() },
             ),
             // While the train of a ride that looks over is asked about, nothing of the ride is said.

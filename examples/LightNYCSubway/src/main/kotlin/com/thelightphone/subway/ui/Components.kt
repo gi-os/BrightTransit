@@ -635,6 +635,33 @@ fun DirectRow(route: String, words: PlanWords.Row, modifier: Modifier = Modifier
 }
 
 /**
+ * A way there with one change, laid out like [DirectRow]: the first train's bullet beside
+ * the line that says when it leaves, the second's beside the line that says when it gets
+ * there, then where to change, the time there is to do it, and any warning.
+ */
+@Composable
+fun ChangeRow(first: String, second: String, words: PlanWords.Row, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .let { if (onClick != null) it.lightClickable(onClick = onClick) else it }
+            .padding(vertical = Space.TAP.gridUnitsAsDp()),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(Space.HAIR.gridUnitsAsDp())) {
+            RouteBadge(first, Bullet.Title, Modifier.padding(top = Space.HAIR.gridUnitsAsDp()))
+            RouteBadge(second, Bullet.Title)
+        }
+        Column(modifier = Modifier.padding(start = Space.BESIDE.gridUnitsAsDp())) {
+            MainLine(words.leaves, lighten = !words.sure)
+            if (words.arrives != null) MainLine(words.arrives, lighten = !words.sure)
+            Note(words.detail)
+            if (words.more != null) Note(words.more)
+            if (words.warning != null) Note(words.warning)
+        }
+    }
+}
+
+/**
  * One of a train's two main lines, in the kit's Copy type. The kit sets the lines of one
  * text further apart than it stacks two texts, so a line that a platform's long name ran
  * over would sit lower than the line after it. Here it is set at the type's own pitch.

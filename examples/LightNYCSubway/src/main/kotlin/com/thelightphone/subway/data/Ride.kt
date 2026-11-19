@@ -11,11 +11,13 @@ import kotlinx.serialization.json.Json
  * as last heard of. The tool never works out which train that is: the rider says, and can
  * say again.
  *
+ * [then] is set when the rider changes trains at the end of this ride: see [Change].
+ *
  * This is all a ride is, so it can be written down when the tool is closed and picked up
  * when it is opened again. See [SavedStore.ride].
  */
 @Serializable
-data class Ride(val train: Train, val from: String, val to: String) {
+data class Ride(val train: Train, val from: String, val to: String, val then: Onward? = null) {
 
     /**
      * What can be said to the rider at [now]. It is worked out from the train's last known
@@ -184,3 +186,12 @@ sealed interface RideState {
     /** No word of the train since [since], too long ago to count from. [due] is when it was due at the rider's stop. */
     data class Unknown(val since: Long, val due: Long) : RideState
 }
+
+/**
+ * Where a rider goes on to after a ride that ends in a change: from the station [at], from
+ * its platform [platform], to the station [to], on any of [lines]. All are as the station
+ * file names them. The tool does not pick the second train ahead of time: the rider is
+ * shown the trains there when they get there.
+ */
+@Serializable
+data class Onward(val at: String, val to: String, val platform: String, val lines: List<String>)

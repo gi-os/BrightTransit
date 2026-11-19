@@ -41,6 +41,45 @@ data class Direct(
     fun ride(): Ride = Ride(train, from = from, to = to)
 }
 
+/**
+ * Two trains with one change between them, made inside one station.
+ *
+ * [first] runs from the station the rider starts at to [at], and [second] from [at] to the
+ * station they are going to. [walk] is the least time the MTA allows to get from the
+ * platform [first] stops at to the one [second] leaves from: see [Station.change]. [lines]
+ * are the lines of the trains from [second]'s platform that the rider can make and that get
+ * there no more than [Plan.WORTH] after [second], [second]'s own first, so the rider can take
+ * whichever comes.
+ */
+data class Change(
+    val first: Direct,
+    val second: Direct,
+    val at: Station,
+    val walk: Long,
+    val lines: List<String> = listOf(second.route),
+) {
+    val leaves: Long get() = first.leaves
+    val arrives: Long get() = second.arrives
+
+    /** How many stops the two rides are together. */
+    val stops: Int get() = first.stops + second.stops
+
+    /** The time between the first train being due at [at] and the second being due out of it. */
+    val window: Long get() = second.leaves - first.arrives
+
+    /** What tells this way from every other: its two trains and the station between them. */
+    val key: Triple<Pair<String, String>, String, Pair<String, String>> get() = Triple(first.key, at.id, second.key)
+
+    /** Gone once the first train has left without the rider. */
+    fun gone(now: Long): Boolean = first.gone(now)
+
+    /** True when both trains are moving trains, running to their times: nothing here is the timetable's or being held. */
+    fun sure(now: Long): Boolean = first.running && !first.held(now) && second.running && !second.held(now)
+
+    /** The ride on the first train, with the change at the end of it, for a rider going on to the station [goal]. */
+    fun ride(goal: String): Ride = first.ride().copy(then = Onward(at = at.id, to = goal, platform = second.from, lines = lines))
+}
+
 /** Soonest there first. A train with no arrival time goes after the ones that have one, in the order they leave. */
 private val SOONEST_THERE = compareBy<Direct>({ if (it.arrives > 0) it.arrives else Long.MAX_VALUE }, { it.leaves }, { it.train.id })
 
@@ -57,6 +96,7 @@ data class Plan(
     val to: Station,
     val trains: List<Direct>,
     val built: Map<String, Long>,
+    val changes: List<Change> = emptyList(),
 ) {
     /**
      * Where a list of later trains starts, for a rider who will not make the first to go.
@@ -121,6 +161,47 @@ data class Plan(
         return View.Trains(choices, unchecked, later)
     }
 
+    /**
+     * The ways there with one change worth offering at [now], soonest there first, and no
+     * more than [MOST_CHANGES]. With [after], only those that leave after it, as in [view].
+     *
+     * A change is only worth it when it gets there [WORTH] or more ahead of every direct
+     * train that has a time there: one train is simpler, and holds far more often. Where
+     * there are direct trains and none has a time there, nothing says a change is sooner,
+     * and none is offered. Of the
+     * rest, one is left out when another gets there [WORTH] or more ahead of it, however
+     * much later that one leaves: leaving a minute sooner is no reason to ride the wrong way
+     * for half an hour. One is also left out when another leaves no later and gets there no
+     * later; between two that leave and arrive together, the one with more time to change
+     * is kept.
+     *
+     * Like the direct trains, nothing is offered from a feed too old to plan from, and a
+     * way whose first train is gone or is now being held is not offered: everything about
+     * the change rests on that train's times.
+     */
+    fun changes(now: Long, after: After? = null): List<Change> {
+        val live = live(now)
+        fun leavesAfter(time: Long, key: Pair<String, String>) = after == null || (time > after.time && key !in after.passed)
+        val directs = trains.filter { it.train.feed in live && !it.gone(now) && leavesAfter(it.leaves, it.key) }
+        val fastest = directs.filter { it.arrives > 0 }.minOfOrNull { it.arrives }
+        if (directs.isNotEmpty() && fastest == null) return emptyList()
+        val left = changes.filter {
+            it.first.train.feed in live && it.second.train.feed in live && !it.gone(now) && !it.first.held(now) &&
+                leavesAfter(it.leaves, it.first.key) && (fastest == null || it.arrives + WORTH <= fastest)
+        }
+        fun beats(other: Change, way: Change) = when {
+            other.arrives + WORTH <= way.arrives -> true
+            other.leaves > way.leaves || other.arrives > way.arrives -> false
+            other.leaves < way.leaves || other.arrives < way.arrives -> true
+            other.window != way.window -> other.window > way.window
+            other.stops != way.stops -> other.stops < way.stops
+            else -> other.key.toString() < way.key.toString()
+        }
+        return left.filter { way -> left.none { it !== way && beats(it, way) } }
+            .sortedWith(compareBy({ it.arrives }, { it.leaves }, { it.key.toString() }))
+            .take(MOST_CHANGES)
+    }
+
     /** The lines that run between the two stations and cannot be answered for at [now]. */
     fun unchecked(now: Long): List<String> = live(now).let { live -> unchecked(live, trains.filter { it.train.feed in live }) }
 
@@ -169,6 +250,12 @@ data class Plan(
     companion object {
         /** No list of ways there is longer than this. */
         const val MOST = 4
+
+        /** No more ways with a change than this are offered. */
+        const val MOST_CHANGES = 2
+
+        /** How much sooner a change has to get there than any direct train to be offered at all. */
+        const val WORTH = 300L
     }
 }
 
@@ -178,9 +265,8 @@ data class Plan(
  * offered because a trip in the feed stops at the first station and later at the second.
  * A line that is not running that way today simply has no such trip.
  *
- * Changes of train are left out on purpose. A plan with a change holds as named about two
- * times in three; one train holds nearly nine times in ten, and when it does not the ride
- * screen says so.
+ * It also works out ways there with one change of train, inside one station: see
+ * [changes]. Each of the two trains is found by the same rules as a direct one.
  */
 object Planner {
     /** Feeds built longer ago than this are not planned from. It is when a board calls its times not live. */
@@ -240,37 +326,141 @@ object Planner {
      *  - an arrival time is kept only when every stop on the way is a believable time
      *    after the one before it.
      */
-    fun plan(from: Station, to: Station, catalog: Catalog, feeds: Map<String, GtfsRealtime.Feed>, now: Long): Plan {
+    fun plan(from: Station, to: Station, catalog: Catalog, feeds: Map<String, GtfsRealtime.Feed>, now: Long, spare: Long = SPARE): Plan {
         val live = feeds.filterValues { now - it.timestamp <= FRESH_FOR }
         val trips = live.mapValues { (_, feed) -> feed.trips.associateBy { it.id } }
         val goal = to.platforms.mapTo(HashSet()) { it.stop }
-        val trains = Directions.arrivals(from, catalog, live, now).mapNotNull { due ->
-            val feed = live[due.feed] ?: return@mapNotNull null
-            val trip = trips.getValue(due.feed)[due.trip]?.takeIf { it.id.isNotEmpty() } ?: return@mapNotNull null
-            val train = Train.of(due.feed, feed, trip, catalog)
-            if (!train.assigned && due.feed in KEEPS_AN_EMPTY_TRIP && setsOut(trip) < now) return@mapNotNull null
-            val on = train.place(due.stop)
-            if (on < 0) return@mapNotNull null
-            val off = (on + 1 until train.stops.size).firstOrNull { train.stops[it].platform in goal } ?: return@mapNotNull null
-            val timed = (on until off).all { train.stops[it + 1].time - train.stops[it].time >= LEAST_BETWEEN }
-            Direct(
-                train = train,
-                from = due.stop,
-                to = train.stops[off].platform,
-                leaves = train.stops[on].time,
-                arrives = if (timed) train.stops[off].time else 0,
-                stops = off - on,
-                route = due.route,
-                heading = due.heading,
-                lastStop = due.destination,
-            )
-        }
+        val boarded = boardings(from, catalog, live, trips, now)
+        val trains = boarded.mapNotNull { it.to(goal) }
         return Plan(
             from = from,
             to = to,
             trains = trains.distinctBy { it.key }.sortedWith(SOONEST_THERE),
             built = live.mapValues { it.value.timestamp },
+            changes = changes(from, goal, boarded, catalog, live, trips, now, spare),
         )
+    }
+
+    /**
+     * A train as it is boarded at a station: the arrival its page lists, the train, and
+     * where on the train's list of stops the rider gets on.
+     */
+    private class Boarding(val due: Arrival, val train: Train, val on: Int) {
+        /** Off at the first of [goal]'s platforms the train stops at after boarding, or null for a train that does not go there. */
+        fun to(goal: Set<String>): Direct? =
+            (on + 1 until train.stops.size).firstOrNull { train.stops[it].platform in goal }?.let(::off)
+
+        /** True when every stop from boarding to the one at [off] is a believable time after the one before it. */
+        fun timed(off: Int): Boolean = (on until off).all { train.stops[it + 1].time - train.stops[it].time >= LEAST_BETWEEN }
+
+        /** Off at the stop at [off] on the train's list. */
+        fun off(off: Int): Direct = Direct(
+            train = train,
+            from = due.stop,
+            to = train.stops[off].platform,
+            leaves = train.stops[on].time,
+            arrives = if (timed(off)) train.stops[off].time else 0,
+            stops = off - on,
+            route = due.route,
+            heading = due.heading,
+            lastStop = due.destination,
+        )
+    }
+
+    /**
+     * The trains [station]'s own page would list, each as it is boarded there, with the
+     * slots nothing filled left out: see [plan]. Only the arrivals [keep] lets through are
+     * looked at.
+     */
+    private fun boardings(
+        station: Station,
+        catalog: Catalog,
+        live: Map<String, GtfsRealtime.Feed>,
+        trips: Map<String, Map<String, GtfsRealtime.Trip>>,
+        now: Long,
+        keep: (Arrival) -> Boolean = { true },
+    ): List<Boarding> = Directions.arrivals(station, catalog, live, now).mapNotNull { due ->
+        if (!keep(due)) return@mapNotNull null
+        val feed = live[due.feed] ?: return@mapNotNull null
+        val trip = trips.getValue(due.feed)[due.trip]?.takeIf { it.id.isNotEmpty() } ?: return@mapNotNull null
+        val train = Train.of(due.feed, feed, trip, catalog)
+        if (!train.assigned && due.feed in KEEPS_AN_EMPTY_TRIP && setsOut(trip) < now) return@mapNotNull null
+        val on = train.place(due.stop)
+        if (on < 0) return@mapNotNull null
+        Boarding(due, train, on)
+    }
+
+    /**
+     * Time over the MTA's least time to change that a change must leave, or it is not
+     * offered. The MTA's times are for walking between platforms; this is for the first
+     * train coming in a little late, and the second leaving a little early.
+     */
+    const val SPARE = 60L
+
+    /**
+     * The ways from the station [boarded] are listed at to the platforms in [goal] with one
+     * change of train, at most one for each first train and each station it stops at.
+     *
+     * The first train is one of [boarded], ridden to a station it stops at before it gets
+     * to the goal, or comes back through where it started. It has to be a moving train, not
+     * being held, with a believable time at the station it is left at: everything about the
+     * change rests on that time. The second train is found at that station by the same
+     * rules as a direct train, has to have a time at the goal, and must not come back
+     * through the station the rider started from, nor be the first train itself.
+     *
+     * The change has to be one the MTA lists between the two platforms, and leave its time
+     * to make it and [spare] over ([SPARE] but when measuring). Of the second trains that do,
+     * the one that gets there first is taken, and the sooner to leave of two that get there
+     * together. Its lines are those of the others from its platform that make it too and get
+     * there no more than [Plan.WORTH] after it.
+     */
+    private fun changes(
+        from: Station,
+        goal: Set<String>,
+        boarded: List<Boarding>,
+        catalog: Catalog,
+        live: Map<String, GtfsRealtime.Feed>,
+        trips: Map<String, Map<String, GtfsRealtime.Trip>>,
+        now: Long,
+        spare: Long,
+    ): List<Change> {
+        val start = from.platforms.mapTo(HashSet()) { it.stop }
+        // Only a trip that stops at the goal can be a second train, and only the feeds that
+        // hold one are looked in for it.
+        val toGoal = live.flatMapTo(HashSet()) { (slug, feed) ->
+            feed.trips.filter { trip -> trip.stops.any { it.stopId.dropLast(1) in goal } }.map { slug to it.id }
+        }
+        val reaching = live.filterKeys { slug -> toGoal.any { it.first == slug } }
+        class First(val train: Direct, val at: Station)
+        val firsts = boarded
+            .filter { it.train.assigned && (it.train.seenFrom(it.due.stop, now) as? Sighting.Coming)?.heldSince == null }
+            .flatMap { board ->
+                val stops = board.train.stops
+                val ends = (board.on + 1 until stops.size).firstOrNull { stops[it].platform in goal || stops[it].platform in start } ?: stops.size
+                (board.on + 1 until ends)
+                    .takeWhile { board.timed(it) }
+                    .mapNotNull { off -> catalog.stop(stops[off].platform)?.let { (station, _) -> First(board.off(off), station) } }
+            }
+        val seconds = firsts.map { it.at }.distinctBy { it.id }.associate { at ->
+            at.id to boardings(at, catalog, reaching, trips, now) { (it.feed to it.trip) in toGoal }
+                .mapNotNull { board ->
+                    val off = (board.on + 1 until board.train.stops.size).firstOrNull { board.train.stops[it].platform in goal } ?: return@mapNotNull null
+                    if ((board.on + 1 until off).any { board.train.stops[it].platform in start }) return@mapNotNull null
+                    board.off(off).takeIf { it.arrives > 0 }
+                }
+        }
+        return firsts.mapNotNull { leg ->
+            val first = leg.train
+            val at = leg.at
+            val options = seconds[at.id].orEmpty().filter { it.key != first.key }
+            val made = options.mapNotNull { second ->
+                val walk = at.change(first.to, second.from) ?: return@mapNotNull null
+                if (second.leaves - first.arrives < walk + spare) null else Change(first, second, at, walk)
+            }
+            val best = made.minWithOrNull(compareBy({ it.arrives }, { it.second.leaves })) ?: return@mapNotNull null
+            val lines = made.map { it.second }.filter { it.from == best.second.from && it.arrives <= best.arrives + Plan.WORTH }.map { it.route }.distinct()
+            best.copy(lines = listOf(best.second.route) + lines.filter { it != best.second.route }.sortedBy { at.routes.indexOf(Routes.plain(it)).let { i -> if (i < 0) Int.MAX_VALUE else i } })
+        }
     }
 
     /**

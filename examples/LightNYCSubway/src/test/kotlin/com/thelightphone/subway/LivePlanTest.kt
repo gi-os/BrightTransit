@@ -275,18 +275,29 @@ class LivePlanTest {
         assertEquals("091550_2..S17R", uptown.first.train.id)
         assertEquals(1, uptown.others)
         assertEquals(emptyList(), uptown.unchecked)
-        // No train runs direct: that is said, and goes on being said while it is asked again.
-        val none = planned(morgan, Fixtures.station("Times Sq-42 St"))
+        // No train runs direct, and none with a change: that is said, and goes on being said while it is asked again.
+        val none = planned(morgan, Fixtures.station("St George"))
         assertEquals(WayHere.NoTrain, WayHere.of(none, phone.now))
         assertEquals(WayHere.NoTrain, WayHere.of(none.copy(loading = true), phone.now))
+        // No train runs direct, but one does with a change: the L to Union Sq, then the Broadway lines. That is named instead.
+        val changed = assertIs<WayHere.Changed>(WayHere.of(planned(morgan, Fixtures.station("Times Sq-42 St")), phone.now))
+        assertEquals("14 St-Union Sq", changed.first.at.name)
+        assertEquals("L", changed.first.first.route)
+        assertTrue(changed.first.second.route in setOf("N", "Q", "R", "W"), changed.first.second.route)
+        assertEquals(emptyList(), changed.unchecked)
+        assertTrue(changed.checked)
         // A line that could not be checked is named, unless the answer is still on its way.
         val down = planned(morgan, unionSq, "gtfs-l")
         assertEquals(WayHere.Unchecked(listOf("L")), WayHere.of(down, phone.now))
         assertEquals(WayHere.Checking, WayHere.of(down.copy(loading = true), phone.now))
         // Between two stations that share no line, a feed that could not be had leaves no line to name.
-        // It is not "no direct train": the page says it could not check.
-        val blind = planned(morgan, Fixtures.station("Times Sq-42 St"), "gtfs")
-        assertEquals(WayHere.Unchecked(emptyList()), WayHere.of(blind, phone.now))
+        // It is not "no direct train": the page says it could not check, above the way with a change it did find.
+        val blind = assertIs<WayHere.Changed>(WayHere.of(planned(morgan, Fixtures.station("Times Sq-42 St"), "gtfs"), phone.now))
+        assertEquals(emptyList(), blind.unchecked)
+        assertFalse(blind.checked)
+        // With none of the feeds that stop at Times Sq in hand, there is nothing to offer at all, and it says only that.
+        val dark = planned(morgan, Fixtures.station("Times Sq-42 St"), "gtfs", "gtfs-ace", "gtfs-bdfm", "gtfs-nqrw")
+        assertEquals(WayHere.Unchecked(emptyList()), WayHere.of(dark, phone.now))
     }
 
     @Test
@@ -298,7 +309,8 @@ class LivePlanTest {
         // No line runs between them, so there is nothing unchecked to wait for. But its own feeds have not been looked in yet.
         assertEquals(WayHere.Checking, WayHere.of(way.following.value, phone.now))
         way.resume()
-        assertEquals(WayHere.NoTrain, WayHere.of(way.following.value, phone.now))
+        // Then it is said: no direct train, and the way with a change at Union Sq.
+        assertEquals("14 St-Union Sq", assertIs<WayHere.Changed>(WayHere.of(way.following.value, phone.now)).first.at.name)
     }
 
     @Test

@@ -586,6 +586,10 @@ class LivePlan(
 
     private var ends: Pair<Station, Station>? = null
 
+    /** How many times [follow] has been asked. Only the latest asking is followed. */
+    @Volatile
+    private var asked = 0
+
     private val loop = LiveLoop(
         scope = scope,
         clock = clock,
@@ -604,10 +608,15 @@ class LivePlan(
      * block at once. Returns when that is in place.
      */
     suspend fun follow(from: String, to: String) {
+        val asking = ++asked
         val cat = catalog()
         val pair = (cat.station(from) ?: return) to (cat.station(to) ?: return)
-        val seed = arrivals.peekPlan(pair.first, pair.second, cat)
+        // A way with a change looks at every station on the way, which is more than the
+        // main thread should do while a page opens.
+        val seed = withContext(Dispatchers.Default) { arrivals.peekPlan(pair.first, pair.second, cat) }
         loop.confined {
+            // A later asking that got here first is not undone by this one.
+            if (asking != asked) return@confined
             ends = pair
             _following.value = Following(seed, loading = true)
             loop.startOver()

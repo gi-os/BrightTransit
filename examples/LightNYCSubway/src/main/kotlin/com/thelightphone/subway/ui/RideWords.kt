@@ -198,6 +198,33 @@ object RideWords {
     private const val WHOLE = 18
 
     fun statement(ride: Ride, now: Long, catalog: Catalog): Statement {
+        val said = plain(ride, now, catalog)
+        val then = ride.then ?: return said
+        val goal = catalog.station(then.to)?.name ?: return said
+        val lines = PlanWords.lines(then.lines)
+        return when (val state = ride.state(now)) {
+            // The stop is where the rider changes, and saying so is the whole of it.
+            is RideState.There -> Statement(
+                figure = said.figure,
+                headline = said.headline,
+                body = listOf(
+                    if (state.sure) "Change here to the $lines for ${whole(goal)}." else "By its last times, this is where you change to the $lines.",
+                ),
+                note = said.note,
+                sure = said.sure,
+            )
+            is RideState.Past -> Statement(headline = said.headline, body = said.body + "If you got off, change there to the $lines.", note = said.note, sure = said.sure)
+            is RideState.Waiting, is RideState.Riding, is RideState.Next ->
+                Statement(said.figure, said.headline, said.body, said.aside + "Then change to the $lines for ${whole(goal)}.", said.note, said.sure)
+            else -> said
+        }
+    }
+
+    /** True once a ride that ends in a change is next to, at or past the stop to change at. */
+    fun atTheChange(state: RideState): Boolean = state is RideState.Next || state is RideState.There || state is RideState.Past
+
+    /** The statement for the ride as far as its train goes, with nothing said of a change after it. */
+    private fun plain(ride: Ride, now: Long, catalog: Catalog): Statement {
         val train = ride.train
         fun name(platform: String) = whole(catalog.stopName(platform))
         val to = name(ride.to)
