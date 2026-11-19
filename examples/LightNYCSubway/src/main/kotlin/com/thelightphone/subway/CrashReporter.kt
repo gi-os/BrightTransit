@@ -4,9 +4,10 @@ import android.util.Log
 import java.io.File
 
 /**
- * Captures uncaught exceptions to a file so the last crash can be shown on the
- * home screen (the Light Phone has no easy logcat access). Also keeps the app
- * from silently dying without a trace.
+ * Writes the last uncaught exception to a file before the tool dies. The Light Phone has
+ * no easy way to pull a log, so a build made for development shows that file the next time
+ * the tool opens. A rider's build writes it and never shows it: a stack trace is no use to
+ * them. See [ToolManifest.debuggable].
  */
 object CrashReporter {
     private const val FILE = "last_crash.txt"
@@ -19,11 +20,7 @@ object CrashReporter {
         dir = filesDir
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-            runCatching {
-                File(filesDir, FILE).writeText(
-                    "Subway Times crash\n\n" + Log.getStackTraceString(error)
-                )
-            }
+            runCatching { File(filesDir, FILE).writeText(Log.getStackTraceString(error)) }
             previous?.uncaughtException(thread, error)
         }
     }

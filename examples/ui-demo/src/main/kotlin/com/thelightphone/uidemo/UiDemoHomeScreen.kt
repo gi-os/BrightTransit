@@ -129,6 +129,20 @@ class UiDemoHomeScreen(sealedActivity: SealedLightActivity) :
                                 .lightClickable { navigateTo(::UiDemoKeyEventsScreen) }
                                 .padding(vertical = 0.75f.gridUnitsAsDp()),
                         )
+                        LightText(
+                            text = "LOCATION",
+                            variant = LightTextVariant.Copy,
+                            modifier = Modifier
+                                .lightClickable { navigateTo(::UiDemoLocationScreen) }
+                                .padding(vertical = 0.75f.gridUnitsAsDp()),
+                        )
+                        LightText(
+                            text = "CONTACTS",
+                            variant = LightTextVariant.Copy,
+                            modifier = Modifier
+                                .lightClickable { navigateTo(::UiDemoContactsScreen) }
+                                .padding(vertical = 0.75f.gridUnitsAsDp()),
+                        )
                     }
                 }
 

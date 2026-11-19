@@ -27,17 +27,25 @@ Part of the [Bright* collection](https://brightmarket.gzl.dev).
 
 ## What it does
 
-- Reads the MTA GTFS-realtime feeds directly. There is no middle server and no API key.
-- Opens on your saved station and shows two columns, Uptown and Downtown, soonest train
-  first.
-- Draws the real route bullets, so a `6` reads as a `6` and not as a letter in a box.
-- Merges platforms by MTA Complex ID, so a transfer station appears once instead of four
-  times.
-- Searches the whole system from a bundled catalog of 445 stations, held in
-  `assets/stations.json`.
-- Sorts the station list by distance under **Near me**, and filters it by borough.
-- Stores the chosen station on the device. The tool asks for `INTERNET`, and for coarse and
-  fine location so that **Near me** works. It asks for nothing else.
+- **Home** is the stations you saved, each with the next trains in both directions. Nothing else.
+- **Directions use real names.** The L at Morgan Av says "Manhattan" and "Brooklyn", not "Uptown" and "Downtown". Where the MTA only gives a compass word, the direction is named after where the train is going, and every train on a station page shows its last stop, read from the live feed. A train that is turning back early says so.
+- **Service alerts.** A station page shows the MTA's alerts that are in effect right now: delays on its lines, a suspension anywhere along them, and work or notices at that station. On Home a station with something wrong gets one line saying what.
+- **Search forgives.** Words match in any order, spelled out or abbreviated ("14th Street Union Square"), with a typo or two, and by the names people actually use ("Myrtle Broadway", "Port Authority", "Citi Field"). Search opens straight on the keyboard.
+- **Nearby** (the pin) lists the closest stations and shows the trains at the nearest one.
+- **Times keep themselves current.** They count down on their own and are fetched again every 30 seconds while the screen is showing. If the signal drops, the last times stay up and are marked as not live.
+- **Favorite lines.** Tap a line on a station page to favorite it. It gets a small star, and its trains come first on that station's page and on Home.
+- **Trains are grouped by where they go**, not by the feed's north and south. At Delancey St-Essex St the F and the J to Brooklyn are listed together.
+- **Follow a train.** Tap a train on a station's page to see every stop it has left and when it gets to each. Tap your stop, and the screen counts the stops down to it in large type: "5 stops to 14 St-Union Sq", then "Next", then "Now". If the tool is closed in the middle of a ride it opens on the ride again.
+- **Direct trains.** Search from a station's page, and the station you open says which train runs to it from the one you searched from, when it leaves there and when it arrives. Tap it for every direct train, and tap a train to count down to your stop.
+- **Trips with one change.** Where no train runs direct, or a change gets you there at least five minutes sooner, it also offers a way with one change: "Change at 14 St-Union Sq to the 4 or 5", how long you have to change, and when you arrive. A change is only offered inside one station, through a transfer the MTA lists, with the MTA's own time to walk it and four minutes to spare, and only when the first train is a real, moving train. On a recording of every train one Thursday afternoon, a change offered with two moving trains held as named 98.4% of the time, as often as a direct train is caught. Tap it to count down to the change. When you get there, NEXT TRAIN shows the live trains from there.
+
+Following a train only works while the tool is open and the screen is lit. Light's SDK gives a tool no notifications, vibration or background work, so it cannot tell you when to get up: it is right when you look at it. With no signal the count turns grey, is worked out from the train's last times, and says how old they are. A grey count never rises while there is no signal. When the signal comes back it can be put right by a stop, rarely two. After five minutes with no signal it stops counting and says so.
+
+One row of buttons along the bottom of every screen: nearby, search, refresh.
+
+The same code ships to the Light Tool Library as
+[BrightNYCSubway Lite](https://github.com/gi-os/BrightNYCSubwayLite), built with nothing but
+Light's official SDK. The two have the same features; this one is the sideloaded build.
 
 ## The wheel
 
@@ -98,15 +106,11 @@ The current build is at
 
 ## How it stays fast
 
-The station catalog parses once, off the main thread, and then caches process-wide. An
-earlier build parsed it during composition and the phone showed a black screen at
-launch. `StationCatalog.load` now takes an asset reader and is safe to call from any
-thread, more than once.
-
-Each station maps to the set of MTA feeds that serve it. `ArrivalsRepository` requests
-those feeds at the same time, drops trains that already left, removes duplicates, and
-sorts by time. A feed that fails returns an empty list rather than an error, so one bad
-feed does not empty the board.
+The station file parses once and is kept for as long as the tool runs. Every screen shares
+one cache of the MTA's feeds: a feed fetched in the last 20 seconds is not fetched again, and
+a station asks only for the feeds its lines are in, all at once. A feed that fails leaves the
+last good copy on screen, marked as not live, and never empties the board. Ways there,
+with or without a change, are worked out off the main thread.
 
 ## Layout of this repository
 
@@ -115,14 +119,14 @@ added. Upstream code stays where upstream put it, which keeps a rebase cheap.
 
 | Path | What it is |
 | --- | --- |
-| `examples/BrightTransit/` | The tool |
-| `examples/BrightTransit/src/main/kotlin/.../ArrivalsRepository.kt` | Feed fetch and GTFS-realtime decode |
-| `examples/BrightTransit/src/main/kotlin/.../StationCatalog.kt` | Cached station parse |
-| `examples/BrightTransit/src/main/kotlin/.../hw/` | Wheel keys and the notch-to-scroller bus |
-| `examples/BrightTransit/src/main/kotlin/.../HomeScreen.kt` | Uptown and Downtown columns |
-| `examples/BrightTransit/src/main/kotlin/.../StationScreen.kt` | Station search and selection |
-| `examples/BrightTransit/src/main/assets/stations.json` | Station and stop catalog |
-| `examples/BrightTransit/lighttool.toml` | Tool identity, version and permissions |
+| `examples/LightNYCSubway/` | The tool |
+| `examples/LightNYCSubway/src/main/kotlin/com/thelightphone/subway/data/` | Feeds, the GTFS-realtime reader, stations, alerts, following a train, the planner |
+| `examples/LightNYCSubway/src/main/kotlin/com/thelightphone/subway/*Screen.kt` | Home, station, search, nearby, train, ride and direct-train screens |
+| `examples/LightNYCSubway/src/main/kotlin/com/thelightphone/subway/ui/` | Shared UI and every sentence the rider reads |
+| `examples/LightNYCSubway/src/main/kotlin/com/thelightphone/subway/hw/` | Wheel keys and the notch-to-scroller bus |
+| `examples/LightNYCSubway/src/main/assets/stations.json` | Station catalog, with the MTA's times to change trains |
+| `examples/LightNYCSubway/scripts/` | Builds the station file; captures and checks test fixtures |
+| `examples/LightNYCSubway/lighttool.toml` | Tool identity, version and permissions |
 | `sdk/`, `plugin/`, `builder/`, `docs/`, other `examples/` | Upstream light-sdk |
 
 ## Build
@@ -196,6 +200,17 @@ that touches `examples/BrightTransit/` or the workflow file itself. The tag is
 `v<versionName>-build.<run number>`, with `versionName` read from `lighttool.toml` — a push that
 only edits docs elsewhere in the repo does not cut a release.
 
+- **v2.0.0** (2026-11-12) — Rewritten after feedback from Light. Home is only your saved
+  stations; one bottom row everywhere (nearby, search, refresh); "Save" replaces "Star". Trains are
+  grouped by where they go ("Manhattan", not "Uptown", for the L) and each shows its last stop from
+  the live feed. Search matches words in any order, abbreviations, typos and nicknames, and opens
+  on the keyboard. Times count down and refresh on their own, and stay up marked "not live" when
+  the signal drops. Location comes from LightOS; the IP lookup is gone, so the app talks only to
+  the MTA. Saved stations and favorite lines carry over, including ones saved under old ids.
+  Built on Light SDK 0.2.0, which no longer needs a GitHub Packages token. Also new in 2.0.0:
+  the MTA's service alerts at each station; follow a train and count down the stops to yours;
+  direct trains between two stations; and trips with one change, inside one station, timed
+  with the MTA's own transfer times.
 - **v1.2.0** (build 21, 2026-07-29) — Hardware wheel scrolls the board, the station list and search
   results, with a bump guard against stray brushes (`ArmedNotches`).
 - **v1.1.0** (builds 10–19, 2026-07-28) — Local tab: browse stations by borough, or by GPS/IP-based

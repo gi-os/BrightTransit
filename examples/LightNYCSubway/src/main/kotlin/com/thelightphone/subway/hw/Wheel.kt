@@ -4,31 +4,28 @@ import android.view.KeyEvent
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlin.math.abs
-import kotlin.math.sign
 
 /**
- * Wheel notches on their way from the screen's key handler to whatever it draws.
+ * Carries wheel notches from a screen's key handler to the list it draws.
  *
- * One notch per event, positive for up. Only the screen class sees the key — the SDK hands
- * every non-system key to the top of the back stack — but only the composition knows what
- * scrolling means there, so the two are joined by a flow rather than by the screen reaching
- * into its own UI.
+ * The SDK hands a key to the screen class, but only the page inside it knows what there is
+ * to scroll. Each screen owns one of these and gives it to its page. One notch per event,
+ * positive for up.
  *
- * A [SharedFlow] with no replay, deliberately: a notch that arrives while nothing is
- * listening is gone, which is what you want. Buffered generously because the sensor emits
- * bursts far faster than a frame.
+ * Nothing is replayed: a notch that arrives while no list is showing is dropped, not saved
+ * up for the next one. The buffer is there because the sensor sends bursts faster than a
+ * frame.
  */
 class WheelBus {
     private val _notches = MutableSharedFlow<Int>(extraBufferCapacity = 64)
@@ -40,153 +37,73 @@ class WheelBus {
 }
 
 /**
- * A key event on its way to the bus, from wherever the tool happens to see keys.
+ * Passes a key event to the bus if it is a turn of the wheel, and says whether it was.
  *
- * A light-sdk tool has no activity of its own to override — `LightActivity` is the SDK's
- * and is `internal` — but it hands every non-system key to the screen on top of the back
- * stack before it forwards anything to LightOS. So a screen overriding `onKeyDown` and
- * `onKeyUp` is the tool's equivalent of `dispatchKeyEvent`, and returning true is what
- * stops the turn going on to the server as a brightness change.
- *
- * Both halves of the notch are claimed: one notch is a complete DOWN+UP pair, and letting
- * the UP through leaves the Light keyboard a keypress to interpret.
+ * A screen calls this from onKeyDown and onKeyUp. The SDK offers every key to the screen
+ * on top before it sends anything on to LightOS, and a key the screen claims stops there.
+ * So on this tool's screens the wheel scrolls the page, and LightOS does not also read the
+ * turn as a change of brightness.
  */
-fun WheelBus.dispatch(event: KeyEvent): Boolean {
-    val key = LightKeys.of(event) ?: return false
-    if (event.action == KeyEvent.ACTION_DOWN) send(if (key == LightKey.WheelUp) 1 else -1)
+fun WheelBus.dispatch(event: KeyEvent): Boolean =
+    take(LightKeys.of(event), pressed = event.action == KeyEvent.ACTION_DOWN)
+
+/**
+ * One half of a notch. Both the press and the release are claimed, though only the press
+ * scrolls: a release let through would reach LightOS as half a key press.
+ */
+fun WheelBus.take(key: LightKey?, pressed: Boolean): Boolean {
+    if (key == null) return false
+    if (pressed) send(if (key == LightKey.WheelUp) 1 else -1)
     return true
 }
 
 val LocalWheelBus = staticCompositionLocalOf<WheelBus?> { null }
 
 /**
- * Distance per notch. About six notches to a screenful on the LPIII panel — enough that a
- * flick of the wheel moves you somewhere, short enough that you can land on a paragraph.
+ * How far one notch moves the page. About six notches to a screenful: far enough that a
+ * flick of the wheel gets somewhere, short enough to stop on the station you wanted.
  */
 private val NOTCH = 64.dp
 
-/**
- * Which way a notch moves the page.
- *
- * `1` means turning the wheel up moves you *down* the document — the wheel drags the page
- * the way a finger flick does, rather than moving a viewport over it. Flip to `-1` for the
- * mouse-wheel convention.
- */
-private const val DIRECTION = 1
-
-/**
- * Fraction of the remaining distance applied per frame.
- *
- * This is the whole reason scrolling feels like scrolling rather than like a slide
- * projector. The sensor fires a notch every ~35 ms, which is faster than a frame, so
- * applying each one on arrival produces a stack of instant jumps — nothing to follow with
- * your eye. Instead every notch adds to a debt, and each frame pays off a share of it, so
- * one notch glides and a fast spin becomes a single continuous sweep that keeps moving
- * slightly after your thumb stops.
- *
- * 0.28 settles ~90% inside seven frames: quick enough to feel direct, slow enough to read.
- */
-private const val SMOOTHING = 0.28f
-
-/**
- * Notches needed to start scrolling, and how long a turn stays live.
- *
- * The wheel sits under a thumb and catches stray brushes, and one stray notch used to be a
- * scroll. So the first notch after a pause buys nothing on its own: it is remembered, and
- * only a second notch releases both. Once turning, everything applies immediately until
- * [IDLE_MS] passes with the wheel still, at which point the guard comes back.
- *
- * 1.5 s is deliberately long. It has to cover deliberate-but-slow turning, and the cost of
- * it being too long is nil — you are turning the wheel, so the next notch re-arms it.
- */
-private const val ARM_NOTCHES = 2
-private const val IDLE_MS = 1_500L
-
-/**
- * Point the wheel at a Compose scroller. Works for both `ScrollState` and `LazyListState`.
- */
+/** Lets the wheel scroll [state]. Works for a ScrollState and a LazyListState alike. */
 @Composable
-fun WheelScroll(state: ScrollableState, active: Boolean = true) {
-    val step = with(LocalDensity.current) { NOTCH.toPx() }
-    val debt = remember { Debt() }
+fun WheelScroll(state: ScrollableState) {
+    val bus = LocalWheelBus.current ?: return
+    val notchPx = with(LocalDensity.current) { NOTCH.toPx() }
+    // Plain objects, not Compose state. Nothing drawn reads them, and a redraw in the
+    // middle of a turn must not start the guard or the glide over.
+    val guard = remember { StrayNotchGuard() }
+    val glide = remember(notchPx) { WheelGlide(notchPx) }
     val wake = remember { Channel<Unit>(Channel.CONFLATED) }
 
-    ArmedNotches(active) { notches ->
-        debt.px += notches * step * DIRECTION
-        wake.trySend(Unit)
-    }
-
-    LaunchedEffect(state, wake) {
-        while (true) {
-            // Suspends while the wheel is still, so an idle screen costs nothing.
-            wake.receive()
-            // One scroll session for the whole glide. A finger on the screen takes priority
-            // and cancels this, which is the right outcome.
-            state.scroll {
-                while (abs(debt.px) > 0.5f) {
-                    withFrameNanos { }
-                    val wanted = (debt.px * SMOOTHING).let {
-                        // Never stall a notch out in sub-pixel increments.
-                        if (abs(it) < 1f) debt.px else it
-                    }
-                    debt.px -= wanted
-                    val consumed = scrollBy(wanted)
-                    // At the top or bottom the rest of the debt is unpayable, and keeping
-                    // it would mean the next turn back spends its first notches on nothing.
-                    if (abs(consumed) < abs(wanted) - 0.5f) debt.px = 0f
-                }
-            }
-        }
-    }
-}
-
-/**
- * Notches, minus the stray ones. See [ARM_NOTCHES].
- *
- * Armed state lives in the effect rather than in composition state: it is a property of the
- * turn in progress, and a recomposition mid-turn should not disarm the wheel.
- */
-@Composable
-private fun ArmedNotches(active: Boolean, onNotch: (Int) -> Unit) {
-    val handler by rememberUpdatedState(onNotch)
-    val bus = LocalWheelBus.current ?: return
-    LaunchedEffect(bus, active) {
-        if (!active) return@LaunchedEffect
-        var armed = false
-        var held = 0
-        var count = 0
-        var last = 0L
+    LaunchedEffect(bus, glide) {
         bus.notches.collect { notches ->
-            val now = System.nanoTime() / 1_000_000
-            if (now - last > IDLE_MS) {
-                armed = false
-                held = 0
-                count = 0
-            }
-            last = now
-            if (armed) {
-                handler(notches)
-                return@collect
-            }
-            held += notches
-            count++
-            if (count >= ARM_NOTCHES) {
-                armed = true
-                // Release what the guard was holding, so nothing deliberate is lost.
-                if (held != 0) handler(held) else handler(notches.sign)
-                held = 0
+            val released = guard.pass(notches, System.nanoTime() / 1_000_000)
+            if (released != 0) {
+                glide.turn(released)
+                wake.trySend(Unit)
             }
         }
     }
-}
 
-/**
- * Distance still owed to the scroller.
- *
- * Deliberately not Compose state: nothing in composition reads it, and making it observable
- * would restart the glide on every recomposition it caused.
- */
-private class Debt {
-    @Volatile
-    var px: Float = 0f
+    LaunchedEffect(state, glide) {
+        while (true) {
+            // Waits here while the wheel is still, so an idle screen costs nothing.
+            wake.receive()
+            try {
+                // One scroll for the whole glide, paid out a frame at a time.
+                state.scroll {
+                    while (glide.moving) {
+                        withFrameNanos { }
+                        glide.frame { scrollBy(it) }
+                    }
+                }
+            } catch (interrupted: CancellationException) {
+                // A finger on the list takes it over and ends the glide, which is right.
+                // The wheel itself carries on unless this screen is the one going away.
+                ensureActive()
+                glide.stop()
+            }
+        }
+    }
 }

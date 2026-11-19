@@ -58,3 +58,11 @@ dependencies {
     implementation(project(":sdk:client"))
     testImplementation(libs.kotlin.test)
 }
+
+// The tests read the station file by path (Fixtures.catalog), which Gradle cannot see.
+// Named as an input here, a regenerated stations.json runs them again.
+tasks.withType<Test>().configureEach {
+    inputs.file("src/main/assets/stations.json")
+        .withPropertyName("stationFile")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+}
