@@ -31,6 +31,8 @@ import com.thelightphone.subway.ui.SubwayScreen
 import com.thelightphone.subway.ui.clockLabel
 import com.thelightphone.subway.ui.dimWhileRefreshing
 import com.thelightphone.subway.ui.notLive
+import com.thelightphone.subway.ui.Action
+import com.thelightphone.subway.ui.TRY_AGAIN
 import com.thelightphone.subway.ui.refreshButton
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
@@ -188,6 +190,11 @@ class TrainScreen(
                 refreshButton { viewModel.live.refreshNow() },
             ),
             message = if (names == null) "" else TrainPageWords.instead(following, sighting),
+            actions = if (TrainPageWords.instead(following, sighting) == Board.View.Unavailable.text) {
+                listOf(Action(TRY_AGAIN) { viewModel.live.refreshNow() })
+            } else {
+                emptyList()
+            },
         ) {
             if (train != null && names != null && sighting != null) {
                 TrainPage(

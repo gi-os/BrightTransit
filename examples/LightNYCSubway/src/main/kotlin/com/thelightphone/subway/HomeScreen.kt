@@ -22,6 +22,8 @@ import com.thelightphone.subway.hw.dispatch
 import com.thelightphone.subway.ui.Page
 import com.thelightphone.subway.ui.StationBoard
 import com.thelightphone.subway.ui.SubwayScreen
+import com.thelightphone.subway.ui.BoardTrouble
+import com.thelightphone.subway.ui.Trouble
 import com.thelightphone.subway.ui.refreshButton
 import com.thelightphone.subway.ui.searchButton
 import com.thelightphone.sdk.InitialScreen
@@ -177,6 +179,9 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                 null
             },
         ) {
+            // One readable line over the boards when any of them could not get its times.
+            val trouble = remember(boards, now) { BoardTrouble.over(boards.map { it.view(now) }) }
+            if (trouble != null) Trouble(trouble, onRetry = { viewModel.live.refreshNow() })
             boards.forEach { board ->
                 key(board.station.id) {
                     val station = board.station

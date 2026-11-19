@@ -34,6 +34,9 @@ import com.thelightphone.subway.ui.RouteBadge
 import com.thelightphone.subway.ui.SubwayScreen
 import com.thelightphone.subway.ui.dimWhileRefreshing
 import com.thelightphone.subway.ui.notLive
+import com.thelightphone.subway.ui.Action
+import com.thelightphone.subway.ui.ActionLink
+import com.thelightphone.subway.ui.TRY_AGAIN
 import com.thelightphone.subway.ui.refreshButton
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
@@ -163,7 +166,20 @@ class RideScreen(
             // While the train of a ride that looks over is asked about, nothing of the ride is said.
             message = if (showing == LiveRide.Showing.ASKING) Board.View.Loading.text else null,
         ) {
-            if (names != null && showing == LiveRide.Showing.RIDE) RideStatement(RideWords.statement(ride, now, names))
+            if (names != null && showing == LiveRide.Showing.RIDE) {
+                // An end to the ride is never left without the next thing to do, written under it.
+                val next = when (RideWords.next(ride, ride.state(now))) {
+                    RideWords.Next.DONE -> Action(RideWords.Next.DONE.label) { goBack() }
+                    RideWords.Next.OTHER_TRAIN -> Action(RideWords.Next.OTHER_TRAIN.label) {
+                        navigateTo<Train>({ OtherTrainScreen(it, ride) }, { chosen -> viewModel.switchTo(chosen) })
+                    }
+                    RideWords.Next.NEXT_TRAIN -> ride.then?.let { then ->
+                        Action(RideWords.Next.NEXT_TRAIN.label) { navigateTo({ DirectScreen(it, then.at, then.to) }) }
+                    }
+                    null -> null
+                }
+                RideStatement(RideWords.statement(ride, now, names), next)
+            }
         }
     }
 }
@@ -173,7 +189,7 @@ class RideScreen(
  * and the headline finishes its sentence. Without one the headline is the statement.
  */
 @Composable
-private fun RideStatement(says: RideWords.Statement) {
+private fun RideStatement(says: RideWords.Statement, next: Action?) {
     Column(modifier = Modifier.fillMaxWidth().dimWhileRefreshing()) {
         if (says.figure != null) {
             LightText(text = says.figure, variant = LightTextVariant.Title, lighten = !says.sure, maxLines = 1)
@@ -191,6 +207,7 @@ private fun RideStatement(says: RideWords.Statement) {
             says.aside.forEach { LightText(text = it, variant = LightTextVariant.Copy, lighten = true, maxLines = 2, overflow = TextOverflow.Ellipsis) }
         }
         if (says.note != null) Note(says.note, Modifier.padding(top = 0.75f.gridUnitsAsDp()))
+        if (next != null) ActionLink(next, Modifier.padding(top = 0.5f.gridUnitsAsDp()))
     }
 }
 
@@ -345,6 +362,7 @@ class OtherTrainScreen(
             refreshing = refreshing,
             bottom = listOf(null, null, refreshButton { viewModel.live.refreshNow() }),
             message = if (names == null) "" else OtherTrainWords.instead(view, to),
+            actions = if (view == OtherTrains.Choice.View.Unavailable) listOf(Action(TRY_AGAIN) { viewModel.live.refreshNow() }) else emptyList(),
         ) {
             if (names != null && view is OtherTrains.Choice.View.Trains && trains != null) {
                 FadeIn {

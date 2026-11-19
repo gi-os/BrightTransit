@@ -220,6 +220,30 @@ object RideWords {
         }
     }
 
+    /** The next thing to do, offered under a statement that ends the ride as it was. */
+    enum class Next(val label: String) {
+        /** The rider is where they were going. */
+        DONE("DONE"),
+
+        /** The train they named is no use now: they are on another, or need one. */
+        OTHER_TRAIN("OTHER TRAIN"),
+
+        /** They are at the change: the trains from there. */
+        NEXT_TRAIN("NEXT TRAIN"),
+    }
+
+    /**
+     * What to offer under the statement at [state], or null while the ride is going as it
+     * should. At the stop to change at, or past it, the trains from there. Past the
+     * rider's own stop, done. A train that no longer stops there, or that the MTA has
+     * stopped reporting, another train.
+     */
+    fun next(ride: Ride, state: RideState): Next? = when (state) {
+        is RideState.There, is RideState.Past -> if (ride.then != null) Next.NEXT_TRAIN else if (state is RideState.Past) Next.DONE else null
+        is RideState.Lost, is RideState.Dropped -> Next.OTHER_TRAIN
+        else -> null
+    }
+
     /** True once a ride that ends in a change is next to, at or past the stop to change at. */
     fun atTheChange(state: RideState): Boolean = state is RideState.Next || state is RideState.There || state is RideState.Past
 

@@ -27,6 +27,7 @@ import com.thelightphone.subway.ui.Page
 import com.thelightphone.subway.ui.PlanWords
 import com.thelightphone.subway.ui.RouteBadgeRow
 import com.thelightphone.subway.ui.SubwayScreen
+import com.thelightphone.subway.ui.Action
 import com.thelightphone.subway.ui.searchButton
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
@@ -186,6 +187,7 @@ class SearchScreen(
                 results.isEmpty() -> "No stations found for “$searched”.\n\nTry part of the name, a cross street or a line."
                 else -> null
             },
+            actions = if (searched != null && results.isEmpty()) listOf(Action("SEARCH AGAIN") { openKeyboard() }) else emptyList(),
         ) {
             origin?.let { Note(PlanWords.searching(it), Modifier.padding(bottom = 0.75f.gridUnitsAsDp())) }
             results.forEach { station ->

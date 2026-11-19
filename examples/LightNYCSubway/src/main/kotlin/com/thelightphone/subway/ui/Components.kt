@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -131,7 +133,8 @@ private val LocalPage = compositionLocalOf { Page() }
  * is how the rest of LightOS does it.
  *
  * With [message] set the page is that text, centred, instead of [content]. That is the
- * blank state: nothing saved yet, nothing found, no connection.
+ * blank state: nothing saved yet, nothing found, no connection. [actions] are the next
+ * steps, written right under it: an error is never left without a way to try again.
  *
  * With [subtitle] the title bar has two lines, the way a train is named: what it is, and
  * where it was asked about. With [still] the page does not scroll. That is for the one
@@ -148,6 +151,7 @@ fun SubwayScreen(
     refreshing: Boolean = false,
     subtitle: String? = null,
     still: Boolean = false,
+    actions: List<Action> = emptyList(),
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     val themeColors by LightThemeController.colors.collectAsState()
@@ -179,7 +183,13 @@ fun SubwayScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         key(message) {
-                            FadeIn { LightText(text = message, variant = LightTextVariant.Copy, align = TextAlign.Center) }
+                            FadeIn {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    LightText(text = message, variant = LightTextVariant.Copy, align = TextAlign.Center)
+                                    if (actions.isNotEmpty()) Spacer(Modifier.height(Space.SMALL.gridUnitsAsDp()))
+                                    actions.forEach { ActionLink(it) }
+                                }
+                            }
                         }
                     }
                 } else if (still) {
@@ -209,6 +219,40 @@ fun SubwayScreen(
                 LightBottomBar(items = bottom)
             }
         }
+    }
+}
+
+/** A next step offered in words, where the rider is reading: "TRY AGAIN", "DONE". Its [label] is in capitals, as every text button in LightOS is. */
+class Action(val label: String, val onClick: () -> Unit)
+
+/** What a page says when it could not get what it needed. */
+const val TRY_AGAIN = "TRY AGAIN"
+
+/**
+ * An [Action] drawn as a line of text that can be tapped, in the type the page is read in
+ * and with room to tap it. It sits under what it answers, never in a corner.
+ */
+@Composable
+fun ActionLink(action: Action, modifier: Modifier = Modifier) {
+    LightText(
+        text = action.label,
+        variant = LightTextVariant.Copy,
+        modifier = modifier
+            .lightClickable(onClick = action.onClick)
+            .padding(vertical = Space.TAP.gridUnitsAsDp()),
+    )
+}
+
+/**
+ * Something could not be had: what, in the type the page is read in and not in a grey
+ * aside, and the way to try again right under it. With data still on the page it goes
+ * above that data, which stays.
+ */
+@Composable
+fun Trouble(text: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth().padding(bottom = Space.SMALL.gridUnitsAsDp())) {
+        LightText(text = text, variant = LightTextVariant.Copy)
+        ActionLink(Action(TRY_AGAIN, onRetry))
     }
 }
 
@@ -710,8 +754,39 @@ fun Note(text: String, modifier: Modifier = Modifier) {
  * past, so old numbers are never passed off as live and a short list never as the whole one.
  */
 @Composable
-fun BoardNotes(trains: Board.View.Trains) {
+fun BoardNotes(trains: Board.View.Trains, onRetry: (() -> Unit)? = null) {
+    val trouble = BoardTrouble.of(trains)
+    if (onRetry != null && trouble != null) {
+        Trouble(trouble, onRetry)
+        return
+    }
     val gap = Modifier.padding(bottom = Space.SMALL.gridUnitsAsDp())
     if (trains.stale) Note(notLive(trains.asOf), gap)
     trains.missingNote?.let { Note(it, gap) }
+}
+
+/** The words for a board that could not get all it needed. */
+object BoardTrouble {
+    const val CHECK = "Check your connection."
+
+    /** What a board with times says of the ones it is missing, or null when nothing is. */
+    fun of(trains: Board.View.Trains): String? {
+        val said = listOfNotNull(if (trains.stale) notLive(trains.asOf) else null, trains.missingNote)
+        return if (said.isEmpty()) null else (said + CHECK).joinToString(" ")
+    }
+
+    /**
+     * The one line over a list of boards, Home's or Nearby's, when any of them could not get
+     * its times. Boards still loading are left out of it. Null when nothing is wrong.
+     */
+    fun over(views: List<Board.View>): String? {
+        val shown = views.filterNot { it is Board.View.Loading }
+        val wrong = shown.filter { it is Board.View.Unavailable || (it is Board.View.Trains && of(it) != null) }
+        return when {
+            wrong.isEmpty() -> null
+            wrong.size < shown.size -> "Some times are not live. $CHECK"
+            wrong.all { it is Board.View.Unavailable } -> Board.View.Unavailable.text
+            else -> "Times are not live. $CHECK"
+        }
+    }
 }

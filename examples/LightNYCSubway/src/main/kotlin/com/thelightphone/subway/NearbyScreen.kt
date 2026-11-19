@@ -29,6 +29,10 @@ import com.thelightphone.subway.ui.StationBoard
 import com.thelightphone.subway.ui.SubwayScreen
 import com.thelightphone.subway.ui.clockLabel
 import com.thelightphone.subway.ui.distanceLabel
+import com.thelightphone.subway.ui.Action
+import com.thelightphone.subway.ui.BoardTrouble
+import com.thelightphone.subway.ui.TRY_AGAIN
+import com.thelightphone.subway.ui.Trouble
 import com.thelightphone.subway.ui.refreshButton
 import com.thelightphone.subway.ui.searchButton
 import com.thelightphone.sdk.LightScreen
@@ -424,7 +428,7 @@ class NearbyScreen(sealedActivity: SealedLightActivity) :
             onBack = { goBack() },
             refreshing = refreshing,
             bottom = if (state.status == Locating.NEEDS_PERMISSION) {
-                listOf(LightBarButton.Text(text = "ALLOW LOCATION", onClick = { runCatching { permission?.launch() } }))
+                listOf(null, searchButton { navigateTo(::SearchScreen) }, null)
             } else {
                 listOf(null, searchButton { navigateTo(::SearchScreen) }, refreshButton { viewModel.refresh() })
             },
@@ -434,8 +438,18 @@ class NearbyScreen(sealedActivity: SealedLightActivity) :
                 Locating.NOT_FOUND -> "Can’t find your location right now.\n\nTry again outside, or search for a station."
                 Locating.FOUND -> null
             },
+            // What to do next is written under what went wrong.
+            actions = when (state.status) {
+                Locating.NEEDS_PERMISSION -> listOf(Action("ALLOW LOCATION") { runCatching { permission?.launch() } })
+                Locating.NOT_FOUND -> listOf(Action(TRY_AGAIN) { viewModel.refresh() })
+                else -> emptyList()
+            },
         ) {
             basisNote(state.basis)?.let { Note(it, Modifier.padding(bottom = 0.5f.gridUnitsAsDp())) }
+            // The nearest station's board is the only one with times. Trouble with them is said over the list.
+            val nearest = state.stations.firstOrNull()?.let { (station, _) -> boards.firstOrNull { it.station.id == station.id } }
+            val trouble = remember(nearest, now) { nearest?.let { BoardTrouble.over(listOf(it.view(now))) } }
+            if (trouble != null) Trouble(trouble, onRetry = { viewModel.refresh() })
             state.stations.forEachIndexed { index, (station, meters) ->
                 val board = boards.firstOrNull { it.station.id == station.id }
                 key(station.id) {

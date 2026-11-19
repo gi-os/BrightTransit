@@ -42,6 +42,7 @@ import com.thelightphone.subway.ui.RouteBadgeRow
 import com.thelightphone.subway.ui.StationLabel
 import com.thelightphone.subway.ui.SubwayScreen
 import com.thelightphone.subway.ui.TrainRow
+import com.thelightphone.subway.ui.Trouble
 import com.thelightphone.subway.ui.clockLabel
 import com.thelightphone.subway.ui.dimWhileRefreshing
 import com.thelightphone.subway.ui.namesScheduledTrains
@@ -203,7 +204,15 @@ class StationScreen(
                 searchButton { navigateTo({ SearchScreen(it, from = stationId) }) },
                 LightBarButton.Text(
                     text = if (isSaved) "UNSAVE" else "SAVE STATION",
-                    onClick = { viewModel.toggleSaved() },
+                    onClick = {
+                        // Saving is one tap. Taking a station off Home is asked about first.
+                        val name = board?.station?.name
+                        if (isSaved && name != null) {
+                            navigateTo<Boolean>({ ConfirmScreen(it, ConfirmWords.unsave(name), ConfirmWords.REMOVE) }) { yes -> if (yes) viewModel.toggleSaved() }
+                        } else {
+                            viewModel.toggleSaved()
+                        }
+                    },
                 ),
                 refreshButton { viewModel.refresh() },
             ),
@@ -231,6 +240,7 @@ class StationScreen(
                     onRoute = { viewModel.toggleFavorite(it) },
                     onTrains = { trains -> navigateTo({ TrainScreen(it, trains) }) },
                     wayHere = wayHere,
+                    onRetry = { viewModel.refresh() },
                 )
             }
         }
@@ -416,6 +426,7 @@ private fun StationPage(
     onRoute: (String) -> Unit,
     onTrains: (List<TrainRef>) -> Unit,
     wayHere: WayOnPage?,
+    onRetry: () -> Unit,
 ) {
     val station = board.station
     RouteBadgeRow(routes = station.routes, favorites = favorites, onRouteClick = onRoute)
@@ -439,10 +450,12 @@ private fun StationPage(
         StationLabel(PlanWords.from(station), station, wayHere.names.hasNamesake(station), Modifier.padding(bottom = 0.25f.gridUnitsAsDp()))
     }
     when (val view = board.view(now)) {
+        // Times that could not be had are said in the page's own type, with the way to try again.
+        Board.View.Unavailable -> Trouble(Board.View.Unavailable.text, onRetry)
         is Board.View.Message -> Note(view.text)
         is Board.View.Trains -> FadeIn {
             Column(modifier = Modifier.fillMaxWidth()) {
-                BoardNotes(view)
+                BoardNotes(view, onRetry)
                 Column(modifier = Modifier.dimWhileRefreshing()) {
                     view.groups.forEach { group ->
                         key(group.heading) {

@@ -17,6 +17,7 @@ import com.thelightphone.subway.data.Change
 import com.thelightphone.subway.data.Plan
 import com.thelightphone.subway.hw.WheelBus
 import com.thelightphone.subway.hw.dispatch
+import com.thelightphone.subway.ui.Action
 import com.thelightphone.subway.ui.ChangeRow
 import com.thelightphone.subway.ui.DirectRow
 import com.thelightphone.subway.ui.FadeIn
@@ -26,6 +27,7 @@ import com.thelightphone.subway.ui.PlanWords
 import com.thelightphone.subway.ui.RouteBadgeRow
 import com.thelightphone.subway.ui.StationLabel
 import com.thelightphone.subway.ui.SubwayScreen
+import com.thelightphone.subway.ui.TRY_AGAIN
 import com.thelightphone.subway.ui.dimWhileRefreshing
 import com.thelightphone.subway.ui.refreshButton
 import com.thelightphone.sdk.LightScreen
@@ -158,6 +160,12 @@ class DirectScreen(
                 refreshButton { viewModel.live.refreshNow() },
             ),
             message = if (names == null) "" else DirectWords.instead(following, view, later = after != null, changes = changes.isNotEmpty()),
+            // Lines that could not be checked are a connection to try again, said where the rider reads it.
+            actions = if (view is Plan.View.Unchecked && !following.loading && changes.isEmpty()) {
+                listOf(Action(TRY_AGAIN) { viewModel.live.refreshNow() })
+            } else {
+                emptyList()
+            },
         ) {
             if (names != null && plan != null && view != null && (trains != null || changes.isNotEmpty())) {
                 DirectPage(plan, view, changes, now, names)
