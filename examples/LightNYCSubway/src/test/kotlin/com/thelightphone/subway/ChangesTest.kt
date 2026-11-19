@@ -5,6 +5,7 @@ import com.thelightphone.subway.data.Plan
 import com.thelightphone.subway.data.Planner
 import com.thelightphone.subway.data.Station
 import com.thelightphone.subway.ui.PlanWords
+import com.thelightphone.subway.ui.clockLabel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -197,7 +198,9 @@ class ChangesTest {
         val way = plan.changes(now).first()
         val words = PlanWords.change(way, plan, now, catalog)
         assertEquals("Leaves in about 1 min", words.leaves)
-        assertEquals("Arrives about 11:41 AM", words.arrives?.replace('\u00A0', ' '))
+        // The clock is the phone's, so the time is written as the phone writes it.
+        assertEquals("Arrives about ${clockLabel(way.arrives)}", words.arrives)
+        assertEquals("11:41:02", clock(way.arrives))
         assertEquals("Change at Fulton St to the 4", words.detail.replace('\u00A0', ' '))
         assertEquals("4 min to change  ·  5 stops", words.more?.replace('\u00A0', ' '))
         assertEquals(null, words.warning)
@@ -205,7 +208,8 @@ class ChangesTest {
         // A second train that is only the timetable's is said to be, and its time is given with "at".
         val slot = plan("125", "292").changes(now).single()
         val slotWords = PlanWords.change(slot, plan("125", "292"), now, catalog)
-        assertEquals("Arrives at 11:48 AM", slotWords.arrives?.replace('\u00A0', ' '))
+        assertEquals("Arrives at ${clockLabel(slot.arrives)}", slotWords.arrives)
+        assertEquals("11:48:00", clock(slot.arrives))
         assertEquals("The second train's times are the timetable's.", slotWords.warning)
         assertTrue(!slotWords.sure)
     }
