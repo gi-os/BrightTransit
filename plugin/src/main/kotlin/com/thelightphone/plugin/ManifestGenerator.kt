@@ -86,6 +86,11 @@ object ManifestGenerator {
                 """        android:usesCleartextTraffic="true"""",
             )
         )
+        val largeHeap = marginBlock(
+            if (!metadata.largeHeap) emptyList() else listOf(
+                """        android:largeHeap="true"""",
+            )
+        )
         appendLine(
             """
             |    <application
@@ -93,7 +98,7 @@ object ManifestGenerator {
             |        android:label="${xmlAttr(metadata.label)}"
             |        android:icon="@mipmap/ic_launcher"
             |        android:roundIcon="@mipmap/ic_launcher_round"
-            |        android:supportsRtl="true"$cleartext
+            |        android:supportsRtl="true"$cleartext$largeHeap
             |        android:theme="@style/LightSdk.Theme.Splash">
             |        <meta-data
             |            android:name="com.thelightphone.sdk.LIGHT_SERVER_PACKAGE"

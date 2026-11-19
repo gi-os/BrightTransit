@@ -57,6 +57,7 @@ dependencies {
     api(libs.ktor.client.okhttp)
     api(libs.ktor.client.content.negotiation)
     api(libs.ktor.serialization.json)
+    implementation(libs.androidx.annotation)
     implementation(libs.unifiedpush.connector)
     implementation(libs.androidx.splashscreen)
     api(libs.androidx.room.runtime)
@@ -64,7 +65,9 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.datasource)
     implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.database)
     api(libs.light.toolmanager.client)
     lintChecks(project(":lint-rules"))
 
