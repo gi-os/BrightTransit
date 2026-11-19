@@ -18,7 +18,7 @@ The rules, for a way from station A to station B:
 
 C1. Only the feeds A or B is looked for in are read (direct rule 8).
 C2. The first train is one direct_trains.py would board at A (rules 1-3, 7, 9, 10) that has
-    a train, and is not being held at A (rule 11).
+    a train, and is not being held on its way to A (rule 11).
 C3. It may be left at any later stop that is a station, up to but not including the first
     stop at one of B's platforms or back at one of A's. Every stop from boarding to the one
     it is left at is at least 20 seconds after the one before (rule 6); the first stop where
@@ -82,8 +82,9 @@ def board(feeds, platforms, slugs, origin, destination, now):
             if train and at is not None and at[1] == dt.STOPPED and at[2] <= built:
                 if len(stops) > 1 and stops[1][0] == at[0]:
                     stops = stops[1:]
-                # Rule 11, read for the origin: stopped at its first stop, at the origin, over two minutes late.
-                held = bool(stops) and stops[0][0] == at[0] and 0 < stops[0][1] <= now - 120 and stops[0][0][:-1] in starts
+                # Rule 11 as direct_trains.py words it: stopped at the first stop it lists, short of the
+                # station it is boarded at, more than two minutes past its time there.
+                held = bool(stops) and stops[0][0] == at[0] and 0 < stops[0][1] <= now - 120 and stops[0][0][:-1] not in starts
             on = next((i for i, (s, w) in enumerate(stops) if s[:-1] in starts and w >= now - 30), None)
             if on is None:
                 continue

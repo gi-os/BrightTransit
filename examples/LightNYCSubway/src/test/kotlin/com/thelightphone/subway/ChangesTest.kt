@@ -119,6 +119,18 @@ class ChangesTest {
     }
 
     @Test
+    fun aTrainBeingHeldOnItsWayIsNeverTheFirstOfAChange() {
+        // Grand Army Plaza to Sutphin Blvd: the 3 due first has stood at Nostrand Av for over three minutes, so its times will
+        // slip, and a change timed off them would not hold. The 2 behind it makes the same F at 14 St.
+        val plan = plan("340", "257")
+        assertTrue(plan.changes.none { it.first.train.id == "066350_3..N01R" })
+        assertEquals(
+            listOf("2 066500_2..N14R 11:24:43 14 St 11:47:43 | F 065966_F..N54R 11:57:14 12:33:14 walk=300 lines=F"),
+            plan.offered(),
+        )
+    }
+
+    @Test
     fun aWayThatGetsThereWellAfterAnotherIsNotOfferedHoweverSoonItLeaves() {
         val plan = plan("125", "611")
         // Morgan Av to Times Sq: the L the other way to Broadway Junction leaves a minute sooner, and gets there half an hour later.
