@@ -1,0 +1,3610 @@
+1 Av (L)
+  West Side
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+103 St (C B)
+  Uptown
+    C   168 St
+    B   145 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+103 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+103 St (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+103 St-Corona Plaza (7)
+  Queens
+    7   Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+104 St (A)
+  no trains
+
+104 St (J Z)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+110 St (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+110 St-Malcolm X Plaza (2 3)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+111 St (A)
+  no trains
+
+111 St (7)
+  Queens
+    7   Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+111 St (J)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+116 St (C B)
+  Uptown
+    C   168 St
+    B   145 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+116 St (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+116 St (2 3)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+116 St-Columbia University (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+121 St (J Z)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+125 St (A C B D)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    B   145 St
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+125 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+125 St (4 5 6)
+  The Bronx
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    6   Brooklyn Bridge-City Hall
+
+125 St (2 3)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+135 St (C B)
+  Uptown
+    C   168 St
+    B   145 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+135 St (2 3)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+137 St-City College (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+138 St-Grand Concourse (4 5)
+  The Bronx
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+14 St (1 2 3 F M L)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  West Side
+    L   8 Av
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    E   Kings Hwy
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+14 St (A C E L)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    E   World Trade Center
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+14 St-Union Sq (4 5 6 L N Q R W)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  West Side
+    L   8 Av
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    6   Brooklyn Bridge-City Hall
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+145 St (A C B D)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+145 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+145 St (3)
+  Harlem
+    3   Harlem-148 St
+  Downtown
+    3   New Lots Av
+
+149 St-Hostos (2 4 5)
+  The Bronx
+    2   Wakefield-241 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+15 St-Prospect Park (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    E   Kings Hwy
+
+155 St (C)
+  Uptown
+    C   168 St
+  Downtown
+    C   Euclid Av
+
+155 St (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Downtown
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+157 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+161 St-Yankee Stadium (4 B D)
+  The Bronx
+    4   Woodlawn
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+163 St-Amsterdam Av (C)
+  Uptown
+    C   168 St
+  Downtown
+    C   Euclid Av
+
+167 St (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+167 St (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+168 St (1 A C)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    A   Inwood-207 St
+  Downtown
+    1   South Ferry
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+
+169 St (F)
+  Jamaica
+    F   Jamaica-179 St
+  Manhattan
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+170 St (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+170 St (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+174 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+174-175 Sts (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+175 St (A)
+  Uptown
+    A   Inwood-207 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+
+176 St (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+18 Av (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+18 Av (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+18 Av (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+18 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+181 St (A)
+  Uptown
+    A   Inwood-207 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+
+181 St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+182-183 Sts (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+183 St (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+190 St (A)
+  Uptown
+    A   Inwood-207 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+
+191 St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+2 Av (F)
+  Uptown
+    F   Jamaica-179 St
+  Downtown
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+20 Av (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+20 Av (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+207 St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+21 St (G)
+  Court Sq
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+21 St-Queensbridge (M)
+  Queens
+    M   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+
+215 St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+219 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+225 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+23 St (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+23 St (C E)
+  Uptown
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    C   Euclid Av
+    E   World Trade Center
+
+23 St (F M)
+  Uptown
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  Downtown
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    E   Kings Hwy
+
+23 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+23 St-Baruch College (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+231 St (1)
+  Van Cortlandt
+    1   Van Cortlandt Park-242 St
+  Manhattan
+    1   South Ferry
+
+233 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+238 St (1)
+  Van Cortlandt
+    1   Van Cortlandt Park-242 St
+  Manhattan
+    1   South Ferry
+
+25 Av (D)
+  Manhattan
+    D   Norwood-205 St
+  Coney Island
+    D   Coney Island-Stillwell Av
+
+25 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    R   Bay Ridge-95 St
+
+28 St (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+28 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+28 St (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+3 Av (L)
+  West Side
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+3 Av-138 St (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+3 Av-149 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+30 Av (N W)
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+33 St (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+33 St-Rawson St (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+34 St-Herald Sq (B D F M N Q R W)
+  Uptown
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+    E   Kings Hwy
+
+34 St-Hudson Yards (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+
+34 St-Penn Station (A C E)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    E   World Trade Center
+
+34 St-Penn Station (1 2 3)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+36 Av (N W)
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+36 St (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+36 St (D N R)
+  Manhattan
+    D   Norwood-205 St
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    D   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+
+39 Av-Dutch Kills (N W)
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+4 Av-9 St (F G R)
+  Manhattan
+    F   Jamaica-179 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    R   Bay Ridge-95 St
+    E   Kings Hwy
+
+40 St-Lowery St (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+42 St-Bryant Pk (7 B D F M)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Uptown
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  Hudson Yards
+    7   34 St-Hudson Yards
+  Downtown
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    E   Kings Hwy
+
+45 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    R   Bay Ridge-95 St
+
+46 St (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+46 St-Bliss St (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+47-50 Sts-Rockefeller Ctr (B D F M)
+  Uptown
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  Downtown
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    E   Kings Hwy
+
+49 St (N R W)
+  Uptown
+    N   Astoria-Ditmars Blvd
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    N   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+5 Av/53 St (E F)
+  Queens
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+  Downtown
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+5 Av/59 St (N R W)
+  Queens
+    N   Astoria-Ditmars Blvd
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    N   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+50 St (C E)
+  Uptown
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    C   Euclid Av
+    E   World Trade Center
+
+50 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+50 St (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+52 St (7)
+  Manhattan
+    7   34 St-Hudson Yards
+
+53 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    R   Bay Ridge-95 St
+
+55 St (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+57 St (M)
+  Uptown
+    M   Forest Hills-71 Av
+  Downtown
+    M   Middle Village-Metropolitan Av
+
+57 St-7 Av (N Q R W)
+  Uptown
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+59 St (N R)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    N   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+
+59 St (4 5 6 N R W)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+  Queens
+    N   Astoria-Ditmars Blvd
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    6   Brooklyn Bridge-City Hall
+    N   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+59 St-Columbus Circle (1 A C B D)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    A   Inwood-207 St
+    C   168 St
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Downtown
+    1   South Ferry
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+61 St-Woodside (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+63 Dr-Rego Park (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+65 St (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+66 St-Lincoln Center (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+67 Av (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+68 St-Hunter College (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+69 St (7)
+  Manhattan
+    7   34 St-Hudson Yards
+
+7 Av (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    G   Church Av
+    E   Kings Hwy
+
+7 Av (E B D)
+  Queens
+    E   Jamaica Center-Parsons/Archer
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Downtown
+    E   World Trade Center
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+7 Av (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+71 St (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+72 St (C B)
+  Uptown
+    C   168 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+72 St (1 2 3)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+72 St (Q)
+  Uptown
+    Q   96 St
+    N   96 St
+  Downtown
+    Q   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+
+75 Av (E F)
+  Jamaica
+    F   Jamaica-179 St
+  Manhattan
+    E   Kings Hwy
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+75 St-Elderts Ln (J Z)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+77 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+  Bay Ridge
+    R   Bay Ridge-95 St
+
+77 St (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+79 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+79 St (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+8 Av (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+8 St-NYU (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+80 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+81 St-Museum of Natural History (C B)
+  Uptown
+    C   168 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+82 St-Jackson Hts (7)
+  Queens
+    7   Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+85 St-Forest Pkwy (J)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+86 St (C B)
+  Uptown
+    C   168 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+86 St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+86 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+  Bay Ridge
+    R   Bay Ridge-95 St
+
+86 St (4 5 6)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    6   Brooklyn Bridge-City Hall
+
+86 St (Q)
+  Uptown
+    Q   96 St
+    N   96 St
+  Downtown
+    Q   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+
+86 St (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+88 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+9 Av (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+90 St-Elmhurst Av (7)
+  Queens
+    7   Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+96 St (C B)
+  Uptown
+    C   168 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+96 St (1 2 3)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+96 St (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+96 St (Q)
+  Downtown
+    Q   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+
+Alabama Av (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Allerton Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Annadale (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+Aqueduct Racetrack (A)
+  Manhattan
+    A   Inwood-207 St
+
+Aqueduct-N Conduit Av (A)
+  Manhattan
+    A   Inwood-207 St
+  Rockaways
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+Arthur Kill (SIR)
+  Ferry
+    SIR St George
+  Tottenville
+    SIR Tottenville
+
+Astor Pl (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+Astoria Blvd (N W)
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+Astoria-Ditmars Blvd (N W)
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+Atlantic Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Atlantic Av-Barclays Ctr (2 3 4 5 B D N Q R)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+
+Avenue H (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Avenue I (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Avenue J (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Avenue M (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Avenue N (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Avenue P (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Avenue U (F)
+  Manhattan
+    F   Jamaica-179 St
+  Coney Island
+    F   Coney Island-Stillwell Av
+    FX  Coney Island-Stillwell Av
+
+Avenue U (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Avenue U (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+Avenue X (F)
+  Manhattan
+    F   Jamaica-179 St
+  Coney Island
+    F   Coney Island-Stillwell Av
+    FX  Coney Island-Stillwell Av
+
+Bay 50 St (D)
+  Manhattan
+    D   Norwood-205 St
+  Coney Island
+    D   Coney Island-Stillwell Av
+
+Bay Pkwy (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Bay Pkwy (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+Bay Pkwy (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+Bay Ridge Av (R)
+  Manhattan
+    R   Forest Hills-71 Av
+  Bay Ridge
+    R   Bay Ridge-95 St
+
+Bay Ridge-95 St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+
+Bay Terrace (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Baychester Av (5)
+  Eastchester
+    5   Eastchester-Dyre Av
+  Manhattan
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Beach 105 St (A S)
+  Manhattan
+    S   Broad Channel
+  Rockaway Park
+    A   Rockaway Park-Beach 116 St
+    S   Rockaway Park-Beach 116 St
+
+Beach 25 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Far Rockaway
+    A   Far Rockaway-Mott Av
+
+Beach 36 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Far Rockaway
+    A   Far Rockaway-Mott Av
+
+Beach 44 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Far Rockaway
+    A   Far Rockaway-Mott Av
+
+Beach 60 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Far Rockaway
+    A   Far Rockaway-Mott Av
+
+Beach 67 St (A)
+  Manhattan
+    A   Inwood-207 St
+  Far Rockaway
+    A   Far Rockaway-Mott Av
+
+Beach 90 St (A S)
+  Manhattan
+    S   Broad Channel
+  Rockaway Park
+    A   Rockaway Park-Beach 116 St
+    S   Rockaway Park-Beach 116 St
+
+Beach 98 St (A S)
+  Manhattan
+    S   Broad Channel
+  Rockaway Park
+    A   Rockaway Park-Beach 116 St
+    S   Rockaway Park-Beach 116 St
+
+Bedford Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Bedford Park Blvd (B D)
+  The Bronx
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+Bedford Park Blvd-Lehman College (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Bedford-Nostrand Avs (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Bergen St (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    E   Kings Hwy
+
+Bergen St (2 3)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Beverley Rd (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Beverly Rd (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Borough Hall (2 3 4 5 R)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    R   Bay Ridge-95 St
+
+Bowery (J Z)
+  Brooklyn
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Downtown
+    J   Broad St
+
+Bowling Green (4 5)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Briarwood (E F)
+  Jamaica
+    F   Jamaica-179 St
+  Manhattan
+    E   Kings Hwy
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Brighton Beach (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Broad Channel (A S)
+  Manhattan
+    A   Inwood-207 St
+  Rockaways
+    A   Far Rockaway-Mott Av
+    A   Rockaway Park-Beach 116 St
+    S   Rockaway Park-Beach 116 St
+
+Broad St (J Z)
+  Brooklyn
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+
+Broadway (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Broadway (N W)
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+Broadway Junction (A C J Z L)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+    J   Broad St
+    L   8 Av
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Brooklyn
+    C   Euclid Av
+    L   Canarsie-Rockaway Pkwy
+
+Broadway-Lafayette St (6 B D F M)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  Downtown
+    6   Brooklyn Bridge-City Hall
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    E   Kings Hwy
+
+Bronx Park East (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Brook Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Brooklyn Bridge-City Hall (4 5 6 J Z)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+  Brooklyn
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    J   Broad St
+
+Buhre Av (6)
+  Pelham Bay
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Burke Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Burnside Av (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Bushwick Av-Aberdeen St (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Canal St (A C E)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    E   World Trade Center
+
+Canal St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Canal St (6 J Z N Q R W)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Downtown
+    6   Brooklyn Bridge-City Hall
+    J   Broad St
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+Canarsie-Rockaway Pkwy (L)
+  Manhattan
+    L   8 Av
+
+Carroll St (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    E   Kings Hwy
+
+Castle Hill Av (6)
+  Pelham Bay
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Cathedral Pkwy (110 St) (C B)
+  Uptown
+    C   168 St
+    B   145 St
+    B   Bedford Park Blvd
+  Downtown
+    C   Euclid Av
+    B   Brighton Beach
+
+Cathedral Pkwy (110 St) (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Central Av (M)
+  Manhattan
+    M   Forest Hills-71 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+
+Chambers St (1 2 3)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Chambers St (2 3 A C E R W)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+Chauncey St (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Christopher St-Stonewall (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Church Av (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Church Av (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Church Av (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+City Hall (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+Clark St (2 3)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Classon Av (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Cleveland St (J)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Clifton (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Clinton-Washington Avs (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Clinton-Washington Avs (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Coney Island-Stillwell Av (D F N Q)
+  Manhattan
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+
+Cortelyou Rd (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Court Sq (7 E F G)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+  Manhattan
+    7   34 St-Hudson Yards
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+  Brooklyn
+    G   Church Av
+
+Crescent St (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Crown Hts-Utica Av (3 4)
+  Manhattan
+    3   Harlem-148 St
+    4   Woodlawn
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Brooklyn
+    3   New Lots Av
+    4   New Lots Av
+
+Cypress Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Cypress Hills (J)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+DeKalb Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+DeKalb Av (B Q R)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+
+Delancey St-Essex St (F M J Z)
+  Uptown
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+    E   Kings Hwy
+  Queens
+    M   Forest Hills-71 Av
+  Broad St
+    J   Broad St
+
+Ditmas Av (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Dongan Hills (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Dyckman St (A)
+  Uptown
+    A   Inwood-207 St
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+
+Dyckman St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+E 143 St-St Mary's St (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+E 149 St (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+E 180 St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+East 105 St (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+East Broadway (F)
+  Uptown
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Eastchester-Dyre Av (5)
+  Manhattan
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Eastern Pkwy-Brooklyn Museum (2 3)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Elder Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Elmhurst Av (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Eltingville (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+Euclid Av (A C)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+Far Rockaway-Mott Av (A)
+  Manhattan
+    A   Inwood-207 St
+
+Flatbush Av-Brooklyn College (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+
+Flushing Av (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Flushing Av (M J)
+  Queens
+    M   Middle Village-Metropolitan Av
+  Manhattan
+    M   Forest Hills-71 Av
+    J   Broad St
+
+Flushing-Main St (7)
+  Manhattan
+    7   34 St-Hudson Yards
+
+Fordham Rd (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+Fordham Rd (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Forest Av (M)
+  Manhattan
+    M   Forest Hills-71 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+
+Forest Hills-71 Av (E F M R)
+  Queens
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Fort Hamilton Pkwy (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    E   Kings Hwy
+
+Fort Hamilton Pkwy (D)
+  Manhattan
+    D   Norwood-205 St
+  Brooklyn
+    D   Coney Island-Stillwell Av
+
+Fort Hamilton Pkwy (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+Franklin Av (C S)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+  Prospect Park
+    S   Prospect Park
+
+Franklin Av-Medgar Evers College (2 3 4 5 S)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Franklin Av
+    S   Franklin Av
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+  Prospect Park
+    S   Prospect Park
+
+Franklin St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Freeman St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Fresh Pond Rd (M)
+  Manhattan
+    M   Forest Hills-71 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+
+Fulton St (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Fulton St (2 3 4 5 A C J Z)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    A   Inwood-207 St
+    C   168 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    J   Broad St
+
+Gates Av (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Graham Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Grand Army Plaza (2 3)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Grand Av-Newtown (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Grand Central-42 St (4 5 6 7 S)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+    6   Parkchester
+    6X  Pelham Bay Park
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Times Sq
+    S   Times Sq-42 St
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+    6   Brooklyn Bridge-City Hall
+  Hudson Yards
+    7   34 St-Hudson Yards
+
+Grand St (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Grand St (B D)
+  Uptown
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Brooklyn
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+Grant Av (A)
+  Manhattan
+    A   Inwood-207 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+Grant City (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Grasmere (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Great Kills (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+Greenpoint Av (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Gun Hill Rd (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Gun Hill Rd (5)
+  Eastchester
+    5   Eastchester-Dyre Av
+  Manhattan
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Halsey St (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Halsey St (J)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Harlem-148 St (3)
+  Downtown
+    3   New Lots Av
+
+Hewes St (M J)
+  Queens
+    M   Middle Village-Metropolitan Av
+  Manhattan
+    M   Forest Hills-71 Av
+    J   Broad St
+
+High St (A C)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+  Brooklyn
+    C   Euclid Av
+
+Houston St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Howard Beach-JFK Airport (A)
+  Manhattan
+    A   Inwood-207 St
+  Rockaways
+    A   Far Rockaway-Mott Av
+    A   Rockaway Park-Beach 116 St
+
+Hoyt St (2 3)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Hoyt-Schermerhorn Sts (A C G)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+  Court Sq
+    G   Court Sq
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+  Brooklyn
+    C   Euclid Av
+    G   Church Av
+    F   Coney Island-Stillwell Av
+
+Huguenot (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+Hunters Point Av (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+Hunts Point Av (6)
+  The Bronx
+    6   Parkchester
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Intervale Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Inwood-207 St (A)
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+
+Jackson Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Jackson Hts-Roosevelt Av (7 E F M R)
+  Queens
+    7   Flushing-Main St
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    7   34 St-Hudson Yards
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Jamaica Center-Parsons/Archer (E J Z)
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+    J   Broad St
+
+Jamaica-179 St (F)
+  Manhattan
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Jamaica-Van Wyck (E)
+  Jamaica
+    E   Jamaica Center-Parsons/Archer
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+
+Jay St-MetroTech (A C F R)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+    F   Jamaica-179 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+  Brooklyn
+    C   Euclid Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    E   Kings Hwy
+
+Jefferson Av (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Jefferson St (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Junction Blvd (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+Junius St (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Kew Gardens-Union Tpke (E F)
+  Jamaica
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Kings Hwy (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    FX  Coney Island-Stillwell Av
+
+Kings Hwy (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+Kings Hwy (N)
+  Manhattan
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Coney Island
+    N   Coney Island-Stillwell Av
+
+Kingsbridge Rd (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+Kingsbridge Rd (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Kingston Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  Brooklyn
+    3   New Lots Av
+
+Kingston-Throop Avs (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Knickerbocker Av (M)
+  Manhattan
+    M   Forest Hills-71 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+
+Kosciuszko St (J)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Lafayette Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Lexington Av/53 St (6 E F)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Queens
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+  Downtown
+    6   Brooklyn Bridge-City Hall
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Lexington Av/63 St (M Q)
+  Uptown & Queens
+    M   Forest Hills-71 Av
+    Q   96 St
+    N   96 St
+  Downtown
+    M   Middle Village-Metropolitan Av
+    Q   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+
+Liberty Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Livonia Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Longwood Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Lorimer St (M J)
+  Queens
+    M   Middle Village-Metropolitan Av
+  Manhattan
+    M   Forest Hills-71 Av
+    J   Broad St
+
+Marble Hill-225 St (1)
+  The Bronx
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Marcy Av (M J Z)
+  Queens
+    M   Middle Village-Metropolitan Av
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    M   Forest Hills-71 Av
+    J   Broad St
+
+Metropolitan Av (G L)
+  Queens
+    G   Court Sq
+  Manhattan
+    L   8 Av
+  Brooklyn
+    G   Church Av
+    L   Canarsie-Rockaway Pkwy
+
+Mets-Willets Point (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+Middle Village-Metropolitan Av (M)
+  Manhattan
+    M   Forest Hills-71 Av
+
+Middletown Rd (6)
+  Pelham Bay
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Montrose Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Morgan Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Morris Park (5)
+  Eastchester
+    5   Eastchester-Dyre Av
+  Manhattan
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Morrison Av-Soundview (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Mosholu Pkwy (4)
+  Woodlawn
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Mt Eden Av (4)
+  The Bronx
+    4   Woodlawn
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+Myrtle Av (M J Z)
+  Queens
+    M   Middle Village-Metropolitan Av
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    M   Forest Hills-71 Av
+    J   Broad St
+
+Myrtle-Willoughby Avs (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Myrtle-Wyckoff Avs (M L)
+  Manhattan
+    M   Forest Hills-71 Av
+    L   8 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Nassau Av (G)
+  Queens
+    G   Court Sq
+  Brooklyn
+    G   Church Av
+
+Neck Rd (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Neptune Av (F)
+  Manhattan
+    F   Jamaica-179 St
+  Coney Island
+    F   Coney Island-Stillwell Av
+    FX  Coney Island-Stillwell Av
+
+Nereid Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Nevins St (2 3 4 5)
+  Manhattan
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+New Dorp (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+New Lots Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+New Lots Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+
+New Utrecht Av (D N)
+  Manhattan
+    D   Norwood-205 St
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    D   Coney Island-Stillwell Av
+    N   Coney Island-Stillwell Av
+
+Newkirk Av-Little Haiti (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Newkirk Plaza (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+Northern Blvd (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Norwood Av (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Norwood-205 St (D)
+  Manhattan
+    D   Coney Island-Stillwell Av
+
+Nostrand Av (A C)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+  Brooklyn
+    C   Euclid Av
+
+Nostrand Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  Brooklyn
+    3   New Lots Av
+
+Oakwood Heights (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Ocean Pkwy (Q)
+  Manhattan
+    Q   96 St
+  Coney Island
+    Q   Coney Island-Stillwell Av
+
+Old Town (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Ozone Park-Lefferts Blvd (A)
+  no trains
+
+Park Pl (S)
+  Franklin Av
+    S   Franklin Av
+  Prospect Park
+    S   Prospect Park
+
+Parkchester (6)
+  The Bronx
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Parkside Av (Q)
+  Manhattan
+    Q   96 St
+  Brooklyn
+    Q   Coney Island-Stillwell Av
+
+Parsons Blvd (F)
+  Jamaica
+    F   Jamaica-179 St
+  Manhattan
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Pelham Bay Park (6)
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Pelham Pkwy (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Nereid Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Pelham Pkwy (5)
+  Eastchester
+    5   Eastchester-Dyre Av
+  Manhattan
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Pennsylvania Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Pleasant Plains (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+President St-Medgar Evers College (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Prince St (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+Prince's Bay (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Tottenville
+
+Prospect Av (R)
+  Manhattan
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    R   Bay Ridge-95 St
+
+Prospect Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Prospect Park (B Q S)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Franklin Av
+    S   Franklin Av
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+Queens Plaza (E F R)
+  Queens
+    E   Jamaica Center-Parsons/Archer
+    F   Jamaica-179 St
+    R   Forest Hills-71 Av
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+
+Queensboro Plaza (7 N W)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Astoria
+    N   Astoria-Ditmars Blvd
+    W   Astoria-Ditmars Blvd
+  Manhattan
+    7   34 St-Hudson Yards
+    N   Coney Island-Stillwell Av
+    W   Whitehall St-South Ferry
+
+Ralph Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Rector St (R W)
+  Uptown
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+
+Rector St (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Richmond Valley (SIR)
+  Ferry
+    SIR St George
+  Tottenville
+    SIR Tottenville
+
+Rockaway Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Rockaway Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Rockaway Blvd (A)
+  Manhattan
+    A   Inwood-207 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+
+Rockaway Park-Beach 116 St (A S)
+  Manhattan
+    S   Broad Channel
+
+Roosevelt Island (M)
+  Queens
+    M   Forest Hills-71 Av
+  Downtown
+    M   Middle Village-Metropolitan Av
+
+Saratoga Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Seneca Av (M)
+  Manhattan
+    M   Forest Hills-71 Av
+  Middle Village
+    M   Middle Village-Metropolitan Av
+
+Sheepshead Bay (B Q)
+  Manhattan
+    B   Bedford Park Blvd
+    Q   96 St
+  Brooklyn
+    B   Brighton Beach
+    Q   Coney Island-Stillwell Av
+
+Shepherd Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Simpson St (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Smith-9 Sts (F G)
+  Manhattan
+    F   Jamaica-179 St
+  Queens
+    G   Court Sq
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    G   Church Av
+    E   Kings Hwy
+
+Spring St (C E)
+  Uptown
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+  Downtown
+    C   Euclid Av
+    E   World Trade Center
+
+Spring St (6)
+  Uptown
+    6   Parkchester
+    6X  Pelham Bay Park
+  Downtown
+    6   Brooklyn Bridge-City Hall
+
+St George (SIR)
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+St Lawrence Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Stapleton (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Steinway St (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Sterling St (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Sutphin Blvd (F)
+  Jamaica
+    F   Jamaica-179 St
+  Manhattan
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+
+Sutphin Blvd-Archer Av-JFK Airport (E J Z)
+  Jamaica
+    E   Jamaica Center-Parsons/Archer
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    E   Kings Hwy
+    E   World Trade Center
+    J   Broad St
+
+Sutter Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Sutter Av-Rutland Rd (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Times Sq-42 St (1 2 3 7 A C E N Q R W S)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    2   Wakefield-241 St
+    3   Harlem-148 St
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+    N   96 St
+    N   Astoria-Ditmars Blvd
+    Q   96 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Downtown
+    1   South Ferry
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    E   World Trade Center
+    N   Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+    R   Bay Ridge-95 St
+    W   Whitehall St-South Ferry
+  Hudson Yards
+    7   34 St-Hudson Yards
+  Grand Central
+    S   Grand Central-42 St
+
+Tompkinsville (SIR)
+  Ferry
+    SIR St George
+  South Shore
+    SIR Great Kills
+    SIR Tottenville
+
+Tottenville (SIR)
+  Ferry
+    SIR St George
+
+Tremont Av (B D)
+  The Bronx
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+  Manhattan
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+
+Union St (R)
+  Manhattan
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Brooklyn
+    R   Bay Ridge-95 St
+
+Utica Av (A C)
+  Manhattan
+    A   Inwood-207 St
+    C   168 St
+  Queens
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+  Brooklyn
+    C   Euclid Av
+
+Van Cortlandt Park-242 St (1)
+  Manhattan
+    1   South Ferry
+
+Van Siclen Av (C)
+  Manhattan
+    C   168 St
+  Brooklyn
+    C   Euclid Av
+
+Van Siclen Av (3)
+  Manhattan
+    3   Harlem-148 St
+    2   Wakefield-241 St
+  New Lots
+    3   New Lots Av
+    4   New Lots Av
+
+Van Siclen Av (J Z)
+  Queens
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Vernon Blvd-Jackson Av (7)
+  Queens
+    7   Flushing-Main St
+    7X  Flushing-Main St
+  Manhattan
+    7   34 St-Hudson Yards
+
+W 4 St-Wash Sq (A C E B D F M)
+  Uptown
+    A   Inwood-207 St
+    C   168 St
+    E   Jamaica Center-Parsons/Archer
+    B   Bedford Park Blvd
+    D   Norwood-205 St
+    F   Jamaica-179 St
+    M   Forest Hills-71 Av
+  Downtown
+    A   Far Rockaway-Mott Av
+    A   Howard Beach-JFK Airport
+    A   Rockaway Park-Beach 116 St
+    C   Euclid Av
+    E   Kings Hwy
+    E   World Trade Center
+    B   Brighton Beach
+    D   Coney Island-Stillwell Av
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    M   Middle Village-Metropolitan Av
+
+W 8 St-NY Aquarium (F Q)
+  Manhattan
+    F   Jamaica-179 St
+    Q   96 St
+  Coney Island
+    F   Coney Island-Stillwell Av
+    FX  Coney Island-Stillwell Av
+    Q   Coney Island-Stillwell Av
+
+WTC Cortlandt (1)
+  Uptown
+    1   Van Cortlandt Park-242 St
+  Downtown
+    1   South Ferry
+
+Wakefield-241 St (2)
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+
+Wall St (2 3)
+  Uptown
+    2   Wakefield-241 St
+    3   Harlem-148 St
+  Brooklyn
+    2   Flatbush Av-Brooklyn College
+    3   New Lots Av
+
+Wall St (4 5)
+  Uptown
+    4   Woodlawn
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Downtown
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+West Farms Sq-E Tremont Av (2 5)
+  The Bronx
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+  Manhattan
+    2   Flatbush Av-Brooklyn College
+    5   Bowling Green
+    5   Crown Hts-Utica Av
+    5   Flatbush Av-Brooklyn College
+
+Westchester Sq-E Tremont Av (6)
+  Pelham Bay
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Whitehall St-South Ferry (1 R W)
+  Uptown
+    1   Van Cortlandt Park-242 St
+    R   Forest Hills-71 Av
+    W   Astoria-Ditmars Blvd
+  Downtown
+    R   Bay Ridge-95 St
+
+Whitlock Av (6)
+  The Bronx
+    6   Parkchester
+  Manhattan
+    6   Brooklyn Bridge-City Hall
+
+Wilson Av (L)
+  Manhattan
+    L   8 Av
+  Brooklyn
+    L   Canarsie-Rockaway Pkwy
+
+Winthrop St (2 5)
+  Manhattan
+    2   Wakefield-241 St
+    5   Eastchester-Dyre Av
+    5   Nereid Av
+  Flatbush
+    2   Flatbush Av-Brooklyn College
+    5   Flatbush Av-Brooklyn College
+
+Woodhaven Blvd (M R)
+  Queens
+    M   Forest Hills-71 Av
+    R   Forest Hills-71 Av
+  Manhattan
+    M   Middle Village-Metropolitan Av
+    R   Bay Ridge-95 St
+
+Woodhaven Blvd (J Z)
+  Jamaica
+    J   Jamaica Center-Parsons/Archer
+    Z   Jamaica Center-Parsons/Archer
+  Manhattan
+    J   Broad St
+
+Woodlawn (4)
+  Manhattan
+    4   Crown Hts-Utica Av
+    4   New Lots Av
+
+York St (F)
+  Manhattan
+    F   Jamaica-179 St
+  Brooklyn
+    F   Coney Island-Stillwell Av
+    F   Kings Hwy
+    FX  Coney Island-Stillwell Av
+    E   Kings Hwy
+
+Zerega Av (6)
+  Pelham Bay
+    6X  Pelham Bay Park
+  Manhattan
+    6   Brooklyn Bridge-City Hall

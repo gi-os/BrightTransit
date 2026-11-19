@@ -1,87 +1,57 @@
 package com.thelightphone.subway.hw
 
 import android.view.KeyEvent
+import com.thelightphone.lp3Keyboard.ui.LightDeviceKeys
 
-/** The wheel's two directions, as they arrive from the sensor. */
+/** The wheel's two directions. */
 enum class LightKey {
-    /** Wheel turned towards the top of the phone. */
+    /** Turned towards the top of the phone. */
     WheelUp,
 
-    /** Wheel turned towards the bottom of the phone. */
+    /** Turned towards the bottom of the phone. */
     WheelDown,
 }
 
 /**
- * Recognising the LPIII's brightness wheel.
+ * Tells a turn of the Light Phone III's wheel from every other key.
  *
- * The wheel is not a rotary encoder. It is a `Pixart pat9126ja` optical sensor on
- * `/dev/input/event4` that emits one discrete DOWN+UP key pair per notch, roughly 35–60 ms
- * apart, so this is key handling and not `AXIS_SCROLL` / `onRotaryScrollEvent`.
+ * The wheel is not a rotary encoder. It is an optical sensor that sends one key press and
+ * release per notch, so a turn reaches the tool as ordinary key events and not as a scroll.
  *
- * Light patched `/system/usr/keylayout/Generic.kl` — the layout every input device on the
- * phone loads — to relabel five scancodes:
- *
- * ```
- * key 19    WHEEL_CCW      # wheel up      (Pixart, was R)
- * key 20    WHEEL_CW       # wheel down    (Pixart, was T)
- * key 66    WHEEL_CLICK    # wheel press   (gpio-keys, was F8)
- * key 80    FOCUS          # camera stage 1 (gpio-keys, was NUMPAD_2)
- * key 27    CAMERA         # camera stage 2 (gpio-keys, was RIGHT_BRACKET)
- * ```
- *
- * Nothing intercepts these in `PhoneWindowManager`; they are dispatched to the focused
- * window like any other key, which is why an app that ignores the keycode gets nothing —
- * and why handling it needs no root and no accessibility service.
- *
- * Only the turns are handled here. The wheel click and the camera button belong to
- * LightControl, which owns them across the whole phone and deliberately passes bare turns
- * through to apps like this one, because per-notch scrolling inside the app beats the
- * synthetic finger it would otherwise have to draw.
- *
- * `WHEEL_CCW`, `WHEEL_CW` and `WHEEL_CLICK` are not AOSP keycodes; Light added them, so
- * their integer values are Light's to change. Hence two ways in, in order:
- *
- *  1. Resolve the label to a keycode at runtime. [KeyEvent.keyCodeFromString] reads the
- *     same native label table the keylayout parser uses, so Light's additions resolve.
- *  2. Fall back to the raw Linux scancode, which is fixed by the hardware. Scancode 19 is
- *     also `r` on a Bluetooth keyboard, so that path is gated on the device name.
+ * LightOS gives the two directions key codes of their own, and the SDK lists them in
+ * [LightDeviceKeys], the table it reads to decide which keys go on to LightOS. That table
+ * is the first thing checked here. Two more ways in sit behind it, for a build of LightOS
+ * whose numbers differ from the SDK's: the names its key layout gives the two keys, looked
+ * up on the phone, and last the sensor's own scancodes.
  */
 object LightKeys {
 
-    // Linux scancodes, from `getevent -pl`. These are hardware, not software.
-    private const val SCAN_WHEEL_UP = 19 // KEY_R
-    private const val SCAN_WHEEL_DOWN = 20 // KEY_T
+    /** The wheel's sensor, as the phone names it. */
+    private const val WHEEL_SENSOR = "Pixart pat9126ja"
 
-    /** The wheel's own sensor. Nothing else may claim these scancodes. */
-    private val trustedDevices = setOf("Pixart pat9126ja")
+    /**
+     * What the sensor itself sends, whatever key codes are laid over it. A paired keyboard
+     * sends the same two numbers for R and T, so they only count from [WHEEL_SENSOR].
+     */
+    private val byScanCode = mapOf(19 to LightKey.WheelUp, 20 to LightKey.WheelDown)
 
-    private val byScanCode = mapOf(
-        SCAN_WHEEL_UP to LightKey.WheelUp,
-        SCAN_WHEEL_DOWN to LightKey.WheelDown,
-    )
-
+    /** Where the phone's own name for a key and the SDK's number disagree, the phone wins. */
     private val byKeyCode: Map<Int, LightKey> = buildMap {
-        putLabel("WHEEL_CCW", LightKey.WheelUp)
-        putLabel("WHEEL_CW", LightKey.WheelDown)
+        put(LightDeviceKeys.RotaryTurnUp.keyCode, LightKey.WheelUp)
+        put(LightDeviceKeys.RotaryTurnDown.keyCode, LightKey.WheelDown)
+        named("WHEEL_CCW")?.let { put(it, LightKey.WheelUp) }
+        named("WHEEL_CW")?.let { put(it, LightKey.WheelDown) }
     }
 
-    private fun MutableMap<Int, LightKey>.putLabel(label: String, key: LightKey) {
-        val code = runCatching { KeyEvent.keyCodeFromString(label) }
-            .getOrDefault(KeyEvent.KEYCODE_UNKNOWN)
-        if (code != KeyEvent.KEYCODE_UNKNOWN) put(code, key)
-    }
+    /** The key code LightOS gives a key name, or null on a build that has no such key. */
+    private fun named(label: String): Int? =
+        runCatching { KeyEvent.keyCodeFromString(label) }.getOrNull()
+            ?.takeIf { it != KeyEvent.KEYCODE_UNKNOWN }
 
-    /** Which control produced [event], or null if it wasn't one of ours. */
-    fun of(event: KeyEvent): LightKey? {
-        byKeyCode[event.keyCode]?.let { return it }
-        // Either the labels moved or this build doesn't have them. Trust the scancode,
-        // but only from the two devices that physically own these controls — otherwise a
-        // paired keyboard's `r` would scroll the article.
-        val device = event.device?.name ?: return null
-        if (device in trustedDevices) return byScanCode[event.scanCode]
-        return null
-    }
+    /** Which way the wheel turned, or null if [event] is some other key. */
+    fun of(event: KeyEvent): LightKey? = of(event.keyCode, event.scanCode, event.device?.name)
 
-    /** True if this build maps the wheel labels at all — useful for a settings readout. */
-    fun wheelLabelsPresent(): Boolean = byKeyCode.containsValue(LightKey.WheelUp)
+    /** The same answer from the three things it depends on, which a test can supply. */
+    fun of(keyCode: Int, scanCode: Int, device: String?): LightKey? =
+        byKeyCode[keyCode] ?: byScanCode[scanCode].takeIf { device == WHEEL_SENSOR }
 }

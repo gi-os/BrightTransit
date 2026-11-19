@@ -11,10 +11,17 @@ package com.thelightphone.subway.data
  *   FeedHeader       timestamp         = 3  (unix seconds the MTA built the feed)
  *   FeedEntity       id                = 1
  *                    trip_update       = 3
+ *                    vehicle           = 4
  *                    alert             = 5
  *   TripUpdate       trip              = 1
  *                    stop_time_update  = 2  (repeated, in the order the train runs)
- *   TripDescriptor   route_id          = 5
+ *   TripDescriptor   trip_id           = 1  ("085350_1..N15R")
+ *                    route_id          = 5
+ *                    MTA extension     = 1001, holding is_assigned = 2 (a train has the trip)
+ *   VehiclePosition  trip              = 1
+ *                    current_status    = 4  (0 coming in, 1 stopped, 2 on its way; often left out)
+ *                    timestamp         = 5  (unix seconds the train was last seen)
+ *                    stop_id           = 7  (the stop the status is about)
  *   StopTimeUpdate   arrival           = 2
  *                    departure         = 3
  *                    stop_id           = 4  ("L14N": parent stop + direction)
@@ -32,18 +39,40 @@ package com.thelightphone.subway.data
  *   Translation      text              = 1
  *                    language          = 2  ("en" or "en-html")
  *
- * Unlike the first version, a trip keeps its stops together and in order. That is what lets
- * the tool say where each train ends up.
+ * A trip keeps its stops together and in order. That is what lets the tool say where each
+ * train ends up. A train's trip and its position are separate entities in the same feed,
+ * tied together by the trip id.
  *
  * Trains and alerts come in separate feeds, so there is a reader for each: [parse] and [alerts].
  */
 object GtfsRealtime {
 
-    data class StopTime(val stopId: String, val time: Long)
+    /**
+     * One stop still to come, and when the train is due there. [departsOnly] marks a stop the
+     * feed gives a time to leave and no time to arrive: on the numbered lines and the L that
+     * is the stop a train's run starts at, for as long as the train has not moved.
+     */
+    data class StopTime(val stopId: String, val time: Long, val departsOnly: Boolean = false)
 
-    data class Trip(val route: String, val stops: List<StopTime>)
+    /**
+     * One train's stops still to come. [assigned] is the MTA's word that a train has been
+     * given the trip and is on its way or about to be. Without it the trip is only the
+     * timetable's: a time that can slip, or a train that never runs. A feed with none of the
+     * MTA's extensions cannot say either way, and its trains are taken as running.
+     */
+    data class Trip(val route: String, val stops: List<StopTime>, val assigned: Boolean = true, val id: String = "")
 
-    data class Feed(val timestamp: Long, val trips: List<Trip>)
+    enum class Status { INCOMING, STOPPED, MOVING }
+
+    /**
+     * Where the feed last had a train: at or on its way to [stopId], as of [timestamp].
+     * [status] is null when the feed does not say. What a position is worth differs from
+     * feed to feed, and is sorted out where it is used: see [Train].
+     */
+    data class Position(val stopId: String, val status: Status?, val timestamp: Long)
+
+    /** [positions] are by trip id. Not every trip has one. */
+    data class Feed(val timestamp: Long, val trips: List<Trip>, val positions: Map<String, Position> = emptyMap())
 
     /** When an alert applies, in unix seconds. An [end] of 0 means no end has been set. */
     data class Period(val start: Long, val end: Long)
@@ -132,12 +161,13 @@ object GtfsRealtime {
     fun parse(data: ByteArray): Feed {
         var timestamp = 0L
         val trips = ArrayList<Trip>()
+        val positions = HashMap<String, Position>()
         try {
             val r = Reader(data, 0, data.size)
             r.fields { field, wire ->
                 when {
                     field == 1 && wire == 2 -> timestamp = header(r.sub())
-                    field == 2 && wire == 2 -> entity(r.sub())?.let { trips.add(it) }
+                    field == 2 && wire == 2 -> entity(r.sub(), trips, positions)
                     else -> r.skip(wire)
                 }
             }
@@ -145,7 +175,7 @@ object GtfsRealtime {
             throw BadFeed("truncated")
         }
         if (timestamp == 0L && trips.isEmpty()) throw BadFeed("not a feed")
-        return Feed(timestamp, trips)
+        return Feed(timestamp, trips, positions)
     }
 
     private fun header(r: Reader): Long {
@@ -156,33 +186,69 @@ object GtfsRealtime {
         return timestamp
     }
 
-    private fun entity(r: Reader): Trip? {
-        var trip: Trip? = null
+    private fun entity(r: Reader, trips: MutableList<Trip>, positions: MutableMap<String, Position>) {
         r.fields { field, wire ->
-            if (field == 3 && wire == 2) trip = tripUpdate(r.sub()) else r.skip(wire)
+            when {
+                field == 3 && wire == 2 -> tripUpdate(r.sub())?.let { trips.add(it) }
+                field == 4 && wire == 2 -> vehicle(r.sub(), positions)
+                else -> r.skip(wire)
+            }
         }
-        return trip
     }
 
     private fun tripUpdate(r: Reader): Trip? {
+        var id = ""
         var route = ""
+        var assigned = true
         val stops = ArrayList<StopTime>()
         r.fields { field, wire ->
             when {
-                field == 1 && wire == 2 -> route = routeId(r.sub())
+                field == 1 && wire == 2 -> {
+                    val trip = r.sub()
+                    trip.fields { f, w ->
+                        when {
+                            f == 1 && w == 2 -> id = trip.string()
+                            f == 5 && w == 2 -> route = trip.string()
+                            f == 1001 && w == 2 -> assigned = isAssigned(trip.sub())
+                            else -> trip.skip(w)
+                        }
+                    }
+                }
                 field == 2 && wire == 2 -> stopTime(r.sub())?.let { stops.add(it) }
                 else -> r.skip(wire)
             }
         }
-        return if (route.isEmpty() || stops.isEmpty()) null else Trip(route, stops)
+        return if (route.isEmpty() || stops.isEmpty()) null else Trip(route, stops, assigned, id)
     }
 
-    private fun routeId(r: Reader): String {
-        var route = ""
+    /** A position that names no trip or no stop says nothing the tool can use, and is passed over. */
+    private fun vehicle(r: Reader, positions: MutableMap<String, Position>) {
+        var id = ""
+        var stopId = ""
+        var status: Status? = null
+        var timestamp = 0L
         r.fields { field, wire ->
-            if (field == 5 && wire == 2) route = r.string() else r.skip(wire)
+            when {
+                field == 1 && wire == 2 -> {
+                    val trip = r.sub()
+                    trip.fields { f, w -> if (f == 1 && w == 2) id = trip.string() else trip.skip(w) }
+                }
+                field == 4 && wire == 0 -> status = Status.entries.getOrNull(r.varint().toInt())
+                field == 5 && wire == 0 -> timestamp = r.varint()
+                field == 7 && wire == 2 -> stopId = r.string()
+                else -> r.skip(wire)
+            }
         }
-        return route
+        if (id.isNotEmpty() && stopId.isNotEmpty()) positions[id] = Position(stopId, status, timestamp)
+    }
+
+    /** For a trip no train has yet, the L's feed sends a zero and the others leave the field out. */
+    private fun isAssigned(r: Reader): Boolean {
+        var assigned = false
+        r.fields { field, wire ->
+            if (field == 2 && wire == 0) assigned = r.varint() != 0L else r.skip(wire)
+        }
+        return assigned
     }
 
     private fun stopTime(r: Reader): StopTime? {
@@ -198,7 +264,7 @@ object GtfsRealtime {
             }
         }
         val time = if (arrival > 0L) arrival else departure
-        return if (stopId.isEmpty() || time <= 0L) null else StopTime(stopId, time)
+        return if (stopId.isEmpty() || time <= 0L) null else StopTime(stopId, time, departsOnly = arrival <= 0L)
     }
 
     private fun eventTime(r: Reader): Long {

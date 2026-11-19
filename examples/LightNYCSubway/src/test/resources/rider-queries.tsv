@@ -1,0 +1,168 @@
+# What riders type into search, and the station that has to come first for it.
+# Three columns, tab-separated: the query, the station's name and, where more than one
+# station has that name, a line the right one serves. RiderQueriesTest reads every row.
+
+# What the README promises.
+14th Street Union Square	14 St-Union Sq
+Myrtle Broadway	Myrtle Av
+Port Authority	Times Sq-42 St
+Citi Field	Mets-Willets Point
+
+# Places people name instead of the station.
+penn	34 St-Penn Station
+penn station	34 St-Penn Station
+msg	34 St-Penn Station
+madison square garden	34 St-Penn Station
+times square	Times Sq-42 St
+port authority bus terminal	Times Sq-42 St
+grand central	Grand Central-42 St
+grand central terminal	Grand Central-42 St
+barclays	Atlantic Av-Barclays Ctr
+atlantic terminal	Atlantic Av-Barclays Ctr
+yankee stadium	161 St-Yankee Stadium
+coney island	Coney Island-Stillwell Av
+world trade center	Chambers St	E
+wtc	WTC Cortlandt
+columbus circle	59 St-Columbus Circle
+herald square	34 St-Herald Sq
+bryant park	42 St-Bryant Pk
+rockefeller center	47-50 Sts-Rockefeller Ctr
+lincoln center	66 St-Lincoln Center
+hudson yards	34 St-Hudson Yards
+javits	34 St-Hudson Yards
+brooklyn bridge	Brooklyn Bridge-City Hall
+city hall	City Hall
+south ferry	Whitehall St-South Ferry
+staten island ferry	Whitehall St-South Ferry
+museum of natural history	81 St-Museum of Natural History
+columbia university	116 St-Columbia University
+nyu	8 St-NYU
+washington square	W 4 St-Wash Sq
+brooklyn museum	Eastern Pkwy-Brooklyn Museum
+botanic garden	Franklin Av-Medgar Evers College
+us open	Mets-Willets Point
+aquarium	W 8 St-NY Aquarium
+east new york	Broadway Junction
+stonewall	Christopher St-Stonewall
+metrotech	Jay St-MetroTech
+
+# Names the MTA has replaced.
+central park north	110 St-Malcolm X Plaza
+sheridan square	Christopher St-Stonewall
+149 grand concourse	149 St-Hostos
+
+# Short forms.
+union sq	14 St-Union Sq
+w4	W 4 St-Wash Sq
+west 4th	W 4 St-Wash Sq
+rock center	47-50 Sts-Rockefeller Ctr
+lincoln ctr	66 St-Lincoln Center
+bway jct	Broadway Junction
+broadway junc	Broadway Junction
+bway laf	Broadway-Lafayette St
+ft hamilton	Fort Hamilton Pkwy
+mount eden	Mt Eden Av
+east 180th	E 180 St
+far rock	Far Rockaway-Mott Av
+coney	Coney Island-Stillwell Av
+boro hall	Borough Hall
+bklyn bridge	Brooklyn Bridge-City Hall
+queensborough plaza	Queensboro Plaza
+kings highway	Kings Hwy
+ave u	Avenue U
+crown heights	Crown Hts-Utica Av
+jackson heights	Jackson Hts-Roosevelt Av
+union turnpike	Kew Gardens-Union Tpke
+14st	14 St
+
+# Typos.
+grand centrl	Grand Central-42 St
+Mogran	Morgan Av
+bedfrod	Bedford Av
+union sqaure	14 St-Union Sq
+times sqare	Times Sq-42 St
+grand stret	Grand St
+park plce	Park Pl
+broadwya junction	Broadway Junction
+jamacia center	Jamaica Center-Parsons/Archer
+rockerfeller center	47-50 Sts-Rockefeller Ctr
+coney iland	Coney Island-Stillwell Av
+roosvelt island	Roosevelt Island
+hoyt schemerhorn	Hoyt-Schermerhorn Sts
+kosciusko	Kosciuszko St
+nickerbocker	Knickerbocker Av
+bleeker	Broadway-Lafayette St
+yankee stadum	161 St-Yankee Stadium
+wyckof	Myrtle-Wyckoff Avs
+flusing main	Flushing-Main St
+
+# Cross streets.
+53rd and lex	Lexington Av/53 St
+59th and lex	59 St	4
+63rd and lex	Lexington Av/63 St
+14th and 8th	14 St	A
+14th and 6th	14 St	F
+42nd and 5th	42 St-Bryant Pk
+57th and 7th	57 St-7 Av
+5th and 59th	5 Av/59 St
+53rd and 5th	5 Av/53 St
+smith and 9th	Smith-9 Sts
+4th ave 9th st	4 Av-9 St
+74th and broadway	Jackson Hts-Roosevelt Av
+delancey and essex	Delancey St-Essex St
+myrtle and wyckoff	Myrtle-Wyckoff Avs
+broadway lafayette	Broadway-Lafayette St
+bedford nostrand	Bedford-Nostrand Avs
+court st	Borough Hall
+cortlandt st	Chambers St	R
+14th and 1st	1 Av
+14th and 3rd	3 Av	L
+
+# A cross street that is the avenue the line runs under, which no station's name says.
+34th and 7th	34 St-Penn Station	1
+7th and 34th	34 St-Penn Station	1
+34th st and 7th ave	34 St-Penn Station	1
+34 st 7 av	34 St-Penn Station	1
+34th and 8th	34 St-Penn Station	A
+23rd and 6th	23 St	F
+23rd and 7th	23 St	1
+23rd and 8th	23 St	C
+42nd and 6th	42 St-Bryant Pk
+42nd and 8th	Times Sq-42 St
+50th and 6th	47-50 Sts-Rockefeller Ctr
+50th and 8th	50 St	C
+72nd and 2nd	72 St	Q
+96th and 2nd	96 St	Q
+86th and lex	86 St	4
+86 lex	86 St	4
+86th street and lexington avenue	86 St	4
+116th and lex	116 St	6
+125th and 8th	125 St	A
+86th and 4th	86 St	R
+59th and 4th	59 St	N
+
+# A name with a line, and plain names.
+14 st L 1	14 St	F
+8th ave L	14 St	A
+lorimer l	Metropolitan Av
+dekalb l	DeKalb Av	L
+fulton g	Fulton St	G
+86 st 4	86 St	4
+penn station 1 2 3	34 St-Penn Station	1
+fulton st	Fulton St	A
+canal st	Canal St	Q
+bedford ave	Bedford Av
+1st ave	1 Av
+jay st	Jay St-MetroTech
+roosevelt island	Roosevelt Island
+queens plaza	Queens Plaza
+queensboro plaza	Queensboro Plaza
+court square	Court Sq
+forest hills	Forest Hills-71 Av
+astoria ditmars	Astoria-Ditmars Blvd
+flushing main st	Flushing-Main St
+pelham bay	Pelham Bay Park
+van cortlandt	Van Cortlandt Park-242 St
+bay ridge 95	Bay Ridge-95 St
+sheepshead	Sheepshead Bay
+st george	St George

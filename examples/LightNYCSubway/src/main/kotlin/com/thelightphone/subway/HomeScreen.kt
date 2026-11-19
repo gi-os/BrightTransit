@@ -1,23 +1,28 @@
 package com.thelightphone.subway
 
 import android.view.KeyEvent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewModelScope
 import com.thelightphone.subway.data.SavedStore
 import com.thelightphone.subway.data.Catalog
+import com.thelightphone.subway.data.Ride
 import com.thelightphone.subway.hw.WheelBus
 import com.thelightphone.subway.hw.dispatch
-import com.thelightphone.subway.ui.FadeIn
+import com.thelightphone.subway.ui.Page
 import com.thelightphone.subway.ui.StationBoard
 import com.thelightphone.subway.ui.SubwayScreen
 import com.thelightphone.subway.ui.refreshButton
-import com.thelightphone.subway.ui.rememberNow
 import com.thelightphone.subway.ui.searchButton
 import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
@@ -28,6 +33,7 @@ import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
+import com.thelightphone.sdk.ui.LightThemeController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,7 +55,28 @@ class HomeViewModel(
     val favorites: StateFlow<Set<String>> =
         saved.favoriteRoutes.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
+    /** Whether the tool was closed in the middle of a ride. Home draws nothing until this is known. */
+    sealed interface Opening {
+        data object Checking : Opening
+
+        data object Home : Opening
+
+        /** A ride was left in progress. Its screen goes on top of Home, and asks after its train before it shows a ride that looks over. */
+        data class Resume(val ride: Ride) : Opening
+    }
+
+    private val _opening = MutableStateFlow<Opening>(Opening.Checking)
+    val opening: StateFlow<Opening> = _opening
+
+    /** Called once the ride's screen has been opened, so coming back to Home does not open it again. */
+    fun resumed() {
+        _opening.value = Opening.Home
+    }
+
     init {
+        viewModelScope.launch(Dispatchers.Default) {
+            _opening.value = saved.rideToResume(System.currentTimeMillis() / 1000)?.let(Opening::Resume) ?: Opening.Home
+        }
         viewModelScope.launch(Dispatchers.Default) {
             runCatching { saved.bringUpToDate(catalog()) }
             saved.stationIds.collect { ids ->
@@ -90,6 +117,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
     }
 
     private val wheel = WheelBus()
+    private val page = Page()
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent) =
         wheel.dispatch(event) || super.onKeyDown(keyCode, event)
@@ -99,10 +127,25 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
 
     @Composable
     override fun Content() {
+        val tool = toolManifest()
         val lastCrash = remember { CrashReporter.lastCrash() }
-        var showCrash by remember { mutableStateOf(lastCrash != null) }
+        var showCrash by remember { mutableStateOf(tool.debuggable && lastCrash != null) }
         if (showCrash && lastCrash != null) {
             CrashReport(lastCrash) { CrashReporter.clear(); showCrash = false }
+            return
+        }
+
+        // The one time the tool opens anywhere but here: on a ride that was in progress
+        // when it was closed. Home is underneath, and back from the ride lands on it.
+        val opening by viewModel.opening.collectAsState()
+        LaunchedEffect(opening) {
+            (opening as? HomeViewModel.Opening.Resume)?.let { resume ->
+                viewModel.resumed()
+                navigateTo({ RideScreen(it, resume.ride, resumed = true) })
+            }
+        }
+        if (opening != HomeViewModel.Opening.Home) {
+            Box(Modifier.fillMaxSize().background(LightThemeController.colors.collectAsState().value.background))
             return
         }
 
@@ -111,11 +154,13 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
         val favorites by viewModel.favorites.collectAsState()
         val refreshing by viewModel.live.refreshing.collectAsState()
         val snapshot by viewModel.live.alerts.collectAsState()
-        val now by rememberNow()
+        val now by viewModel.live.now.collectAsState()
 
         SubwayScreen(
-            title = "Subway Times",
+            // The tool's own name, as LightOS lists it. The word is only for a build whose name cannot be read.
+            title = tool.label ?: "Subway",
             wheel = wheel,
+            page = page,
             bottom = listOf(
                 LightBarButton.LightIcon(
                     icon = LightIcons.DIRECTIONS_ARRIVAL,
@@ -127,12 +172,12 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
             ),
             refreshing = refreshing,
             message = if (ready && boards.isEmpty()) {
-                "No saved stations yet.\n\nSearch to find your favorite stops and save them for easy access."
+                "No saved stations yet.\n\nSearch to find your stations and save them for easy access."
             } else {
                 null
             },
         ) {
-            boards.forEachIndexed { index, board ->
+            boards.forEach { board ->
                 key(board.station.id) {
                     val station = board.station
                     // Station notices are left for the station page. A closed entrance can
@@ -140,26 +185,25 @@ class HomeScreen(sealedActivity: SealedLightActivity) :
                     val alerts = remember(snapshot, station.id, now) {
                         snapshot.at(station, now).filterNot { it.notice }
                     }
-                    FadeIn(order = index) {
-                        StationBoard(
-                            board = board,
-                            nowSeconds = now,
-                            favorites = favorites,
-                            onOpen = { navigateTo({ StationScreen(it, station.id) }) },
-                            alerts = alerts,
-                        )
-                    }
+                    StationBoard(
+                        board = board,
+                        nowSeconds = now,
+                        favorites = favorites,
+                        onOpen = { navigateTo({ StationScreen(it, station.id) }) },
+                        alerts = alerts,
+                    )
                 }
             }
         }
     }
 
-    /** The last crash, readable on the phone itself, which has no easy way to pull a log. */
+    /** The last crash, readable on the phone itself. Only a build made for development shows it. */
     @Composable
     private fun CrashReport(trace: String, onDismiss: () -> Unit) {
         SubwayScreen(
             title = "Last error",
             wheel = wheel,
+            page = remember { Page() },
             bottom = listOf(LightBarButton.Text(text = "DISMISS", onClick = onDismiss)),
         ) {
             LightText(text = trace, variant = LightTextVariant.Detail)
