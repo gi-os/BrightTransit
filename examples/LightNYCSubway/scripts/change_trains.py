@@ -29,7 +29,7 @@ C4. The second train is one direct_trains.py would board at that station X going
 C5. The change from the platform the first train is left at to the one the second leaves from
     must be in X's "changes" in stations.json (from transfers.txt; see build_stations.py), or
     be on one platform, which is 180 seconds when not listed. The second train leaves at
-    least that long and 60 seconds more after the first gets there.
+    least that long and 240 seconds more after the first gets there.
 C6. For each first train and station X, the second train that gets there first is taken, the
     sooner to leave on a tie. Its lines are those of the second trains at X that pass C4 and
     C5, leave from the same platform and get there no more than five minutes after it: its
@@ -54,7 +54,7 @@ spec = importlib.util.spec_from_file_location("direct_trains", DT_PATH)
 dt = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dt)
 
-SPARE = 60
+SPARE = 240
 DEFAULT_WALK = 180
 
 

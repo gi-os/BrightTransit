@@ -279,11 +279,11 @@ class LivePlanTest {
         val none = planned(morgan, Fixtures.station("St George"))
         assertEquals(WayHere.NoTrain, WayHere.of(none, phone.now))
         assertEquals(WayHere.NoTrain, WayHere.of(none.copy(loading = true), phone.now))
-        // No train runs direct, but one does with a change: the L to Union Sq, then the Broadway lines. That is named instead.
+        // No train runs direct, but one does with a change: the L to 6 Av, then the 1, 2 or 3 at 14 St. That is named instead.
         val changed = assertIs<WayHere.Changed>(WayHere.of(planned(morgan, Fixtures.station("Times Sq-42 St")), phone.now))
-        assertEquals("14 St-Union Sq", changed.first.at.name)
+        assertEquals("14 St", changed.first.at.name)
         assertEquals("L", changed.first.first.route)
-        assertTrue(changed.first.second.route in setOf("N", "Q", "R", "W"), changed.first.second.route)
+        assertEquals(listOf("2", "1", "3"), changed.first.lines)
         assertEquals(emptyList(), changed.unchecked)
         assertTrue(changed.checked)
         // A line that could not be checked is named, unless the answer is still on its way.
@@ -309,8 +309,8 @@ class LivePlanTest {
         // No line runs between them, so there is nothing unchecked to wait for. But its own feeds have not been looked in yet.
         assertEquals(WayHere.Checking, WayHere.of(way.following.value, phone.now))
         way.resume()
-        // Then it is said: no direct train, and the way with a change at Union Sq.
-        assertEquals("14 St-Union Sq", assertIs<WayHere.Changed>(WayHere.of(way.following.value, phone.now)).first.at.name)
+        // Then it is said: no direct train, and the way with a change at 14 St.
+        assertEquals("14 St", assertIs<WayHere.Changed>(WayHere.of(way.following.value, phone.now)).first.at.name)
     }
 
     @Test

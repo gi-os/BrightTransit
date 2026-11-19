@@ -393,9 +393,19 @@ object Planner {
     /**
      * Time over the MTA's least time to change that a change must leave, or it is not
      * offered. The MTA's times are for walking between platforms; this is for the first
-     * train coming in a little late, and the second leaving a little early.
+     * train coming in late, and the second leaving early.
+     *
+     * Measured on a recording of every feed made on Thursday 19 November 2026 from 12:57 PM,
+     * one download every half minute: 300 pairs of stations asked every two minutes for 50
+     * minutes, each way offered followed to see whether the rider, off the first train,
+     * could walk the MTA's time to the second before it left. With no time over, 88.7% of
+     * the ways offered held as named; with one minute, 92.4%; three, 96.0%; four, 97.1%.
+     * Where both trains were moving trains it was 98.4% at four minutes, as often as a
+     * rider makes the direct train they were offered (98.1% on the same recording). Four
+     * minutes cost 2% of the ways offered. The ride shows the trains from the change when
+     * the rider gets there, so a train that comes sooner is not lost.
      */
-    const val SPARE = 60L
+    const val SPARE = 240L
 
     /**
      * The ways from the station [boarded] are listed at to the platforms in [goal] with one

@@ -51,25 +51,25 @@ class ChangesTest {
 
     @Test
     fun withNoDirectTrainTheWaysWithAChangeThatGetThereSoonestAreOffered() {
-        // Jay St to Grand Central: the C to Fulton St for the 4, or the F to Broadway-Lafayette St for the 6.
+        // Jay St to Grand Central: the C to Fulton St for the 4 or 5, or the F to Broadway-Lafayette St for the 6.
         assertEquals(
             listOf(
-                "C 065600_C..N04R 11:21:56 Fulton St 11:26:56 | 4 067200_4..N06R 11:31:02 11:41:02 walk=180 lines=4",
-                "F 063550_F..N54R 11:20:39 Broadway-Lafayette St 11:28:49 | 6 069000_6..N03R 11:34:30 11:43:30 walk=180 lines=6",
+                "C 065600_C..N04R 11:21:56 Fulton St 11:26:56 | 4 067650_4..N06R 11:34:30 11:44:30 walk=180 lines=4,5",
+                "F 063550_F..N54R 11:20:39 Broadway-Lafayette St 11:28:49 | 6 069400_6..N01R 11:38:30 11:47:30 walk=180 lines=6",
             ),
             plan("636", "610").offered(),
         )
-        // Bedford Av to Times Sq: the L to Union Sq, then whichever of the Broadway lines comes.
+        // Bedford Av to Times Sq: the L to 14 St, then whichever of the 1, 2 or 3 comes.
         assertEquals(
-            listOf("L 064850_L..N 11:22:45 14 St-Union Sq 11:29:15 | W 068150_N..N72R 11:33:47 11:40:17 walk=180 lines=W,N,Q,R"),
+            listOf("L 064850_L..N 11:22:45 14 St 11:30:45 | 1 068800_1..N15R 11:38:30 11:45:00 walk=180 lines=1,2,3"),
             plan("120", "611").offered(),
         )
         assertEquals(
-            listOf("7 068100_7..S 11:21:00 Jackson Hts-Roosevelt Av 11:32:10 | E 068100_E..S71R 11:37:00 11:46:30 walk=180 lines=E,F"),
+            listOf("7 068100_7..S 11:21:00 Jackson Hts-Roosevelt Av 11:32:10 | F 068150_F..S54R 11:41:00 11:50:30 walk=180 lines=F,E"),
             plan("447", "612").offered(),
         )
         assertEquals(
-            listOf("6 064450_6..S03R 11:22:27 14 St-Union Sq 11:28:27 | L 069050_L..S 11:33:15 11:46:15 walk=180 lines=L"),
+            listOf("6 064450_6..S03R 11:22:27 14 St-Union Sq 11:28:27 | L 069450_L..S 11:37:15 11:50:15 walk=180 lines=L"),
             plan("610", "125").offered(),
         )
         assertEquals(
@@ -85,9 +85,9 @@ class ChangesTest {
             listOf("A 065500_A..S58R 11:20:44 14 St 11:24:49 | L 069050_L..S 11:30:30 11:39:15 walk=90 lines=L"),
             plan("611", "120").offered(),
         )
-        // The 42 St shuttle, from the 3 at Times Sq.
+        // From the 3 at Times Sq, the 7 is the one that makes the change with time over; the shuttle before it is too soon.
         assertEquals(
-            listOf("3 066850_3..S06R 11:22:17 Times Sq-42 St 11:29:17 | GS 069550_GS.S01R 11:35:30 11:37:00 walk=180 lines=S"),
+            listOf("3 066850_3..S06R 11:22:17 Times Sq-42 St 11:29:17 | 7 069600_7..N 11:38:10 11:41:10 walk=180 lines=7"),
             plan("310", "610").offered(),
         )
         // Every way found leaves the MTA's time to change and a minute over, through a change the MTA lists.
@@ -135,11 +135,10 @@ class ChangesTest {
     fun aWayThatGetsThereWellAfterAnotherIsNotOfferedHoweverSoonItLeaves() {
         val plan = plan("125", "611")
         // Morgan Av to Times Sq: the L the other way to Broadway Junction leaves a minute sooner, and gets there half an hour later.
-        // The R and W from Union Sq are named nowhere: they would get there more than five minutes after the N.
         val wrongWay = plan.changes.single { it.first.train.id == "066650_L..S" && it.at.name == "Broadway Junction" }
         assertEquals("L 066650_L..S 11:21:57 Broadway Junction 11:32:57 | A 065800_A..N55R 11:45:21 12:15:51 walk=180 lines=A,C", wrongWay.said())
         assertEquals(
-            listOf("L 066050_L..N 11:22:55 14 St-Union Sq 11:36:25 | N 065400_N..N33R 11:40:33 11:46:03 walk=180 lines=N,Q"),
+            listOf("L 066050_L..N 11:22:55 14 St-Union Sq 11:36:25 | Q 065450_Q..N36R 11:43:34 11:48:34 walk=180 lines=Q,N,R,W"),
             plan.offered(),
         )
     }
@@ -159,19 +158,19 @@ class ChangesTest {
         // Canal St on the 6 to Court Sq: no train runs direct, so the way with a change is offered on its own.
         assertTrue(plan("623", "606").view(now) is Plan.View.None)
         assertEquals(
-            listOf("R 063900_R..N93R 11:22:02 34 St-Herald Sq 11:32:17 | F 063550_F..N54R 11:37:04 11:47:19 walk=180 lines=F"),
+            listOf("R 063900_R..N93R 11:22:02 Times Sq-42 St 11:34:02 | 7 070100_7..N 11:43:10 11:53:40 walk=180 lines=7"),
             plan("623", "606").offered(),
         )
-        // Flushing to Times Sq: the 7 runs all the way, and gets there at noon. Off the same 7 at Jackson Hts, the E is
-        // there six minutes sooner, so it is offered beside the direct trains.
-        val flushing = plan("447", "611")
-        assertEquals("12:00:10", clock((flushing.view(now) as Plan.View.Trains).choices.filter { it.arrives > 0 }.minOf { it.arrives }))
+        // 49 St to Beverley Rd: the one direct train is a Q only the timetable has, there at 12:10. The R to Herald Sq
+        // and the Q across the platform there is 11 minutes sooner, so it is offered beside it.
+        val beverley = plan("10", "45")
+        assertEquals("12:10:42", clock((beverley.view(now) as Plan.View.Trains).choices.filter { it.arrives > 0 }.minOf { it.arrives }))
         assertEquals(
-            listOf("7 068100_7..S 11:21:00 Jackson Hts-Roosevelt Av 11:32:10 | E 068100_E..S71R 11:37:00 11:54:00 walk=180 lines=E"),
-            flushing.offered(),
+            listOf("R 064700_R..S71R 11:20:44 34 St-Herald Sq 11:23:35 | Q 068016_Q..S36R 11:31:56 11:59:41 walk=0 lines=Q"),
+            beverley.offered(),
         )
         // With direct trains to go by and no time there for any of them, nothing says a change is sooner: none is offered.
-        val untimed = flushing.copy(trains = flushing.trains.map { it.copy(arrives = 0) })
+        val untimed = beverley.copy(trains = beverley.trains.map { it.copy(arrives = 0) })
         assertTrue(untimed.view(now) is Plan.View.Trains)
         assertEquals(emptyList(), untimed.offered())
     }
@@ -200,9 +199,9 @@ class ChangesTest {
         assertEquals("Leaves in about 1 min", words.leaves)
         // The clock is the phone's, so the time is written as the phone writes it.
         assertEquals("Arrives about ${clockLabel(way.arrives)}", words.arrives)
-        assertEquals("11:41:02", clock(way.arrives))
-        assertEquals("Change at Fulton St to the 4", words.detail.replace('\u00A0', ' '))
-        assertEquals("4 min to change  ·  5 stops", words.more?.replace('\u00A0', ' '))
+        assertEquals("11:44:30", clock(way.arrives))
+        assertEquals("Change at Fulton St to the 4 or 5", words.detail.replace('\u00A0', ' '))
+        assertEquals("7 min to change  ·  5 stops", words.more?.replace('\u00A0', ' '))
         assertEquals(null, words.warning)
         assertTrue(words.sure)
         // A second train that is only the timetable's is said to be, and its time is given with "at".
